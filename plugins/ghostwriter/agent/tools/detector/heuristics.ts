@@ -21,10 +21,15 @@
  */
 
 import { spawn } from 'child_process';
-import { join } from 'path';
+import { join, dirname } from 'path';
 import { runCLI } from '../lib/cli-utils';
 import type { ResolvedWritingConfig } from '../config/schemas';
 import { serializeConfigForEnv } from '../lib/config-loader';
+
+// Resolve paths relative to this file's location, not process.cwd()
+// This is critical for plugin usage where cwd is the user's project, not the plugin dir
+const SCRIPT_DIR = dirname(new URL(import.meta.url).pathname);
+const PLUGIN_ROOT = join(SCRIPT_DIR, '..', '..', '..');
 
 // Heuristics weights from research (tool-specifications.md)
 // binoculars (0.20) + fast_detectgpt (0.15) replace old detectgpt + perplexity
@@ -40,7 +45,7 @@ const HEURISTICS_WEIGHTS = {
   structure: 0.05,
 } as const;
 
-// Tool paths relative to project root
+// Tool paths relative to plugin root (resolved via PLUGIN_ROOT, not cwd)
 const TOOL_PATHS = {
   vocabulary: 'agent/tools/detector/vocabulary-scan.ts',
   punctuation: 'agent/tools/detector/unicode-punctuation-scan.ts',
@@ -97,7 +102,7 @@ async function runTypeScriptTool(
   const startTime = performance.now();
 
   return new Promise((resolve, reject) => {
-    const absolutePath = join(process.cwd(), toolPath);
+    const absolutePath = join(PLUGIN_ROOT, toolPath);
     // Config is passed via WRITING_CONFIG env var
     const proc = spawn('bun', [absolutePath, text], {
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -158,8 +163,8 @@ async function runPythonTool(
   const startTime = performance.now();
 
   return new Promise((resolve, reject) => {
-    const absolutePath = join(process.cwd(), toolPath);
-    const runPythonScript = join(process.cwd(), 'agent/tools/run-python.sh');
+    const absolutePath = join(PLUGIN_ROOT, toolPath);
+    const runPythonScript = join(PLUGIN_ROOT, 'agent/tools/run-python.sh');
 
     const proc = spawn(runPythonScript, [absolutePath, text], {
       stdio: ['pipe', 'pipe', 'pipe'],

@@ -1,5 +1,5 @@
 ---
-name: authors
+name: gw-authors
 description: List, add, remove, or show author profiles
 argument-hint: [list|add|remove|show] [author-slug]
 ---
@@ -13,16 +13,16 @@ An "author" is a persona — it can represent a real person, a team, or a brand 
 ## Usage
 
 ```bash
-/ghostwriter:authors                    # List all authors
-/ghostwriter:authors list               # Same as above
-/ghostwriter:authors add                # Add a new author (interactive)
-/ghostwriter:authors remove <slug>      # Remove an author
-/ghostwriter:authors show <slug>        # Show author details
+/ghostwriter:gw-authors                    # List all authors
+/ghostwriter:gw-authors list               # Same as above
+/ghostwriter:gw-authors add                # Add a new author (interactive)
+/ghostwriter:gw-authors remove <slug>      # Remove an author
+/ghostwriter:gw-authors show <slug>        # Show author details
 ```
 
 ## Prerequisites
 
-Ensure `.ghostwriter/` exists. If not, run `/ghostwriter:setup` first.
+Ensure `.ghostwriter/` exists. If not, run `/ghostwriter:gw-setup` first.
 
 ## Commands
 
@@ -52,7 +52,7 @@ Authors:
     Publications: developer-docs
 ```
 
-If no authors exist, display: "No authors found. Run `/ghostwriter:authors add` or `/ghostwriter:setup` to create one."
+If no authors exist, display: "No authors found. Run `/ghostwriter:gw-authors add` or `/ghostwriter:gw-setup` to create one."
 
 ### add
 
@@ -89,7 +89,7 @@ Display: "Author '{name}' created at .ghostwriter/authors/{slug}/"
 ### remove
 
 ```bash
-/ghostwriter:authors remove <slug>
+/ghostwriter:gw-authors remove <slug>
 ```
 
 First, check if any publications reference this author:
@@ -122,7 +122,7 @@ Display: "Author '{slug}' removed."
 ### show
 
 ```bash
-/ghostwriter:authors show <slug>
+/ghostwriter:gw-authors show <slug>
 ```
 
 Read and display `.ghostwriter/authors/{slug}/author-persona.yml`.
@@ -149,4 +149,4 @@ Learned patterns: {N} patterns accumulated
   File: .ghostwriter/authors/{slug}/learned-patterns.md
 ```
 
-If the slug doesn't exist, display: "Author '{slug}' not found. Run `/ghostwriter:authors list` to see available authors."
+If the slug doesn't exist, display: "Author '{slug}' not found. Run `/ghostwriter:gw-authors list` to see available authors."

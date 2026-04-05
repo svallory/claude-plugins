@@ -1,5 +1,5 @@
 ---
-name: audit
+name: gw-audit
 description: Scan all files in a publication for AI signals and report which need work
 argument-hint: <publication> [--threshold N] [--format table|detailed] [--force]
 ---
@@ -11,10 +11,10 @@ Scans all content files in a publication, runs the detector on each, and produce
 ## Usage
 
 ```bash
-/ghostwriter:audit developer-docs
-/ghostwriter:audit developer-docs --threshold 40
-/ghostwriter:audit developer-docs --format detailed
-/ghostwriter:audit developer-docs --force            # Re-scan all files, ignore cache
+/ghostwriter:gw-audit developer-docs
+/ghostwriter:gw-audit developer-docs --threshold 40
+/ghostwriter:gw-audit developer-docs --format detailed
+/ghostwriter:gw-audit developer-docs --force            # Re-scan all files, ignore cache
 ```
 
 ## Arguments
@@ -32,7 +32,7 @@ Scans all content files in a publication, runs the detector on each, and produce
 eval "$(ghostwriter-env.sh)"
 ```
 
-Ensure `.ghostwriter/` exists. If not, run `/ghostwriter:setup` first.
+Ensure `.ghostwriter/` exists. If not, run `/ghostwriter:gw-setup` first.
 
 ## Process
 
@@ -47,7 +47,7 @@ CACHE_FILE="$AUDIT_DIR/cache.json"
 REPORT_FILE="$PUB_DIR/audit-report.md"
 ```
 
-Verify `$PUB_DIR` exists and contains `config.yml`. If not: "Publication '{PUB_NAME}' not found. Run `/ghostwriter:publications list` to see available publications."
+Verify `$PUB_DIR` exists and contains `config.yml`. If not: "Publication '{PUB_NAME}' not found. Run `/ghostwriter:gw-publications list` to see available publications."
 
 ### Step 2: Resolve Content Files
 
@@ -280,14 +280,14 @@ Cache saved to:  {CACHE_FILE}
 
 Next steps:
   # Fix worst file first
-  /ghostwriter:humanize guides/advanced-config.md {publication}
+  /ghostwriter:gw-humanize guides/advanced-config.md {publication}
 
   # Or batch humanize all files needing work
-  /ghostwriter:humanize-all {publication}
+  /ghostwriter:gw-humanize-all {publication}
 
   # Re-audit after changes (only re-scans modified files)
-  /ghostwriter:audit {publication}
+  /ghostwriter:gw-audit {publication}
 
   # Force full re-scan
-  /ghostwriter:audit {publication} --force
+  /ghostwriter:gw-audit {publication} --force
 ```

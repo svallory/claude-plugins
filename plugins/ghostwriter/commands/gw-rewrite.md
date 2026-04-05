@@ -1,5 +1,5 @@
 ---
-name: rewrite
+name: gw-rewrite
 description: Rewrite text to sound more authentically human
 disable-model-invocation: false
 argument-hint: <input-file> [output-file] [publication|config] [--model MODEL]
@@ -13,7 +13,7 @@ Rewrites text to sound more authentically human using the writer agent.
 
 Before running, ensure:
 1. The ghostwriter plugin is loaded (`ghostwriter-env.sh` must be on PATH)
-2. Run `/ghostwriter:setup` if `.ghostwriter/` directory doesn't exist
+2. Run `/ghostwriter:gw-setup` if `.ghostwriter/` directory doesn't exist
 
 Set up the plugin root for tool invocations:
 ```bash
@@ -42,9 +42,9 @@ When using a publication name:
 ## Usage
 
 ```bash
-/ghostwriter:rewrite input.md output.md
-/ghostwriter:rewrite guides/getting-started.md developer-docs
-/ghostwriter:rewrite input.md output.md path/to/config.yml
+/ghostwriter:gw-rewrite input.md output.md
+/ghostwriter:gw-rewrite guides/getting-started.md developer-docs
+/ghostwriter:gw-rewrite input.md output.md path/to/config.yml
 ```
 
 ## Arguments

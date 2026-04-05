@@ -1,5 +1,5 @@
 ---
-name: humanize
+name: gw-humanize
 description: Run iterative text revision sessions
 disable-model-invocation: true
 argument-hint: <input-file> [output-file] [publication|config] [--session DIR] [max-rounds=N]
@@ -17,7 +17,7 @@ This command uses `disable-model-invocation: true` to prevent auto-loading. The 
 
 Before running, ensure:
 1. The ghostwriter plugin is loaded (`ghostwriter-env.sh` must be on PATH)
-2. Run `/ghostwriter:setup` if `.ghostwriter/` directory doesn't exist
+2. Run `/ghostwriter:gw-setup` if `.ghostwriter/` directory doesn't exist
 
 Set up the plugin root for tool invocations:
 ```bash
@@ -46,9 +46,9 @@ When using a publication name:
 ## Usage
 
 ```bash
-/ghostwriter:humanize input.md output.md path/to/config.yml
-/ghostwriter:humanize guides/getting-started.md developer-docs
-/ghostwriter:humanize-all developer-docs
+/ghostwriter:gw-humanize input.md output.md path/to/config.yml
+/ghostwriter:gw-humanize guides/getting-started.md developer-docs
+/ghostwriter:gw-humanize-all developer-docs
 ```
 
 ## Arguments

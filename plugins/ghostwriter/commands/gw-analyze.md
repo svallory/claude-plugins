@@ -1,5 +1,5 @@
 ---
-name: analyze
+name: gw-analyze
 description: Analyze text to determine if it was written by a human or AI
 disable-model-invocation: true
 argument-hint: <text-file> [publication|config] [--model MODEL]
@@ -13,7 +13,7 @@ Analyzes text to determine if it was written by a human or AI using the slop-det
 
 Before running, ensure:
 1. The ghostwriter plugin is loaded (`ghostwriter-env.sh` must be on PATH)
-2. Run `/ghostwriter:setup` if `.ghostwriter/` directory doesn't exist
+2. Run `/ghostwriter:gw-setup` if `.ghostwriter/` directory doesn't exist
 
 Set up the plugin root for tool invocations:
 ```bash
@@ -42,9 +42,9 @@ When using a publication name:
 ## Usage
 
 ```bash
-/ghostwriter:analyze path/to/text.md
-/ghostwriter:analyze guides/getting-started.md developer-docs
-/ghostwriter:analyze path/to/text.md path/to/config.yml
+/ghostwriter:gw-analyze path/to/text.md
+/ghostwriter:gw-analyze guides/getting-started.md developer-docs
+/ghostwriter:gw-analyze path/to/text.md path/to/config.yml
 ```
 
 ## Arguments

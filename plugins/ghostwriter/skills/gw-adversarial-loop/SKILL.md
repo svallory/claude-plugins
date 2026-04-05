@@ -1,5 +1,5 @@
 ---
-name: adversarial-loop
+name: gw-adversarial-loop
 description: Orchestrates Writer vs Detector adversarial training rounds
 user-invocable: true
 ---

@@ -1,5 +1,5 @@
 ---
-name: rewrite-all
+name: gw-rewrite-all
 description: Rewrite all .md files in a folder to sound more authentically human
 user-invocable: true
 ---

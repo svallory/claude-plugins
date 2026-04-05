@@ -1,5 +1,5 @@
 ---
-name: surgical-update
+name: gw-surgical-update
 description: Apply targeted fixes to specific sentences without regenerating entire text
 user-invocable: false
 tools: Read, Write, Bash

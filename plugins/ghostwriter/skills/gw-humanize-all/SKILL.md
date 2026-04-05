@@ -1,5 +1,5 @@
 ---
-name: humanize-all
+name: gw-humanize-all
 description: Humanize all .md files in a folder by running the humanize loop for each file
 user-invocable: true
 ---

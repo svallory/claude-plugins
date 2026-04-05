@@ -16,7 +16,7 @@ Orchestrates adversarial training between Writer and Detector agents. The Writer
 
 With config (recommended — provides author voice, thresholds, and detection rules):
 ```
-/adversarial-loop --config publications/{slug}/config.yml "Write about remote work"
+/adversarial-loop --config .ghostwriter/publications/{slug}/config.yml "Write about remote work"
 ```
 
 With ad-hoc overrides (no config file):

@@ -49,8 +49,8 @@ When creating or updating learned patterns, choose the correct file based on sco
 | Universal (all writing) | `.ghostwriter/learned-patterns/global.md` | "Never use 'delve'" |
 | Medium-specific | `.ghostwriter/learned-patterns/{media}.md` | "Blog posts should include tangents" |
 | Medium+style-specific | `.ghostwriter/learned-patterns/{media}-{style}.md` | "Technical books need high semicolons" |
-| Author voice/preference | `authors/{slug}/learned-patterns.md` | "This author prefers dry humor" |
-| This specific publication | `publications/{slug}/learned-patterns.md` | "Chapter callbacks to the opening" |
+| Author voice/preference | `.ghostwriter/authors/{slug}/learned-patterns.md` | "This author prefers dry humor" |
+| This specific publication | `.ghostwriter/publications/{slug}/learned-patterns.md` | "Chapter callbacks to the opening" |
 
 Create files as needed. If `book-technical.md` doesn't exist and you discover a pattern specific to technical books, create it.
 
@@ -118,8 +118,8 @@ $GHOSTWRITER_ROOT/commands/
 ├── {media}.md
 └── {media}-{style}.md
 
-authors/{slug}/learned-patterns.md     # Author-specific patterns
-publications/{slug}/learned-patterns.md # Publication-specific patterns
+.ghostwriter/authors/{slug}/learned-patterns.md     # Author-specific patterns
+.ghostwriter/publications/{slug}/learned-patterns.md # Publication-specific patterns
 
 research/                              # Reference material
 ```

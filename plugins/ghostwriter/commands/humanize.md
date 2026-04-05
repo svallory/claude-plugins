@@ -2,7 +2,7 @@
 name: humanize
 description: Run iterative text revision sessions
 disable-model-invocation: true
-argument-hint: <input-file> <output-file> <config> [--session DIR] [max-rounds=N]
+argument-hint: <input-file> [output-file] [publication|config] [--session DIR] [max-rounds=N]
 ---
 
 # Humanize Command
@@ -17,37 +17,56 @@ This command uses `disable-model-invocation: true` to prevent auto-loading. The 
 
 Before running, ensure:
 1. The ghostwriter plugin is loaded (`ghostwriter-env.sh` must be on PATH)
-2. Run `/ghostwriter:setup` if `.ghostwriter/config.json` doesn't exist
+2. Run `/ghostwriter:setup` if `.ghostwriter/` directory doesn't exist
 
 Set up the plugin root for tool invocations:
 ```bash
 eval "$(ghostwriter-env.sh)"
 ```
 
+## Publication Name Resolution
+
+Commands accept a **publication name** instead of a config path. When the last argument matches a directory in `.ghostwriter/publications/`, it's treated as a publication name:
+
+```bash
+# Resolve publication config
+PUB_NAME="{last argument}"
+PUB_DIR=".ghostwriter/publications/$PUB_NAME"
+CONFIG="$PUB_DIR/config.yml"
+```
+
+If `$PUB_DIR` exists and contains `config.yml`, use it. Otherwise, treat the argument as a literal file path (backwards compatible).
+
+When using a publication name:
+- **Content root**: read from `config.content.root` (relative to config file, resolve to absolute)
+- **File paths**: relative to the content root
+- **Pipeline data**: stored at `$PUB_DIR/pipeline/`
+- **Learned patterns**: resolved from `.ghostwriter/` hierarchy
+
 ## Usage
 
 ```bash
-/humanize input.md output.md path/to/config.yml
-/humanize input.md output.md path/to/config.yml --session custom/session/dir
-/humanize input.md output.md path/to/config.yml max-rounds=5
+/ghostwriter:humanize input.md output.md path/to/config.yml
+/ghostwriter:humanize guides/getting-started.md developer-docs
+/ghostwriter:humanize-all developer-docs
 ```
 
 ## Arguments
 
 | Argument | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `<input-file>` | yes | — | Path to the `.md` file to humanize |
-| `<output-file>` | yes | — | Path where the final humanized file will be written |
-| `<config>` | yes | — | Path to YAML config file (author, presets, rules) |
-| `--session DIR` | no | derived | Directory for session working files. Defaults to `{PUB_ROOT}/pipeline/{BASENAME}/runs/run-{NNN}/` |
+| `<input-file>` | yes | — | Path to the `.md` file to humanize (relative to content root when publication name is given) |
+| `<output-file>` | no* | in-place or next stage | Path where the final humanized file will be written. When publication name is used, defaults to in-place overwrite (or next stage directory if stages are defined in config). |
+| `[config]` | no* | — | Publication name (resolved to `.ghostwriter/publications/{name}/config.yml`) or a literal path to a YAML config file. Required unless publication name is given. |
+| `--session DIR` | no | derived | Directory for session working files. Defaults to `{PUB_DIR}/pipeline/{BASENAME}/runs/run-{NNN}/` when publication name is given, or `{PUB_ROOT}/pipeline/{BASENAME}/runs/run-{NNN}/` otherwise |
 | `max-rounds=N` | no | `5` | Maximum humanize rounds |
 
 ## Variable Resolution
 
-- `INPUT_FILE`: First argument — source `.md` file
-- `OUTPUT_FILE`: Second argument — destination for final result
-- `CONFIG`: Third argument — YAML config file path
-- `PUB_ROOT`: Parent directory of `CONFIG` (e.g., `publications/rcs-book/` if CONFIG is `publications/rcs-book/config.yml`)
+- `INPUT_FILE`: First argument — source `.md` file. If publication name resolved, interpret relative to content root.
+- `OUTPUT_FILE`: Second argument if provided and not a publication name/config. When publication name is used and no output file given, output in-place (or next stage if stages are defined in config).
+- `CONFIG`: Last non-flag argument — if it matches a directory under `.ghostwriter/publications/`, treat as a publication name and resolve to `$PUB_DIR/config.yml`. Otherwise treat as a literal YAML file path.
+- `PUB_ROOT`: Parent directory of `CONFIG` (e.g., `publications/rcs-book/` if CONFIG is `publications/rcs-book/config.yml`). When publication name is given, `PUB_ROOT = PUB_DIR`.
 - `SESSION_PATH`: Value of `--session` flag, or defaults to `{PUB_ROOT}/pipeline/{BASENAME}/runs/run-{NNN}/` where `NNN` is the next available run number (zero-padded to 3 digits, e.g., `run-001`)
 - `MAX_ROUNDS`: `max-rounds=` value, default `5`
 - `BASENAME`: Filename stem of `INPUT_FILE` (e.g., `chapter-01` from `chapter-01.md`)
@@ -90,15 +109,16 @@ Tracks what worked and what didn't across rounds.
 
 ### Step 0.5: Resolve Learned Patterns
 
-Read `.ghostwriter/config.json` to get `publications_dir` and `authors_dir`.
 Read `{SESSION_PATH}/config.yml` to get `publication.media` and `author.name`.
+
+**Note:** Presets in the config carry prose targets (density targets, structure thresholds). Tools resolve presets automatically when you pass `--config`. Do NOT manually read preset files.
 
 Resolve the patterns file list (skip files that don't exist):
 1. `.ghostwriter/learned-patterns/global.md`
 2. `.ghostwriter/learned-patterns/{media}.md`
 3. `.ghostwriter/learned-patterns/{media}-*.md` (glob for style-specific)
-4. `{authors_dir}/{author-slug}/learned-patterns.md` (slugify author.name)
-5. `{publications_dir}/{pub-slug}/learned-patterns.md` (pub-slug = basename of PUB_ROOT)
+4. `.ghostwriter/authors/{author-slug}/learned-patterns.md` (slugify author.name)
+5. `.ghostwriter/publications/{pub-slug}/learned-patterns.md` (pub-slug = basename of PUB_ROOT)
 
 Store this as `PATTERNS_FILE_LIST` — a newline-separated list of paths.
 Use it wherever `{PATTERNS_FILE_LIST}` appears in Writer prompts below.
@@ -553,8 +573,8 @@ Analyze detection feedback and improve the humanization system.
 - Reviewer agent: .claude/agents/reviewer.md
 - Writer output: {SESSION_PATH}/rounds/r{N}/{BASENAME}.md (for reference)
 - Learned patterns dir: .ghostwriter/learned-patterns/
-- Author patterns: {authors_dir}/{author-slug}/learned-patterns.md
-- Publication patterns: {publications_dir}/{pub-slug}/learned-patterns.md
+- Author patterns: .ghostwriter/authors/{author-slug}/learned-patterns.md
+- Publication patterns: .ghostwriter/publications/{pub-slug}/learned-patterns.md
 
 ## Your Authority
 You are a Senior AI Engineer. Your full scope is documented in your agent file. In summary:

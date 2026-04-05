@@ -61,7 +61,7 @@ Files that pass detection are removed from the active batch. Files that hit MAX_
 
 ## Step 0: Validate & Setup
 
-1. Verify `.ghostwriter/config.json` exists in the current directory. Abort if not.
+1. Verify the `.ghostwriter/` directory exists in the current directory. Abort if not.
 2. Verify `CONFIG` exists. Abort if not.
 3. Verify `INPUT_FOLDER` exists and contains `.md` files (top-level only). Abort if empty.
 4. Create `OUTPUT_FOLDER`.

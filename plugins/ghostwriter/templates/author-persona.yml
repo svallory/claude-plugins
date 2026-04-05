@@ -1,28 +1,32 @@
 # =============================================================================
-# Author Profile
+# Author Persona
 # =============================================================================
-# This file defines your writing voice and background.
+# This file defines the writing voice for a publication.
+# An "author" is a persona — it can be a real person, a team, or a brand voice.
+# "Acme Engineering Team" is as valid an author as "Jane Doe."
+#
 # Referenced by publication configs via the presets mechanism:
 #   presets:
-#     - ../../authors/your-name/profile.yml
+#     - ../../authors/your-name/author-persona.yml
 # =============================================================================
 
 author:
-  name: ""                # Your name as it appears in your writing
+  name: ""                # Persona name as it should appear in writing (person, team, or brand)
   # gender: ""            # Optional: used for pronoun consistency
   # location: ""          # Optional: adds geographic context to voice
 
   # ---------------------------------------------------------------------------
   # Personality & Writing Voice
   # ---------------------------------------------------------------------------
-  # Your personality traits shape how the writer agent voices your text.
-  # Examples: direct, opinionated, pragmatic, dry-wit, empathetic, analytical,
-  #           formal, casual, technical, storyteller, provocative, measured
+  # Traits that define this persona's voice — applies whether it's a person,
+  # a team, or a brand. Examples: direct, opinionated, pragmatic, dry-wit,
+  # empathetic, analytical, formal, casual, technical, storyteller, provocative
   personality: []
 
   # ---------------------------------------------------------------------------
   # Professional Background
   # ---------------------------------------------------------------------------
+  # For a team or brand persona, describe the collective background/industry.
   background:
     profession: ""
     industry: ""

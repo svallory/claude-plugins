@@ -46,7 +46,7 @@ Rewrites all `.md` files in an input folder to sound more authentically human, w
 
 ### Step 1 — Validate & Discover
 
-1. Verify `.ghostwriter/config.json` exists in the current directory. Abort if not.
+1. Verify the `.ghostwriter/` directory exists in the current directory. Abort if not.
 2. Verify `INPUT_FOLDER` exists and contains at least one `.md` file. Abort with an error if not.
 3. Create `OUTPUT_FOLDER` if it doesn't exist.
 4. Collect the list of `.md` files in `INPUT_FOLDER` (non-recursive, top-level only).

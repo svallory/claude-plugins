@@ -2,7 +2,7 @@
 name: analyze
 description: Analyze text to determine if it was written by a human or AI
 disable-model-invocation: true
-argument-hint: <text-file> [config] [--model MODEL]
+argument-hint: <text-file> [publication|config] [--model MODEL]
 ---
 
 # Analyze Command
@@ -13,37 +13,59 @@ Analyzes text to determine if it was written by a human or AI using the slop-det
 
 Before running, ensure:
 1. The ghostwriter plugin is loaded (`ghostwriter-env.sh` must be on PATH)
-2. Run `/ghostwriter:setup` if `.ghostwriter/config.json` doesn't exist
+2. Run `/ghostwriter:setup` if `.ghostwriter/` directory doesn't exist
 
 Set up the plugin root for tool invocations:
 ```bash
 eval "$(ghostwriter-env.sh)"
 ```
 
+## Publication Name Resolution
+
+Commands accept a **publication name** instead of a config path. When the last argument matches a directory in `.ghostwriter/publications/`, it's treated as a publication name:
+
+```bash
+# Resolve publication config
+PUB_NAME="{last argument}"
+PUB_DIR=".ghostwriter/publications/$PUB_NAME"
+CONFIG="$PUB_DIR/config.yml"
+```
+
+If `$PUB_DIR` exists and contains `config.yml`, use it. Otherwise, treat the argument as a literal file path (backwards compatible).
+
+When using a publication name:
+- **Content root**: read from `config.content.root` (relative to config file, resolve to absolute)
+- **File paths**: relative to the content root
+- **Pipeline data**: stored at `$PUB_DIR/pipeline/`
+- **Learned patterns**: resolved from `.ghostwriter/` hierarchy
+
 ## Usage
 
 ```bash
-# Basic analysis
-/analyze path/to/text.md
-
-# With config (specifies medium/context)
-/analyze path/to/text.md path/to/config.yml
+/ghostwriter:analyze path/to/text.md
+/ghostwriter:analyze guides/getting-started.md developer-docs
+/ghostwriter:analyze path/to/text.md path/to/config.yml
 ```
 
 ## Arguments
 
-- `<text-file>` (required): Path to the text file to analyze
-- `[config]` (optional): Path to a YAML config file (author, presets, rules)
+- `<text-file>` (required): Path to the text file to analyze (relative to content root when publication name is given)
+- `[publication]` (optional): Publication name (directory under `.ghostwriter/publications/`) — or a path to a YAML config file
 - `[--model <haiku|sonnet|opus|MODEL_ID>]` (optional): Model to use. Accepts `haiku`, `sonnet`, `opus`, or any valid model ID. Defaults to `sonnet`
 
 ## Execution
 
 ### Setup
 
-Ensure the temp directory exists before running:
+Resolve temp directory based on whether a publication name is used:
 
 ```bash
-mkdir -p "$GHOSTWRITER_ROOT/agent/temp"
+# If publication name resolved:
+TEMP_DIR="$PUB_DIR/pipeline/temp"
+# Otherwise:
+TEMP_DIR="$GHOSTWRITER_ROOT/agent/temp"
+
+mkdir -p "$TEMP_DIR"
 ```
 
 ### Run Detector
@@ -64,7 +86,7 @@ Config: {CONFIG}
 {{/if}}
 
 ## Output
-- Write metrics to: $GHOSTWRITER_ROOT/agent/temp/heuristics-scores.json
+- Write metrics to: $TEMP_DIR/heuristics-scores.json
 
 ## Return Format
 Return ONLY these three lines:
@@ -75,8 +97,9 @@ Confidence: {N}%
 
 ### Variable Resolution
 
-- `TEXT_FILE`: First argument (required)
-- `CONFIG`: Second argument (optional) — path to YAML config file
+- `TEXT_FILE`: First argument (required). If publication name resolved, interpret relative to content root.
+- `CONFIG`: Second argument (optional) — publication name (resolved to `.ghostwriter/publications/{name}/config.yml`) or a literal YAML config file path
+- `TEMP_DIR`: `$PUB_DIR/pipeline/temp` when publication name resolved; `$GHOSTWRITER_ROOT/agent/temp` otherwise
 - `MODEL`: Value of `--model` flag, defaults to `sonnet`
 
 ## Output Display
@@ -134,6 +157,6 @@ AI Indicators (1/7 categories):
 [succinct summary from detector's assessment]
 ```
 
-Read `$GHOSTWRITER_ROOT/agent/temp/heuristics-scores.json` to populate the table from `toolResults`. The TOTAL row uses the overall `heuristicsScore` and `classification`.
+Read `$TEMP_DIR/heuristics-scores.json` to populate the table from `toolResults`. The TOTAL row uses the overall `heuristicsScore` and `classification`.
 
 Extract reasoning from the detector's return or summarize the key factors that led to the classification.

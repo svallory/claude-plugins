@@ -1,4 +1,8 @@
 {
+  "name": "svallory-plugins",
+  "owner": {
+    "name": "Saulo Vallory"
+  },
   "plugins": [
     {
       "name": "ghostwriter",

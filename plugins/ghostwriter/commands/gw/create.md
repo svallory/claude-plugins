@@ -1,27 +1,27 @@
 ---
-name: gw-adversarial-loop
-description: Orchestrates Writer vs Detector adversarial training rounds
-user-invocable: true
+name: create
+description: Generate new text from a topic using adversarial Writer vs Detector training
+argument-hint: <topic> [--config PATH] [--medium MEDIUM] [--length N] [--max-rounds N]
 ---
 
-# Adversarial Loop Skill
+# Create Command
 
 Orchestrates adversarial training between Writer and Detector agents. The Writer produces text, the Detector analyzes it, and the Writer's instructions are refined based on feedback until detection is evaded.
 
 ## Usage
 
 ```
-/adversarial-loop "Write about the benefits of meditation"
+/gw:create "Write about the benefits of meditation"
 ```
 
 With config (recommended — provides author voice, thresholds, and detection rules):
 ```
-/adversarial-loop --config .ghostwriter/publications/{slug}/config.yml "Write about remote work"
+/gw:create --config .ghostwriter/publications/{slug}/config.yml "Write about remote work"
 ```
 
 With ad-hoc overrides (no config file):
 ```
-/adversarial-loop --medium blog --tone casual --max-rounds 5 "Write about remote work"
+/gw:create --medium blog --tone casual --max-rounds 5 "Write about remote work"
 ```
 
 ## Parameters
@@ -232,7 +232,7 @@ Update Detector instructions with missed patterns:
 ## Example Session
 
 ```
-User: /adversarial-loop --medium blog --tone casual "Write about the benefits of meditation"
+User: /gw:create --medium blog --tone casual "Write about the benefits of meditation"
 
 === Round 1 ===
 Invoking Writer agent...

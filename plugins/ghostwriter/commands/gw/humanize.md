@@ -1,8 +1,8 @@
 ---
-name: gw-humanize
+name: humanize
 description: Run iterative text revision sessions
 disable-model-invocation: true
-argument-hint: <input-file> [output-file] [publication|config] [--session DIR] [max-rounds=N]
+argument-hint: <input-file> [output-file] [publication|config] [--session DIR] [--quick] [max-rounds=N]
 ---
 
 # Humanize Command
@@ -17,12 +17,21 @@ This command uses `disable-model-invocation: true` to prevent auto-loading. The 
 
 Before running, ensure:
 1. The ghostwriter plugin is loaded (`ghostwriter-env.sh` must be on PATH)
-2. Run `/ghostwriter:gw-setup` if `.ghostwriter/` directory doesn't exist
+2. Run `/gw:setup` if `.ghostwriter/` directory doesn't exist
 
 Set up the plugin root for tool invocations:
 ```bash
 eval "$(ghostwriter-env.sh)"
 ```
+
+### Quick Mode (--quick)
+
+When `--quick` is passed, skip the iterative detection loop. Instead:
+1. Spawn Writer agent (same as Step 1 of the full loop)
+2. Writer applies Learned Patterns and config rules in a single pass
+3. Write output and exit — no Reviewer, no Detector, no AI Engineer
+
+This is equivalent to a single-pass rewrite. Use for quick touch-ups when you don't need full detection validation.
 
 ## Publication Name Resolution
 
@@ -46,9 +55,9 @@ When using a publication name:
 ## Usage
 
 ```bash
-/ghostwriter:gw-humanize input.md output.md path/to/config.yml
-/ghostwriter:gw-humanize guides/getting-started.md developer-docs
-/ghostwriter:gw-humanize-all developer-docs
+/gw:humanize input.md output.md path/to/config.yml
+/gw:humanize guides/getting-started.md developer-docs
+/gw:humanize-all developer-docs
 ```
 
 ## Arguments
@@ -59,6 +68,7 @@ When using a publication name:
 | `<output-file>` | no* | in-place or next stage | Path where the final humanized file will be written. When publication name is used, defaults to in-place overwrite (or next stage directory if stages are defined in config). |
 | `[config]` | no* | — | Publication name (resolved to `.ghostwriter/publications/{name}/config.yml`) or a literal path to a YAML config file. Required unless publication name is given. |
 | `--session DIR` | no | derived | Directory for session working files. Defaults to `{PUB_DIR}/pipeline/{BASENAME}/runs/run-{NNN}/` when publication name is given, or `{PUB_ROOT}/pipeline/{BASENAME}/runs/run-{NNN}/` otherwise |
+| `--quick` | no | — | Single-pass rewrite without detection loop. Fast but less thorough. |
 | `max-rounds=N` | no | `5` | Maximum humanize rounds |
 
 ## Variable Resolution

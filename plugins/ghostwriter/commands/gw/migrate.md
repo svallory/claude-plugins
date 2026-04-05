@@ -1,5 +1,5 @@
 ---
-name: gw-migrate
+name: migrate
 description: Migrate from v1 project layout to v2 (.ghostwriter/ workspace)
 argument-hint: [--dry-run]
 ---
@@ -11,8 +11,8 @@ Migrates a v1 ghostwriter project layout to v2. In v1, `authors/` and `publicati
 ## Usage
 
 ```bash
-/ghostwriter:gw-migrate              # Migrate and move files
-/ghostwriter:gw-migrate --dry-run    # Show what would change without moving anything
+/gw:migrate              # Migrate and move files
+/gw:migrate --dry-run    # Show what would change without moving anything
 ```
 
 ## What it does
@@ -80,7 +80,7 @@ V1_CONFIG_JSON=false
 
 If none of these are true, report: "No v1 layout detected. Already on v2 or no setup found." and STOP.
 
-If `.ghostwriter/` doesn't exist at all, report: "No ghostwriter setup found. Run `/ghostwriter:gw-setup` instead." and STOP.
+If `.ghostwriter/` doesn't exist at all, report: "No ghostwriter setup found. Run `/gw:setup` instead." and STOP.
 
 ### Step 2: Report what will change
 

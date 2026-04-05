@@ -1,5 +1,5 @@
 ---
-name: gw-writer-examples
+name: writer-examples
 description: Good vs bad examples for humanizing AI text. Load when the writer agent needs transformation examples.
 user-invocable: false
 ---

@@ -1,10 +1,10 @@
 ---
-name: gw-humanize-all
+name: humanize-all
 description: Humanize all .md files in a folder by running the humanize loop for each file
-user-invocable: true
+argument-hint: <input-folder> <output-folder> <config> [--parallel N] [--quick] [max-rounds=N]
 ---
 
-# Humanize-All Skill
+# Humanize-All Command
 
 Runs the humanize loop (from `.claude/commands/humanize.md`) on every `.md` file in a folder.
 
@@ -13,9 +13,9 @@ Runs the humanize loop (from `.claude/commands/humanize.md`) on every `.md` file
 ## Usage
 
 ```bash
-/humanize-all chapters/ output/ path/to/config.yml
-/humanize-all chapters/ output/ path/to/config.yml --parallel 3
-/humanize-all chapters/ output/ path/to/config.yml --parallel 2 max-rounds=5
+/gw:humanize-all chapters/ output/ path/to/config.yml
+/gw:humanize-all chapters/ output/ path/to/config.yml --parallel 3
+/gw:humanize-all chapters/ output/ path/to/config.yml --parallel 2 max-rounds=5
 ```
 
 ## Arguments
@@ -26,6 +26,7 @@ Runs the humanize loop (from `.claude/commands/humanize.md`) on every `.md` file
 | `<output-folder>` | yes | — | Directory for final humanized files |
 | `<config>` | yes | — | Path to YAML config file |
 | `--parallel N` | no | `1` | Max concurrent files being processed |
+| `--quick` | no | — | Single-pass rewrite without detection loop. Spawns Writer agents without the review/detection loop. Fast but less thorough. |
 | `max-rounds=N` | no | `5` | Max humanize rounds per file |
 
 ## Variables
@@ -34,6 +35,7 @@ Runs the humanize loop (from `.claude/commands/humanize.md`) on every `.md` file
 - `OUTPUT_FOLDER`: Second argument
 - `CONFIG`: Third argument
 - `PARALLEL`: `--parallel` value, default `1`
+- `QUICK`: `--quick` flag, default false
 - `MAX_ROUNDS`: `max-rounds=` value, default `5`
 
 ---

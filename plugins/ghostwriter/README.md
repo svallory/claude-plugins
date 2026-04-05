@@ -30,7 +30,7 @@ claude --plugin-dir /path/to/ghostwriter
 ### 1. Setup
 
 ```
-/ghostwriter:gw-setup
+/gw:setup
 ```
 
 The setup wizard guides you through creating your author profile, naming your publication, and choosing your writing medium and style.
@@ -40,17 +40,17 @@ The setup wizard guides you through creating your author profile, naming your pu
 Check if text reads as AI-generated:
 
 ```
-/ghostwriter:gw-analyze guides/getting-started.md developer-docs
-/ghostwriter:gw-analyze path/to/text.md
+/gw:analyze guides/getting-started.md developer-docs
+/gw:analyze path/to/text.md
 ```
 
-### 3. Rewrite text (single pass)
+### 3. Quick rewrite (single pass)
 
-Quick humanization without the iterative loop:
+Fast humanization without the iterative detection loop:
 
 ```
-/ghostwriter:gw-rewrite guides/getting-started.md developer-docs
-/ghostwriter:gw-rewrite input.md output.md
+/gw:humanize guides/getting-started.md developer-docs --quick
+/gw:humanize input.md output.md --quick
 ```
 
 ### 4. Humanize text (iterative loop)
@@ -58,23 +58,27 @@ Quick humanization without the iterative loop:
 Full adversarial loop with detection, review, and improvement:
 
 ```
-/ghostwriter:gw-humanize guides/getting-started.md developer-docs
-/ghostwriter:gw-humanize input.md output.md <publication-name>
+/gw:humanize guides/getting-started.md developer-docs
+/gw:humanize input.md output.md <publication-name>
 ```
 
 ## Available Commands
 
+All commands are under the `gw/` folder (autocomplete prefix `/gw:`):
+
 | Command | Description |
 |---------|-------------|
-| `/ghostwriter:gw-setup` | Interactive setup wizard |
-| `/ghostwriter:gw-analyze <file> [publication]` | Detect if text is AI-generated |
-| `/ghostwriter:gw-rewrite <in> <out> [publication]` | Single-pass humanization |
-| `/ghostwriter:gw-humanize <in> <out> <publication>` | Iterative humanization loop |
-| `/ghostwriter:gw-humanize-all <dir> <out> <publication>` | Batch humanization |
-| `/ghostwriter:gw-rewrite-all <dir> <out> [publication]` | Batch single-pass rewrite |
-| `/ghostwriter:gw-adversarial-loop "topic"` | Generate new text via adversarial training |
-| `/ghostwriter:gw-authors [list\|add\|remove\|show]` | Manage author profiles |
-| `/ghostwriter:gw-publications [list\|add\|remove\|show]` | Manage publications |
+| `/gw:setup` | Interactive setup wizard |
+| `/gw:analyze <file> [publication]` | Detect if text is AI-generated |
+| `/gw:humanize <in> <out> <publication>` | Iterative humanization loop |
+| `/gw:humanize <in> <out> <publication> --quick` | Single-pass humanization (fast) |
+| `/gw:humanize-all <dir> <out> <publication>` | Batch humanization |
+| `/gw:humanize-all <dir> <out> <publication> --quick` | Batch single-pass rewrite |
+| `/gw:create "topic"` | Generate new text via adversarial training |
+| `/gw:audit <publication>` | Scan all files for AI signals |
+| `/gw:authors [list\|add\|remove\|show]` | Manage author profiles |
+| `/gw:publications [list\|add\|remove\|show]` | Manage publications |
+| `/gw:migrate` | Migrate from v1 to v2 layout |
 
 ## Project Structure
 
@@ -134,7 +138,7 @@ writing_style:
 
 ### Templates
 
-The plugin ships templates for common writing scenarios. Run `/ghostwriter:gw-setup` to use them interactively, or copy from the plugin's `templates/` directory.
+The plugin ships templates for common writing scenarios. Run `/gw:setup` to use them interactively, or copy from the plugin's `templates/` directory.
 
 ## Learned Patterns
 

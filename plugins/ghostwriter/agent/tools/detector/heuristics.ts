@@ -26,6 +26,60 @@ import { runCLI } from '../lib/cli-utils';
 import type { ResolvedWritingConfig } from '../config/schemas';
 import { serializeConfigForEnv } from '../lib/config-loader';
 
+/**
+ * Extract prose from markdown/MDX content by removing non-prose elements.
+ * Unlike stripMarkdownNonProse (which blanks with spaces for offset preservation),
+ * this removes non-prose entirely so tools get clean text to analyze.
+ */
+function extractProse(text: string): string {
+  let result = text;
+
+  // 1. YAML frontmatter
+  if (result.startsWith('---')) {
+    const endIdx = result.indexOf('\n---', 3);
+    if (endIdx !== -1) {
+      result = result.slice(endIdx + 4);
+    }
+  }
+
+  // 2. Import statements (MDX)
+  result = result.replace(/^import\s+.*$/gm, '');
+
+  // 3. Export statements (MDX)
+  result = result.replace(/^export\s+.*$/gm, '');
+
+  // 4. Fenced code blocks (``` or ~~~)
+  result = result.replace(/^(`{3,}|~{3,})[^\n]*\n[\s\S]*?\n\1\s*$/gm, '');
+
+  // 5. JSX/HTML components — self-closing and block-level opening/closing tags
+  // Self-closing: <Component ... />
+  result = result.replace(/^\s*<[A-Z][a-zA-Z]*\b[^>]*\/>\s*$/gm, '');
+  // Opening tags on their own line: <Component ...>
+  result = result.replace(/^\s*<[A-Z][a-zA-Z]*\b[^>]*>\s*$/gm, '');
+  // Closing tags: </Component>
+  result = result.replace(/^\s*<\/[A-Z][a-zA-Z]*>\s*$/gm, '');
+  // HTML tags (lowercase)
+  result = result.replace(/^\s*<\/?\w+[^>]*>\s*$/gm, '');
+
+  // 6. Headings — remove the # markers but keep the text (it's still authored prose)
+  result = result.replace(/^#{1,6}\s+/gm, '');
+
+  // 7. Block quote markers (keep text)
+  result = result.replace(/^>\s?/gm, '');
+
+  // 8. Inline code — remove backtick-wrapped content
+  result = result.replace(/`[^`\n]+`/g, '');
+
+  // 9. Image/link syntax — keep text, remove markup
+  result = result.replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1');
+  result = result.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1');
+
+  // 10. Collapse multiple blank lines
+  result = result.replace(/\n{3,}/g, '\n\n');
+
+  return result.trim();
+}
+
 // Resolve paths relative to this file's location, not process.cwd()
 // This is critical for plugin usage where cwd is the user's project, not the plugin dir
 const SCRIPT_DIR = dirname(new URL(import.meta.url).pathname);
@@ -595,9 +649,13 @@ async function runHeuristics(
   extraArgs: Record<string, string>,
   config: ResolvedWritingConfig,
 ): Promise<HeuristicsResult> {
+  // Strip non-prose content (code blocks, frontmatter, JSX, imports) so
+  // detection tools analyze actual writing, not markup/code artifacts
+  const prose = extractProse(text);
+
   const useLlm = extraArgs['--use-llm'] === 'true';
   const { toolResults, toolTimes, wallClockTimeMs } = await runAllTools(
-    text,
+    prose,
     config,
     useLlm,
   );

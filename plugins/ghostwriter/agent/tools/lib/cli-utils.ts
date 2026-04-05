@@ -120,7 +120,7 @@ export async function parseArgs(
     // If not a flag, treat as text or file path
     if (!arg.startsWith('--') && text === null) {
       // Check if it's a file path
-      if (existsSync(arg) && (arg.endsWith('.md') || arg.endsWith('.txt'))) {
+      if (existsSync(arg) && /\.(md|mdx|txt|markdown|rst|adoc|tex)$/i.test(arg)) {
         text = await Bun.file(arg).text();
       } else {
         text = arg;

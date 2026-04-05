@@ -43,7 +43,8 @@ PUB_NAME="$ARGUMENTS"  # First argument (strip flags)
 PUB_DIR=".ghostwriter/publications/$PUB_NAME"
 CONFIG="$PUB_DIR/config.yml"
 AUDIT_DIR="$PUB_DIR/pipeline/audit"
-RESULTS_FILE="$AUDIT_DIR/results.json"
+CACHE_FILE="$AUDIT_DIR/cache.json"
+REPORT_FILE="$PUB_DIR/audit-report.md"
 ```
 
 Verify `$PUB_DIR` exists and contains `config.yml`. If not: "Publication '{PUB_NAME}' not found. Run `/ghostwriter:publications list` to see available publications."
@@ -71,7 +72,7 @@ If zero files: "No content files found at {CONTENT_ROOT} matching {glob}." and S
 mkdir -p "$AUDIT_DIR"
 ```
 
-If `$RESULTS_FILE` exists and `--force` was NOT given, read it. The file is a JSON object:
+If `$CACHE_FILE` exists and `--force` was NOT given, read it. The file is a JSON object:
 
 ```json
 {
@@ -162,7 +163,7 @@ stat -f "%m" "$FILE"  # macOS
 # or: stat -c "%Y" "$FILE"  # Linux
 ```
 
-Build the results object combining cached (unchanged) and newly scanned files. Write `$RESULTS_FILE`:
+Build the results object combining cached (unchanged) and newly scanned files. Write `$CACHE_FILE`:
 
 ```json
 {
@@ -186,6 +187,8 @@ Build the results object combining cached (unchanged) and newly scanned files. W
 ### Step 6: Generate Report
 
 Sort files by score descending (worst first).
+
+Write the report to **both** the terminal (displayed to user) AND `$REPORT_FILE` (markdown file in the publication directory). The markdown file is the persistent record; the terminal output is the same content.
 
 #### Table format (default)
 
@@ -238,10 +241,42 @@ Same table, plus per-category breakdown for each NEEDS WORK file:
   - Increase sentence length variation (CV 38 → 50+)
 ```
 
-### Step 7: Suggest Next Steps
+### Step 7: Write Report File
+
+Write the full report (same content displayed to the terminal) to `$REPORT_FILE`:
+
+```markdown
+# Audit Report: {Publication Name}
+
+**Date:** {ISO date}
+**Content:** {CONTENT_ROOT}
+**Files scanned:** {N total} ({M} new/modified, {L} cached)
+**Threshold:** {THRESHOLD}%
+
+## Results
+
+| Score | Conf | Status | Modified | File | Top Signal |
+|-------|------|--------|----------|------|------------|
+| 0.72 | 28% | NEEDS WORK | 2026-04-05 | guides/advanced-config.md | High em-dash density |
+| ... | | | | | |
+
+## Summary
+
+- **Needs work:** {N} files (score > {threshold})
+- **OK:** {N} files
+- **Worst:** {file} ({score}, {confidence}% human confidence)
+- **Best:** {file} ({score}, {confidence}% human confidence)
+
+{if detailed format, include per-file breakdowns here}
+```
+
+If `--format detailed`, include the per-category breakdown sections for each NEEDS WORK file in the markdown report as well.
+
+### Step 8: Suggest Next Steps
 
 ```
-Results saved to: {RESULTS_FILE}
+Report saved to: {REPORT_FILE}
+Cache saved to:  {CACHE_FILE}
 
 Next steps:
   # Fix worst file first

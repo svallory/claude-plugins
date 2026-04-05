@@ -1,0 +1,12 @@
+# News Reporting Template
+# Inverted pyramid, attribution, neutral voice, AP style influences.
+# Preset: business
+
+publication:
+  media: article
+  audience: general
+
+writing_style:
+  tone: objective
+  formality: formal
+  voice: third-person

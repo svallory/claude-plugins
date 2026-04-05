@@ -1,0 +1,9 @@
+{
+  "plugins": [
+    {
+      "name": "ghostwriter",
+      "description": "Adversarial AI text detection and humanization system. Detects AI-generated text and iteratively revises it to read as authentically human.",
+      "source": "./plugins/ghostwriter"
+    }
+  ]
+}

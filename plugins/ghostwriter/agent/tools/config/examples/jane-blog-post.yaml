@@ -1,0 +1,16 @@
+# Example: Blog post by Jane Smith
+# Demonstrates composing presets from multiple files
+
+version: "1.0"
+
+presets:
+  - blog                             # Built-in blog preset
+  - ./reusable-author.yaml           # Reusable author profile (relative path)
+
+# Blog-specific style
+writing_style:
+  tone: conversational
+  voice: first-person
+  formality: informal
+
+# No rule overrides needed - presets handle everything

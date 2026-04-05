@@ -1,0 +1,39 @@
+# Blog preset - informal web content with relaxed punctuation standards
+publication:
+  media: blog
+  audience: general
+
+writing_style:
+  formality: informal
+  tone: conversational
+
+rules:
+  punctuation:
+    period_quote:
+      ai_threshold: 95
+      human_baseline: 70
+      weight: 0.5
+    oxford_comma:
+      human_baseline: 60
+      weight: 0.3
+    em_dash:
+      ai_threshold: 3.5
+      human_baseline: 2.0
+  structure:
+    paragraph_fano_factor:
+      ai_threshold: 0.4
+      human_baseline: 1.5
+    transition_density:
+      ai_threshold: 25
+      human_baseline: 12
+  content:
+    hedging:
+      ai_threshold: 12
+      human_baseline: 6
+    cliche:
+      ai_threshold: 3
+      human_baseline: 1
+  burstiness:
+    coefficient_of_variation:
+      ai_threshold: 25
+      human_baseline: 45

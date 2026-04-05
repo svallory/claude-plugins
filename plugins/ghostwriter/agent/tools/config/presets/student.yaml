@@ -1,0 +1,39 @@
+# Student preset - essays and academic assignments
+publication:
+  media: student
+  audience: general
+
+writing_style:
+  formality: formal
+
+rules:
+  punctuation:
+    period_quote:
+      ai_threshold: 98
+      human_baseline: 80
+    oxford_comma:
+      ai_threshold: 98
+      human_baseline: 70
+  structure:
+    paragraph_fano_factor:
+      ai_threshold: 0.4
+      human_baseline: 1.0
+  vocabulary:
+    ai_vocab_density:
+      ai_threshold: 12
+      human_baseline: 2
+  content:
+    hedging:
+      ai_threshold: 12
+      human_baseline: 6
+    cliche:
+      ai_threshold: 2
+      human_baseline: 0
+  perplexity:
+    perplexity:
+      ai_threshold: 25
+      human_baseline: 70
+  detectgpt:
+    d_score:
+      ai_threshold: 1.8
+      human_baseline: 0.3

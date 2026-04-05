@@ -1,0 +1,13 @@
+# Fiction Book Template
+# Narrative flow, dialogue handling, varied pacing, POV consistency.
+# Preset: book
+
+publication:
+  media: book
+  audience: general
+  genre: fiction
+
+writing_style:
+  tone: varied
+  formality: moderate
+  voice: third-person

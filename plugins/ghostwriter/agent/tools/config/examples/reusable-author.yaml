@@ -1,0 +1,23 @@
+# Example: Reusable author profile
+# Use this file as a preset in other configs
+
+author:
+  name: "Jane Smith"
+  gender: female
+  age: 35
+  personality:
+    - creative
+    - detail-oriented
+    - empathetic
+  background:
+    profession: "Technical Writer"
+    years_experience: 10
+    education: "BA English Literature"
+    industry: "Technology"
+  writing_background:
+    native_language: english
+    other_languages:
+      - spanish
+    published_works: true
+    technical_writer: true
+    academic_writer: false

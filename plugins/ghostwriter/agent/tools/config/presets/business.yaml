@@ -1,0 +1,28 @@
+# Business preset - corporate communications and professional materials
+publication:
+  media: business
+  audience: general
+
+writing_style:
+  formality: formal
+  tone: formal
+
+rules:
+  punctuation:
+    em_dash:
+      ai_threshold: 3.0
+      human_baseline: 1.5
+  structure:
+    bullet_density:
+      ai_threshold: 5
+      human_baseline: 2
+  content:
+    cliche:
+      ai_threshold: 4
+      human_baseline: 1
+    hedging:
+      ai_threshold: 12
+      human_baseline: 7
+    superlative:
+      ai_threshold: 10
+      human_baseline: 5

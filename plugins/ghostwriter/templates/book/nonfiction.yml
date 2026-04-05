@@ -1,0 +1,12 @@
+# Nonfiction Book Template
+# Expert voice, anecdotes, balanced formality, source integration.
+# Preset: book
+
+publication:
+  media: book
+  audience: general
+
+writing_style:
+  tone: authoritative
+  formality: moderate
+  voice: first-person

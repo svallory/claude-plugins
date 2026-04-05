@@ -1,0 +1,6 @@
+node_modules/
+.venv/
+bun.lock*
+.claude/
+__pycache__/
+*.pyc

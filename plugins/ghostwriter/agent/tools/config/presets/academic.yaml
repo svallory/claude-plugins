@@ -1,0 +1,38 @@
+# Academic preset - research papers and scholarly writing
+publication:
+  media: academic
+  audience: expert
+
+writing_style:
+  formality: formal
+  prose:
+    pronoun_density: 4.0      # Academic writing is pronoun-light
+    auxiliary_density: 2.5
+    em_dash_density: 1.0      # Conservative em-dash usage
+    max_dependency_depth: 6.0  # Academic prose is more complex
+
+rules:
+  punctuation:
+    period_quote:
+      human_baseline: 98
+    oxford_comma:
+      human_baseline: 95
+  content:
+    hedging:
+      ai_threshold: 18
+      human_baseline: 10
+    superlative:
+      ai_threshold: 5
+      human_baseline: 2
+  vocabulary:
+    ai_vocab_density:
+      ai_threshold: 12
+      human_baseline: 4
+  syntactic:
+    avg_dependency_depth:
+      ai_threshold: 3.0
+      human_baseline: 6.5
+  perplexity:
+    perplexity:
+      ai_threshold: 15
+      human_baseline: 60

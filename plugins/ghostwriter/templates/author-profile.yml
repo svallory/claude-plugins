@@ -1,0 +1,49 @@
+# =============================================================================
+# Author Profile
+# =============================================================================
+# This file defines your writing voice and background.
+# Referenced by publication configs via the presets mechanism:
+#   presets:
+#     - ../../authors/your-name/profile.yml
+# =============================================================================
+
+author:
+  name: ""                # Your name as it appears in your writing
+  # gender: ""            # Optional: used for pronoun consistency
+  # location: ""          # Optional: adds geographic context to voice
+
+  # ---------------------------------------------------------------------------
+  # Personality & Writing Voice
+  # ---------------------------------------------------------------------------
+  # Your personality traits shape how the writer agent voices your text.
+  # Examples: direct, opinionated, pragmatic, dry-wit, empathetic, analytical,
+  #           formal, casual, technical, storyteller, provocative, measured
+  personality: []
+
+  # ---------------------------------------------------------------------------
+  # Professional Background
+  # ---------------------------------------------------------------------------
+  background:
+    profession: ""
+    industry: ""
+    years_experience: 0
+
+  # ---------------------------------------------------------------------------
+  # Career History (optional — helps prevent hallucination)
+  # ---------------------------------------------------------------------------
+  # careerHistory:
+  #   - company: ""
+  #     role: ""
+  #     startDate: ""
+  #     endDate: ""
+  #     focus: ""
+
+  # ---------------------------------------------------------------------------
+  # Writing Background
+  # ---------------------------------------------------------------------------
+  writing_background:
+    native_language: ""
+    # other_languages: []
+    # published_works: false
+    # technical_writer: false
+    # academic_writer: false

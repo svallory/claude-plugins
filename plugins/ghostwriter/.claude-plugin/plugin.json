@@ -1,7 +1,7 @@
 {
   "name": "ghostwriter",
   "description": "Ghostwriter: adversarial AI text detection and humanization system. Detects AI-generated text and iteratively revises it to read as authentically human.",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "author": {
     "name": "hlibco"
   }

@@ -66,17 +66,17 @@ Full adversarial loop with detection, review, and improvement:
 
 | Command | Description |
 |---------|-------------|
-| `/setup` | Interactive setup wizard |
-| `/analyze <file> [publication]` | Detect if text is AI-generated |
-| `/humanize <in> <out> <publication>` | Iterative humanization loop |
-| `/humanize <in> <out> <publication> --quick` | Single-pass humanization (fast) |
-| `/humanize-all <dir> <out> <publication>` | Batch humanization |
-| `/humanize-all <dir> <out> <publication> --quick` | Batch single-pass rewrite |
-| `/create "topic"` | Generate new text via adversarial training |
-| `/audit <publication>` | Scan all files for AI signals |
+| `/setup` | Interactive setup wizard — create authors and publications |
+| `/audit <publication>` | Scan all files in a publication for AI signals |
+| `/analyze <file> [publication]` | Analyze a single file for AI signals |
+| `/humanize <file> <publication>` | Iterative humanization loop (Writer → Reviewer → Detector → AI Engineer) |
+| `/humanize <file> <publication> --quick` | Single-pass rewrite without detection loop |
+| `/humanize-all <publication>` | Batch humanize all files in a publication |
+| `/create <topic> [--config PATH]` | Generate new text from a topic via adversarial training |
 | `/authors [list\|add\|remove\|show]` | Manage author profiles |
 | `/publications [list\|add\|remove\|show]` | Manage publications |
-| `/migrate` | Migrate from v1 to v2 layout |
+| `/migrate` | Migrate from v1 layout to v2 |
+| `/help` | Show available commands and quick start guide |
 
 ## Project Structure
 

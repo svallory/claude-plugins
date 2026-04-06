@@ -9,25 +9,25 @@ description: Show available ghostwriter commands and quick start guide
 
 | Command | Description |
 |---------|-------------|
-| `/gw:setup` | Interactive setup wizard — create authors and publications |
-| `/gw:audit <publication>` | Scan all files in a publication for AI signals |
-| `/gw:analyze <file> [publication]` | Analyze a single file for AI signals |
-| `/gw:humanize <file> <publication>` | Iterative humanization loop (Writer → Reviewer → Detector → AI Engineer) |
-| `/gw:humanize <file> <publication> --quick` | Single-pass rewrite without detection loop |
-| `/gw:humanize-all <publication>` | Batch humanize all files in a publication |
-| `/gw:create <topic> [--config PATH]` | Generate new text from a topic via adversarial training |
-| `/gw:authors [list\|add\|remove\|show]` | Manage author profiles |
-| `/gw:publications [list\|add\|remove\|show]` | Manage publications |
-| `/gw:migrate` | Migrate from v1 layout to v2 |
-| `/gw:help` | This help page |
+| `/setup` | Interactive setup wizard — create authors and publications |
+| `/audit <publication>` | Scan all files in a publication for AI signals |
+| `/analyze <file> [publication]` | Analyze a single file for AI signals |
+| `/humanize <file> <publication>` | Iterative humanization loop (Writer → Reviewer → Detector → AI Engineer) |
+| `/humanize <file> <publication> --quick` | Single-pass rewrite without detection loop |
+| `/humanize-all <publication>` | Batch humanize all files in a publication |
+| `/create <topic> [--config PATH]` | Generate new text from a topic via adversarial training |
+| `/authors [list\|add\|remove\|show]` | Manage author profiles |
+| `/publications [list\|add\|remove\|show]` | Manage publications |
+| `/migrate` | Migrate from v1 layout to v2 |
+| `/help` | This help page |
 
 ## Quick Start
 
 ```
-/gw:setup                                          # Create author + publication
-/gw:audit my-docs                                  # See which files need work
-/gw:humanize guides/getting-started.md my-docs     # Fix the worst file
-/gw:humanize-all my-docs                           # Fix all files
+/setup                                          # Create author + publication
+/audit my-docs                                  # See which files need work
+/humanize guides/getting-started.md my-docs     # Fix the worst file
+/humanize-all my-docs                           # Fix all files
 ```
 
 ## Configuration

@@ -13,16 +13,16 @@ An "author" is a persona — it can represent a real person, a team, or a brand 
 ## Usage
 
 ```bash
-/gw:authors                    # List all authors
-/gw:authors list               # Same as above
-/gw:authors add                # Add a new author (interactive)
-/gw:authors remove <slug>      # Remove an author
-/gw:authors show <slug>        # Show author details
+/authors                    # List all authors
+/authors list               # Same as above
+/authors add                # Add a new author (interactive)
+/authors remove <slug>      # Remove an author
+/authors show <slug>        # Show author details
 ```
 
 ## Prerequisites
 
-Ensure `.ghostwriter/` exists. If not, run `/gw:setup` first.
+Ensure `.ghostwriter/` exists. If not, run `/setup` first.
 
 ## Commands
 
@@ -52,7 +52,7 @@ Authors:
     Publications: developer-docs
 ```
 
-If no authors exist, display: "No authors found. Run `/gw:authors add` or `/gw:setup` to create one."
+If no authors exist, display: "No authors found. Run `/authors add` or `/setup` to create one."
 
 ### add
 
@@ -89,7 +89,7 @@ Display: "Author '{name}' created at .ghostwriter/authors/{slug}/"
 ### remove
 
 ```bash
-/gw:authors remove <slug>
+/authors remove <slug>
 ```
 
 First, check if any publications reference this author:
@@ -122,7 +122,7 @@ Display: "Author '{slug}' removed."
 ### show
 
 ```bash
-/gw:authors show <slug>
+/authors show <slug>
 ```
 
 Read and display `.ghostwriter/authors/{slug}/author-persona.yml`.
@@ -149,4 +149,4 @@ Learned patterns: {N} patterns accumulated
   File: .ghostwriter/authors/{slug}/learned-patterns.md
 ```
 
-If the slug doesn't exist, display: "Author '{slug}' not found. Run `/gw:authors list` to see available authors."
+If the slug doesn't exist, display: "Author '{slug}' not found. Run `/authors list` to see available authors."

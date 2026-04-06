@@ -11,10 +11,10 @@ Scans all content files in a publication, runs the detector on each, and produce
 ## Usage
 
 ```bash
-/gw:audit developer-docs
-/gw:audit developer-docs --threshold 40
-/gw:audit developer-docs --format detailed
-/gw:audit developer-docs --force            # Re-scan all files, ignore cache
+/audit developer-docs
+/audit developer-docs --threshold 40
+/audit developer-docs --format detailed
+/audit developer-docs --force            # Re-scan all files, ignore cache
 ```
 
 ## Arguments
@@ -32,7 +32,7 @@ Scans all content files in a publication, runs the detector on each, and produce
 eval "$(ghostwriter-env.sh)"
 ```
 
-Ensure `.ghostwriter/` exists. If not, run `/gw:setup` first.
+Ensure `.ghostwriter/` exists. If not, run `/setup` first.
 
 ## Process
 
@@ -47,7 +47,7 @@ CACHE_FILE="$AUDIT_DIR/cache.json"
 REPORT_FILE="$PUB_DIR/audit-report.md"
 ```
 
-Verify `$PUB_DIR` exists and contains `config.yml`. If not: "Publication '{PUB_NAME}' not found. Run `/gw:publications list` to see available publications."
+Verify `$PUB_DIR` exists and contains `config.yml`. If not: "Publication '{PUB_NAME}' not found. Run `/publications list` to see available publications."
 
 ### Step 2: Resolve Content Files
 
@@ -280,14 +280,14 @@ Cache saved to:  {CACHE_FILE}
 
 Next steps:
   # Fix worst file first
-  /gw:humanize guides/advanced-config.md {publication}
+  /humanize guides/advanced-config.md {publication}
 
   # Or batch humanize all files needing work
-  /gw:humanize-all {publication}
+  /humanize-all {publication}
 
   # Re-audit after changes (only re-scans modified files)
-  /gw:audit {publication}
+  /audit {publication}
 
   # Force full re-scan
-  /gw:audit {publication} --force
+  /audit {publication} --force
 ```

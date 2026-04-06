@@ -11,17 +11,17 @@ Orchestrates adversarial training between Writer and Detector agents. The Writer
 ## Usage
 
 ```
-/gw:create "Write about the benefits of meditation"
+/create "Write about the benefits of meditation"
 ```
 
 With config (recommended — provides author voice, thresholds, and detection rules):
 ```
-/gw:create --config .ghostwriter/publications/{slug}/config.yml "Write about remote work"
+/create --config .ghostwriter/publications/{slug}/config.yml "Write about remote work"
 ```
 
 With ad-hoc overrides (no config file):
 ```
-/gw:create --medium blog --tone casual --max-rounds 5 "Write about remote work"
+/create --medium blog --tone casual --max-rounds 5 "Write about remote work"
 ```
 
 ## Parameters
@@ -232,7 +232,7 @@ Update Detector instructions with missed patterns:
 ## Example Session
 
 ```
-User: /gw:create --medium blog --tone casual "Write about the benefits of meditation"
+User: /create --medium blog --tone casual "Write about the benefits of meditation"
 
 === Round 1 ===
 Invoking Writer agent...

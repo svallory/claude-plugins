@@ -13,7 +13,7 @@ Analyzes text to determine if it was written by a human or AI using the slop-det
 
 Before running, ensure:
 1. The ghostwriter plugin is loaded (`ghostwriter-env.sh` must be on PATH)
-2. Run `/gw:setup` if `.ghostwriter/` directory doesn't exist
+2. Run `/setup` if `.ghostwriter/` directory doesn't exist
 
 Set up the plugin root for tool invocations:
 ```bash
@@ -42,9 +42,9 @@ When using a publication name:
 ## Usage
 
 ```bash
-/gw:analyze path/to/text.md
-/gw:analyze guides/getting-started.md developer-docs
-/gw:analyze path/to/text.md path/to/config.yml
+/analyze path/to/text.md
+/analyze guides/getting-started.md developer-docs
+/analyze path/to/text.md path/to/config.yml
 ```
 
 ## Arguments

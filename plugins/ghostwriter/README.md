@@ -30,7 +30,7 @@ claude --plugin-dir /path/to/ghostwriter
 ### 1. Setup
 
 ```
-/gw:setup
+/setup
 ```
 
 The setup wizard guides you through creating your author profile, naming your publication, and choosing your writing medium and style.
@@ -40,8 +40,8 @@ The setup wizard guides you through creating your author profile, naming your pu
 Check if text reads as AI-generated:
 
 ```
-/gw:analyze guides/getting-started.md developer-docs
-/gw:analyze path/to/text.md
+/analyze guides/getting-started.md developer-docs
+/analyze path/to/text.md
 ```
 
 ### 3. Quick rewrite (single pass)
@@ -49,8 +49,8 @@ Check if text reads as AI-generated:
 Fast humanization without the iterative detection loop:
 
 ```
-/gw:humanize guides/getting-started.md developer-docs --quick
-/gw:humanize input.md output.md --quick
+/humanize guides/getting-started.md developer-docs --quick
+/humanize input.md output.md --quick
 ```
 
 ### 4. Humanize text (iterative loop)
@@ -58,27 +58,25 @@ Fast humanization without the iterative detection loop:
 Full adversarial loop with detection, review, and improvement:
 
 ```
-/gw:humanize guides/getting-started.md developer-docs
-/gw:humanize input.md output.md <publication-name>
+/humanize guides/getting-started.md developer-docs
+/humanize input.md output.md <publication-name>
 ```
 
 ## Available Commands
 
-All commands are under the `gw/` folder (autocomplete prefix `/gw:`):
-
 | Command | Description |
 |---------|-------------|
-| `/gw:setup` | Interactive setup wizard |
-| `/gw:analyze <file> [publication]` | Detect if text is AI-generated |
-| `/gw:humanize <in> <out> <publication>` | Iterative humanization loop |
-| `/gw:humanize <in> <out> <publication> --quick` | Single-pass humanization (fast) |
-| `/gw:humanize-all <dir> <out> <publication>` | Batch humanization |
-| `/gw:humanize-all <dir> <out> <publication> --quick` | Batch single-pass rewrite |
-| `/gw:create "topic"` | Generate new text via adversarial training |
-| `/gw:audit <publication>` | Scan all files for AI signals |
-| `/gw:authors [list\|add\|remove\|show]` | Manage author profiles |
-| `/gw:publications [list\|add\|remove\|show]` | Manage publications |
-| `/gw:migrate` | Migrate from v1 to v2 layout |
+| `/setup` | Interactive setup wizard |
+| `/analyze <file> [publication]` | Detect if text is AI-generated |
+| `/humanize <in> <out> <publication>` | Iterative humanization loop |
+| `/humanize <in> <out> <publication> --quick` | Single-pass humanization (fast) |
+| `/humanize-all <dir> <out> <publication>` | Batch humanization |
+| `/humanize-all <dir> <out> <publication> --quick` | Batch single-pass rewrite |
+| `/create "topic"` | Generate new text via adversarial training |
+| `/audit <publication>` | Scan all files for AI signals |
+| `/authors [list\|add\|remove\|show]` | Manage author profiles |
+| `/publications [list\|add\|remove\|show]` | Manage publications |
+| `/migrate` | Migrate from v1 to v2 layout |
 
 ## Project Structure
 
@@ -138,7 +136,7 @@ writing_style:
 
 ### Templates
 
-The plugin ships templates for common writing scenarios. Run `/gw:setup` to use them interactively, or copy from the plugin's `templates/` directory.
+The plugin ships templates for common writing scenarios. Run `/setup` to use them interactively, or copy from the plugin's `templates/` directory.
 
 ## Learned Patterns
 

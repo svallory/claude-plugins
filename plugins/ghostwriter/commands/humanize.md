@@ -17,7 +17,7 @@ This command uses `disable-model-invocation: true` to prevent auto-loading. The 
 
 Before running, ensure:
 1. The ghostwriter plugin is loaded (`ghostwriter-env.sh` must be on PATH)
-2. Run `/gw:setup` if `.ghostwriter/` directory doesn't exist
+2. Run `/setup` if `.ghostwriter/` directory doesn't exist
 
 Set up the plugin root for tool invocations:
 ```bash
@@ -55,9 +55,9 @@ When using a publication name:
 ## Usage
 
 ```bash
-/gw:humanize input.md output.md path/to/config.yml
-/gw:humanize guides/getting-started.md developer-docs
-/gw:humanize-all developer-docs
+/humanize input.md output.md path/to/config.yml
+/humanize guides/getting-started.md developer-docs
+/humanize-all developer-docs
 ```
 
 ## Arguments

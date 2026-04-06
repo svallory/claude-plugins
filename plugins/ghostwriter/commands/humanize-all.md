@@ -13,9 +13,9 @@ Runs the humanize loop (from `.claude/commands/humanize.md`) on every `.md` file
 ## Usage
 
 ```bash
-/gw:humanize-all chapters/ output/ path/to/config.yml
-/gw:humanize-all chapters/ output/ path/to/config.yml --parallel 3
-/gw:humanize-all chapters/ output/ path/to/config.yml --parallel 2 max-rounds=5
+/humanize-all chapters/ output/ path/to/config.yml
+/humanize-all chapters/ output/ path/to/config.yml --parallel 3
+/humanize-all chapters/ output/ path/to/config.yml --parallel 2 max-rounds=5
 ```
 
 ## Arguments

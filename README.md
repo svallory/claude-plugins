@@ -20,6 +20,6 @@ A Claude Code plugin marketplace.
 /plugin install ghostwriter
 ```
 
-Then run `/gw:setup` to configure your author profile and first publication.
+Then run `/setup` to configure your author profile and first publication.
 
 See [ghostwriter README](plugins/ghostwriter/README.md) for full documentation.

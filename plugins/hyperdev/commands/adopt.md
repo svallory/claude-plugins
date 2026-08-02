@@ -12,15 +12,15 @@ creates what is missing and never moves or deletes anything.
 ## Usage
 
 ```
-/hyper:adopt                      # dry run on the enclosing container
-/hyper:adopt --apply              # create missing dirs and docs
-/hyper:adopt ~/work/foo --apply
+/hyperdev:adopt                      # dry run on the enclosing container
+/hyperdev:adopt --apply              # create missing dirs and docs
+/hyperdev:adopt ~/work/foo --apply
 ```
 
 ## What it does
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/hyper-adopt.sh" [path] [--apply]
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/hyperdev-adopt.sh" [path] [--apply]
 ```
 
 Dry run by default — it prints what it would create and lists loose entries at

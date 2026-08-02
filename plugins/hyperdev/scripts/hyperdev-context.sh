@@ -4,7 +4,7 @@
 # costs nothing in unrelated projects.
 
 set -uo pipefail
-source "$(dirname "${BASH_SOURCE[0]}")/hyper-lib.sh" 2>/dev/null || exit 0
+source "$(dirname "${BASH_SOURCE[0]}")/hyperdev-lib.sh" 2>/dev/null || exit 0
 
 root="$(find_container_root "$PWD")" || exit 0
 name="$(basename "$root")"

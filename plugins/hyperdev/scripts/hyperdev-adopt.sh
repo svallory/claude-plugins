@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Retrofit the container layout onto an existing container.
-# Usage: hyper-adopt.sh [container-root] [--apply]
+# Usage: hyperdev-adopt.sh [container-root] [--apply]
 #
 # Without --apply this only reports. Nothing moves until you pass --apply,
 # and even then only the directory scaffold and docs are written — loose files
 # are always listed as suggestions for a human to act on.
 
 set -euo pipefail
-source "$(dirname "${BASH_SOURCE[0]}")/hyper-lib.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/hyperdev-lib.sh"
 
 root=""
 apply=0
@@ -23,7 +23,7 @@ done
 if [[ -z "$root" ]]; then
   root="$(find_container_root "$PWD")" || {
     echo "not inside a container (no bare .git + worktrees/ found)" >&2
-    echo "pass a path explicitly, or use hyper-init.sh to create one" >&2
+    echo "pass a path explicitly, or use hyperdev-init.sh to create one" >&2
     exit 1
   }
 fi

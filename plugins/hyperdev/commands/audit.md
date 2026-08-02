@@ -11,8 +11,8 @@ Read-only report on a container's health. Changes nothing.
 ## Usage
 
 ```
-/hyper:audit
-/hyper:audit ~/work/mosaic/compliance
+/hyperdev:audit
+/hyperdev:audit ~/work/mosaic/compliance
 ```
 
 ## What to check
@@ -20,7 +20,7 @@ Read-only report on a container's health. Changes nothing.
 Start with the adopt dry run, which covers layout and loose files:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/hyper-adopt.sh" [path]
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/hyperdev-adopt.sh" [path]
 ```
 
 Then add the checks that need judgement:
@@ -40,5 +40,5 @@ Then add the checks that need judgement:
 ## Output
 
 A short report grouped by severity. Recommend fixes but do not apply them —
-this command is read-only by contract. Point at `/hyper:adopt --apply` for
+this command is read-only by contract. Point at `/hyperdev:adopt --apply` for
 layout gaps.

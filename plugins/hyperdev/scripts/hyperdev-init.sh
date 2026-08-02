@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Create a new project container from a git remote.
-# Usage: hyper-init.sh <repo-url> [container-name] [--default-branch <name>]
+# Usage: hyperdev-init.sh <repo-url> [container-name] [--default-branch <name>]
 
 set -euo pipefail
-source "$(dirname "${BASH_SOURCE[0]}")/hyper-lib.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/hyperdev-lib.sh"
 
 repo_url=""
 name=""
@@ -23,7 +23,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$repo_url" ]]; then
-  echo "usage: hyper-init.sh <repo-url> [container-name] [--default-branch <name>]" >&2
+  echo "usage: hyperdev-init.sh <repo-url> [container-name] [--default-branch <name>]" >&2
   exit 2
 fi
 

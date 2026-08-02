@@ -10,9 +10,9 @@
       "source": "./plugins/ghostwriter"
     },
     {
-      "name": "hyper",
-      "description": "Project containers: a bare repo plus worktrees and a fixed set of local-only directories, so every project has the same shape and uncommittable files have a home.",
-      "source": "./plugins/hyper"
+      "name": "hyperdev",
+      "description": "HyperDev workflow support: project containers (bare repo + worktrees + local-only dirs) and per-edit integration with the linters and typecheckers a project already uses.",
+      "source": "./plugins/hyperdev"
     }
   ]
 }

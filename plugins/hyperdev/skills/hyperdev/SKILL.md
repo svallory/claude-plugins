@@ -1,5 +1,5 @@
 ---
-name: hyper
+name: hyperdev
 description: Use when working in or setting up a project container — a bare git repo with worktrees/ and local-only directories. Covers where files belong, why the container root is never committed, and how worktrees are created. Triggers on "container", "worktree layout", "where should this file go", "bare repo", "wt switch".
 ---
 
@@ -59,9 +59,12 @@ than ten minutes, it is not scratch.
 
 ## Commands
 
-- `/hyper:init <repo-url> [name]` — create a new container
-- `/hyper:adopt [path] [--apply]` — retrofit the layout onto an existing one
-- `/hyper:audit [path]` — report drift, read-only
+- `/hyperdev:init <repo-url> [name]` — create a new container
+- `/hyperdev:adopt [path] [--apply]` — retrofit the layout onto an existing one
+- `/hyperdev:audit [path]` — report drift, read-only
+- `/hyperdev:tools [path]` — detect the project toolchain and wire the
+  per-edit check hook. See the `hyperdev-tooling` skill; the commands are
+  project-specific and must be detected or asked about, never assumed.
 
 ## Detecting a container
 

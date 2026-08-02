@@ -12,8 +12,8 @@ default branch, and the standard local-only directories.
 ## Usage
 
 ```
-/hyper:init git@github.com:org/repo.git
-/hyper:init git@github.com:org/repo.git myname --default-branch develop
+/hyperdev:init git@github.com:org/repo.git
+/hyperdev:init git@github.com:org/repo.git myname --default-branch develop
 ```
 
 ## What it does
@@ -21,7 +21,7 @@ default branch, and the standard local-only directories.
 Run the script from the directory that should hold the container:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/hyper-init.sh" <repo-url> [name] [--default-branch <b>]
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/hyperdev-init.sh" <repo-url> [name] [--default-branch <b>]
 ```
 
 It will:

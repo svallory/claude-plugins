@@ -23,7 +23,7 @@ ever committed. Checkouts live in worktrees/<branch>.
 - New local-only files go in: data/ (dumps, fixtures), notes/ (briefs, docs),
   scratch/ (disposable), bin/ (helper scripts) — not loose at the root.
 
-See $root/CONTAINER.md.
+See $root/HYPERDEV.md.
 EOF
 else
   # Inside a worktree everything behaves normally; one line of orientation is

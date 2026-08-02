@@ -26,8 +26,8 @@ bash "${CLAUDE_PLUGIN_ROOT}/scripts/hyper-adopt.sh" [path] [--apply]
 Dry run by default — it prints what it would create and lists loose entries at
 the container root with a suggested destination based on file type.
 
-With `--apply` it creates the missing directories, writes `CONTAINER.md`, and
-seeds `.claude/memory/container-layout.md`. Existing files are left alone.
+With `--apply` it creates the missing directories, writes `HYPERDEV.md`, and
+seeds `.claude/memory/hyperdev-layout.md`. Existing files are left alone.
 
 ## Handling loose files
 

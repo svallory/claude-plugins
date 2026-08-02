@@ -19,11 +19,11 @@ dir_purpose() {
 }
 
 # A container is a directory holding a bare .git plus a worktrees/ dir.
-# CONTAINER.md is the explicit marker but we detect structurally too, so
+# HYPERDEV.md is the explicit marker but we detect structurally too, so
 # `adopt` works on containers created before this plugin existed.
 is_container() {
   local d="${1:-$PWD}"
-  [[ -f "$d/CONTAINER.md" ]] && return 0
+  [[ -f "$d/HYPERDEV.md" ]] && return 0
   [[ -d "$d/worktrees" ]] && [[ -d "$d/.git" ]] \
     && [[ "$(git --git-dir="$d/.git" config --get core.bare 2>/dev/null)" == "true" ]]
 }
@@ -49,13 +49,13 @@ at_container_root() {
   [[ "$root" == "$PWD" ]]
 }
 
-write_container_md() {
+write_hyperdev_md() {
   local root="$1" name="$2"
-  cat > "$root/CONTAINER.md" <<EOF
+  cat > "$root/HYPERDEV.md" <<EOF
 # $name
 
-Project **container**. This directory is not a git worktree — nothing here is
-committed. Real checkouts live in \`worktrees/\`.
+Project **container** (\`hyper\` layout). This directory is not a git worktree —
+nothing here is committed. Real checkouts live in \`worktrees/\`.
 
 ## Layout
 
@@ -86,9 +86,9 @@ write_memory_seed() {
   local mem="$root/.claude/memory"
   mkdir -p "$mem"
 
-  cat > "$mem/container-layout.md" <<EOF
+  cat > "$mem/hyperdev-layout.md" <<EOF
 ---
-name: container-layout
+name: hyperdev-layout
 description: $name uses a container layout; worktrees live in worktrees/, container root is never committed
 metadata:
   type: project
@@ -105,15 +105,15 @@ None of it is committed or backed up.
 home that cannot accidentally be committed.
 
 **How to apply:** never commit from the container root; put new local files in the
-matching directory instead of loose at the root. See \`CONTAINER.md\`.
+matching directory instead of loose at the root. See \`HYPERDEV.md\`.
 EOF
 
   local index="$root/.claude/MEMORY.md"
   if [[ ! -f "$index" ]]; then
     printf '# Memory index\n\n' > "$index"
   fi
-  if ! grep -q 'container-layout.md' "$index" 2>/dev/null; then
-    printf -- '- [Container layout](memory/container-layout.md) — worktrees/, local-only dirs, root is never committed\n' >> "$index"
+  if ! grep -q 'hyperdev-layout.md' "$index" 2>/dev/null; then
+    printf -- '- [Container layout](memory/hyperdev-layout.md) — worktrees/, local-only dirs, root is never committed\n' >> "$index"
   fi
 }
 

@@ -45,10 +45,10 @@ if [[ $apply -eq 1 ]]; then
   echo "Directories:"
   scaffold_dirs "$root"
   mkdir -p "$root/.claude"
-  write_container_md "$root" "$name"
+  write_hyperdev_md "$root" "$name"
   write_memory_seed "$root" "$name"
-  echo "  wrote    CONTAINER.md"
-  echo "  wrote    .claude/memory/container-layout.md"
+  echo "  wrote    HYPERDEV.md"
+  echo "  wrote    .claude/memory/hyperdev-layout.md"
 else
   echo "Directories (dry run):"
   for d in "${CONTAINER_DIRS[@]}"; do
@@ -58,9 +58,9 @@ else
       echo "  would create  $d/  — $(dir_purpose "$d")"
     fi
   done
-  [[ -f "$root/CONTAINER.md" ]] \
-    && echo "  exists   CONTAINER.md" \
-    || echo "  would create  CONTAINER.md"
+  [[ -f "$root/HYPERDEV.md" ]] \
+    && echo "  exists   HYPERDEV.md" \
+    || echo "  would create  HYPERDEV.md"
 fi
 
 echo
@@ -72,7 +72,7 @@ while IFS= read -r entry; do
 
   # Skip the structural pieces and the directories we manage.
   case "$base" in
-    .git|.claude|CONTAINER.md|.DS_Store) continue ;;
+    .git|.claude|HYPERDEV.md|.DS_Store) continue ;;
   esac
   skip=0
   for d in "${CONTAINER_DIRS[@]}"; do

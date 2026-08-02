@@ -62,7 +62,7 @@ echo "Scaffolding directories..."
 mkdir -p "$root/.claude"
 scaffold_dirs "$root"
 
-write_container_md "$root" "$name"
+write_hyperdev_md "$root" "$name"
 write_memory_seed "$root" "$name"
 
 echo "Creating worktree for $default_branch..."

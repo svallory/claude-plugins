@@ -19,7 +19,7 @@ project, alongside directories for files that must never be committed.
 ├── notes/        briefs, handoffs, working docs
 ├── scratch/      throwaway; safe to delete at any time
 ├── bin/          local helper scripts
-└── CONTAINER.md  what this is and where things go
+└── HYPERDEV.md  what this is and where things go
 ```
 
 ## The core property
@@ -66,7 +66,7 @@ than ten minutes, it is not scratch.
 ## Detecting a container
 
 Structurally: a directory with `worktrees/` and a `.git` where
-`core.bare == true`. `CONTAINER.md` is the explicit marker, but detection does
+`core.bare == true`. `HYPERDEV.md` is the explicit marker, but detection does
 not depend on it, so containers predating this plugin still work.
 
 To find the root from anywhere inside, walk up until that shape appears. When

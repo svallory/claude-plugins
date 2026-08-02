@@ -31,7 +31,7 @@ It will:
 2. Record `worktrunk.default-branch` and `worktrunk.history` in the repo config.
 3. Create `worktrees/ data/ notes/ scratch/ bin/`, each with a
    `.what-goes-here` note.
-4. Write `CONTAINER.md` and seed `.claude/memory/container-layout.md`.
+4. Write `HYPERDEV.md` and seed `.claude/memory/hyperdev-layout.md`.
 5. Create the default-branch worktree via `wt switch`, falling back to
    `git worktree add` when `wt` is unavailable.
 

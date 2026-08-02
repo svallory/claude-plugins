@@ -8,6 +8,11 @@
       "name": "ghostwriter",
       "description": "Adversarial AI text detection and humanization system. Detects AI-generated text and iteratively revises it to read as authentically human.",
       "source": "./plugins/ghostwriter"
+    },
+    {
+      "name": "hyper",
+      "description": "Project containers: a bare repo plus worktrees and a fixed set of local-only directories, so every project has the same shape and uncommittable files have a home.",
+      "source": "./plugins/hyper"
     }
   ]
 }

@@ -1,0 +1,8 @@
+{
+  "name": "hyper",
+  "description": "Project containers: a bare repo plus worktrees and a fixed set of local-only directories, so every project has the same shape and uncommittable files have a home.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Saulo Vallory"
+  }
+}

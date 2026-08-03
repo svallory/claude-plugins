@@ -302,9 +302,13 @@ EOF
   if [[ ! -f "$index" ]]; then
     printf '# Memory index\n\n' > "$index"
   fi
-  if ! grep -q 'hyperdev-layout.md' "$index" 2>/dev/null; then
-    printf -- '- [Container layout](memory/hyperdev-layout.md) — worktrees/, local-only dirs, root is never committed\n' >> "$index"
+  # Rewrite rather than skip-if-present: an interrupted earlier run can leave
+  # an index line pointing at a memory file that was never written, and a
+  # plain grep would treat that dangling entry as "already done".
+  if grep -q 'hyperdev-layout.md' "$index" 2>/dev/null; then
+    grep -v 'hyperdev-layout.md' "$index" > "$index.tmp" && mv "$index.tmp" "$index"
   fi
+  printf -- '- [Container layout](memory/hyperdev-layout.md) — worktrees/, local-only dirs, root is never committed\n' >> "$index"
 }
 
 # Create the directory set. Idempotent: reports created vs already-present.

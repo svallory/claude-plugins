@@ -92,14 +92,22 @@ gradle, bazel) a replayed cache hit is indistinguishable from real work by exit
 code. Confirm the check actually executes and actually fails:
 
 ```bash
-<command> --force          # or nx --skip-nx-cache, gradle --rerun-tasks
+bun run typecheck -- --force      # args after -- reach the underlying tool
+bunx turbo run typecheck --force  # or invoke the runner directly
+# nx: --skip-nx-cache   gradle: --rerun-tasks   bazel: --nocache_test_results
 ```
 
 Watch the duration. A "passing" typecheck that finishes in 30ms did not run
-`tsc`; a cold run takes seconds. Then prove it detects a real fault — append a
-deliberate type error, confirm non-zero exit and the error in the output, and
-revert it. A check that cannot fail is worse than none, because it reports
-safety that does not exist.
+`tsc`; a cold run takes seconds. Then prove it detects a real fault — add a
+file with a deliberate type error, confirm non-zero exit and the error in the
+output, and delete it. A check that cannot fail is worse than none, because it
+reports safety that does not exist.
+
+Also confirm the check actually covers the files the hook will fire on. In a
+monorepo, a package with no `typecheck` script is silently skipped: editing a
+file there matches the extension filter, runs the command, and passes without
+ever inspecting the file. Compare the packages the command touches against the
+workspace list, and either narrow `extensions` or note the gap.
 
 ## Security
 

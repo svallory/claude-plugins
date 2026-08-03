@@ -95,6 +95,23 @@ than ten minutes, it is not scratch.
 - Worktrees have their own `.claude/` and `CLAUDE.md`; those *are* committed.
   Container-level `.claude/` is local and shared across all worktrees.
 
+## Which command, in what order
+
+There is no single "set this project up" command. For an existing project:
+
+1. `/hyperdev:adopt <path>` — dry run first, read the output.
+2. Act on the loose-file suggestions **one at a time**, confirming each. They
+   are heuristics; several categories are explicitly "leave in place".
+3. `/hyperdev:adopt <path> --apply` — create the scaffold.
+4. `/hyperdev:tools <path>` — detect the toolchain and wire the check hook.
+5. `/hyperdev:audit <path>` — the judgement checks, any time after.
+
+`/hyperdev:init` is only for creating a *new* container from a remote. It does
+not apply to a project that already exists on disk.
+
+Nothing in the plugin deletes anything. Orphaned worktrees, stale branches and
+oversized `scratch/` are reported for you to act on by hand.
+
 ## Commands
 
 - `/hyperdev:init <repo-url> [name]` — create a new container

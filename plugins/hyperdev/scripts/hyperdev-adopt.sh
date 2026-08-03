@@ -142,6 +142,31 @@ while IFS= read -r entry; do
     continue
   fi
 
+  # Being gitignored is a hint, not a verdict: a stray zip and a build cache are
+  # both ignored, but only one is safe to file away. It is recorded here and
+  # used to soften the wording, after the specific rules below have had a say.
+  ignored=0
+  if [[ "$layout" == checkout ]] \
+     && git -C "$root" check-ignore -q "$base" 2>/dev/null; then
+    ignored=1
+  fi
+
+  # A live database must not be moved: connection strings routinely use a
+  # relative path, so moving it silently creates a fresh empty database
+  # instead of failing loudly.
+  case "$base" in
+    *.sqlite|*.sqlite3|*.db|*.duckdb)
+      size="$(du -sh "$entry" 2>/dev/null | cut -f1 || echo '?')"
+      if compgen -G "$entry-wal" >/dev/null 2>&1 || compgen -G "$entry-shm" >/dev/null 2>&1; then
+        printf '  %-32s %6s  → %s\n' "$base" "$size" \
+          "LIVE database (has -wal/-shm) — do not move; check the app's connection path first"
+      else
+        printf '  %-32s %6s  → %s\n' "$base" "$size" \
+          "database — move to data/ only after confirming no relative path points here"
+      fi
+      continue ;;
+  esac
+
   # Tool-managed directories and local secrets must stay exactly where they
   # are: their location is part of a contract with a package manager, build
   # tool, or runtime. Moving them breaks the project.
@@ -177,6 +202,10 @@ while IFS= read -r entry; do
       *)                                                               suggestion="scratch/ if disposable" ;;
     esac
   fi
+
+  # An ignored path may be one tooling recreates in place. Flag it so the
+  # suggestion is checked before acting, without suppressing it outright.
+  [[ $ignored -eq 1 ]] && suggestion="$suggestion  [gitignored — confirm nothing recreates it here]"
 
   size="$(du -sh "$entry" 2>/dev/null | cut -f1 || echo '?')"
   printf '  %-32s %6s  → %s\n' "$base" "$size" "$suggestion"

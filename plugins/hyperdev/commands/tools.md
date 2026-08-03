@@ -87,6 +87,20 @@ Confirm it exits 0 on a clean tree. A check that fails on unmodified code will
 fire on every edit and is worse than no check. If it fails, fix the command or
 leave the hook disabled — do not enable it and hope.
 
+**Exit 0 alone is not proof the check ran.** With a build cache (turbo, nx,
+gradle, bazel) a replayed cache hit is indistinguishable from real work by exit
+code. Confirm the check actually executes and actually fails:
+
+```bash
+<command> --force          # or nx --skip-nx-cache, gradle --rerun-tasks
+```
+
+Watch the duration. A "passing" typecheck that finishes in 30ms did not run
+`tsc`; a cold run takes seconds. Then prove it detects a real fault — append a
+deliberate type error, confirm non-zero exit and the error in the output, and
+revert it. A check that cannot fail is worse than none, because it reports
+safety that does not exist.
+
 ## Security
 
 `command` is executed as written, from a file inside the repository. A checkout

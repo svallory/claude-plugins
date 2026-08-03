@@ -15,9 +15,14 @@ Read-only report on a container's health. Changes nothing.
 /hyperdev:audit ~/work/mosaic/compliance
 ```
 
+This command has **no script of its own** — unlike init/adopt/tools it is a
+checklist you run by hand, because most of its findings need judgement rather
+than a rule. The adopt dry run does the mechanical part.
+
 ## What to check
 
-Start with the adopt dry run, which covers layout and loose files:
+Start with the adopt dry run, which covers layout, loose files at the root, and
+the state of each entry in the worktrees directory:
 
 ```bash
 bash "${CLAUDE_PLUGIN_ROOT}/scripts/hyperdev-adopt.sh" [path]

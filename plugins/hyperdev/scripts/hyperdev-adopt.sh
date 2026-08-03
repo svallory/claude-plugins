@@ -186,6 +186,37 @@ if [[ $found_loose -eq 0 ]]; then
   echo "  (none)"
 fi
 
+# The loose-file scan above is maxdepth 1, so debris *inside* the worktrees
+# directory never surfaces. Dead checkouts accumulate there — a removed
+# worktree leaves build output behind, and it looks like a live branch until
+# you inspect it.
+wt_scan="$(worktrees_dir "$root" 2>/dev/null)" || wt_scan=""
+if [[ -n "$wt_scan" && -d "$wt_scan" ]]; then
+  echo
+  echo "Worktree directory (${wt_scan#"$root"/}):"
+  wt_found=0
+  for w in "$wt_scan"/*/; do
+    [[ -d "$w" ]] || continue
+    wname="$(basename "$w")"
+    wt_found=1
+    if [[ ! -e "$w/.git" ]]; then
+      wsize="$(du -sh "$w" 2>/dev/null | cut -f1 || echo '?')"
+      printf '  %-32s %6s  → %s\n' "$wname" "$wsize" \
+        "no .git — leftover build output, not a worktree; safe to delete"
+    elif [[ -f "$w/.git" ]] \
+         && wgd="$(sed -n 's/^gitdir: //p' "$w/.git" 2>/dev/null)" \
+         && [[ -n "$wgd" && ! -d "$wgd" ]]; then
+      wsize="$(du -sh "$w" 2>/dev/null | cut -f1 || echo '?')"
+      printf '  %-32s %6s  → %s\n' "$wname" "$wsize" \
+        "ORPHANED — gitdir missing; recover or delete"
+    else
+      wbranch="$(git -C "$w" branch --show-current 2>/dev/null || echo '?')"
+      printf '  %-32s %6s  → %s\n' "$wname" "" "ok [$wbranch]"
+    fi
+  done
+  [[ $wt_found -eq 0 ]] && echo "  (empty)"
+fi
+
 echo
 if [[ $apply -eq 1 ]]; then
   echo "Scaffold applied. Move loose entries yourself — the suggestions above are"

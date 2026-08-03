@@ -99,7 +99,8 @@ than ten minutes, it is not scratch.
 
 - `/hyperdev:init <repo-url> [name]` — create a new container
 - `/hyperdev:adopt [path] [--apply]` — retrofit the layout onto an existing one
-- `/hyperdev:audit [path]` — report drift, read-only
+- `/hyperdev:audit [path]` — report drift, read-only. A manual checklist, not a
+  script: it wraps the adopt dry run and adds checks that need judgement.
 - `/hyperdev:tools [path]` — detect the project toolchain and wire the
   per-edit check hook. See the `hyperdev-tooling` skill; the commands are
   project-specific and must be detected or asked about, never assumed.

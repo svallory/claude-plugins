@@ -207,8 +207,16 @@ ensure_gitignored() {
   local gi="$root/.gitignore"
   local d added=0
 
+  # git check-ignore consults .gitignore, .git/info/exclude and the global
+  # excludesfile alike, so asking git is the only way to avoid re-adding an
+  # entry the project already covers elsewhere.
+  _already_ignored() {
+    git -C "$root" check-ignore -q "$1" 2>/dev/null
+  }
+
   for d in "${CONTAINER_DIRS[@]}"; do
     [[ "$d" == worktrees ]] && continue   # lives under .claude/ in this layout
+    _already_ignored "$d/" && continue
     if ! grep -qxF "/$d/" "$gi" 2>/dev/null; then
       if [[ $added -eq 0 ]]; then
         [[ -s "$gi" ]] && printf '\n' >> "$gi"
@@ -221,9 +229,7 @@ ensure_gitignored() {
 
   # .claude/worktrees holds entire checkouts; committing them would be a
   # catastrophe, so ensure it is ignored even if .claude itself is tracked.
-  if ! grep -qxF '/.claude/worktrees/' "$gi" 2>/dev/null \
-     && ! grep -qxF '.claude/' "$gi" 2>/dev/null \
-     && ! grep -qxF '/.claude/' "$gi" 2>/dev/null; then
+  if ! _already_ignored '.claude/worktrees/'; then
     [[ $added -eq 0 ]] && { [[ -s "$gi" ]] && printf '\n' >> "$gi"; \
       printf '# hyperdev local-only directories (never committed)\n' >> "$gi"; }
     printf '/.claude/worktrees/\n' >> "$gi"

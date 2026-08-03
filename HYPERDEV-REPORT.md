@@ -2,7 +2,9 @@
 
 Written 2026-08-03. Branch `feat/hyperdev-plugin` (pushed; the earlier
 `feat/container-plugin` remote branch is the same work under its original name
-and can be deleted). Version `0.2.0`. Not yet merged to `main`.
+and can be deleted). Version `0.2.0`. Not yet merged to `main`. On 2026-08-03
+the core concept was renamed from "container" to "space"; this doc uses the new
+term throughout.
 
 **This doc is written to be handed to someone — or some agent — with no prior
 context.** It covers what the plugin is, why each decision was made, and how to
@@ -21,7 +23,7 @@ work on it safely. If you are picking this up cold, read in this order:
 
 Two things that turned out to belong together:
 
-1. **Project containers.** A fixed directory shape per project — the git repo,
+1. **Project spaces.** A fixed directory shape per project — the git repo,
    every worktree, and a small set of directories for files that must never be
    committed.
 2. **Toolchain integration.** A `PostToolUse` hook that runs the project's *own*
@@ -31,8 +33,10 @@ The second exists because of [hyperdev.saulo.engineer](https://hyperdev.saulo.en
 Of its five principles, **Tools Integration** and **Real-time Feedback** are the
 two a Claude Code plugin can actually deliver today. *Deterministic First* and
 *Engineered Friction* need generators and complexity scoring; *Reactive Context*
-is partly covered by the SessionStart hook. The site's `hyper gen` / `tools` /
-`plan` / `watch` / `dash` toolkit does not exist yet, so nothing here stubs it.
+is partly covered by the SessionStart hook. Of the site's `hyper gen` /
+`tools` / `plan` / `watch` / `dash` toolkit, `plan` and `gen` now exist at
+plugin scale (`/hyperdev:plan`, `/hyperdev:gen`); `watch` and `dash` do not,
+and nothing here stubs them.
 
 ---
 
@@ -43,10 +47,10 @@ Both are first-class, because converting between them means re-cloning.
 ### bare
 
 ```
-<container>/
+<space>/
 ├── .git/         bare — no working tree
 ├── .claude/      settings + memory
-├── worktrees/    one checkout per branch
+├── worktrees/    one worktree per branch
 ├── data/  notes/  scratch/  bin/
 └── HYPERDEV.md
 ```
@@ -78,7 +82,7 @@ sit inside the working tree, so worktrees live under `.claude/`.
 | `scripts/hyperdev-lib.sh` | 349 | layout detection, scaffolding, docs, gitignore |
 | `scripts/hyperdev-adopt.sh` | 255 | retrofit onto an existing repo |
 | `scripts/hyperdev-check.sh` | 122 | PostToolUse check hook |
-| `scripts/hyperdev-init.sh` | 87 | create a new container from a remote |
+| `scripts/hyperdev-init.sh` | 87 | create a new space from a remote |
 | `scripts/hyperdev-stack.sh` | 67 | stack dispatcher |
 | `scripts/hyperdev-context.sh` | 73 | SessionStart context hook |
 | `stacks/node/detect.sh` | 113 | npm / pnpm / yarn / bun + TypeScript |
@@ -178,16 +182,16 @@ exists to prevent.
 ### 2. Relative paths resolve against the config's directory
 
 Follow-on from the above. The hook `cd`s to wherever it found
-`.claude/hyperdev.json` before running. In a **bare** container, a config at the
-container root has no `node_modules` beside it — the bare repo has no working
+`.claude/hyperdev.json` before running. In a **bare** space, a config at the
+space root has no `node_modules` beside it — the bare repo has no working
 tree at all:
 
 ```
 timeout: failed to run command ‘./node_modules/.bin/tsc’: No such file or directory
 ```
 
-**Fix:** put the config in the *worktree*, not the container root, whenever the
-command uses a relative path. See "Container-level check config" under
+**Fix:** put the config in the *worktree*, not the space root, whenever the
+command uses a relative path. See "Space-level check config" under
 Speculative for the proper fix.
 
 ### 3. A cache hit is indistinguishable from a real run
@@ -235,26 +239,28 @@ the cure can be worse.
 
 ### 6. Detection that matched every repo on the machine
 
-Adding checkout-layout support initially made `container_layout` accept any
+Adding checkout-layout support initially made `space_layout` accept any
 non-bare repo root. Suddenly `~/work/claude-plugins` and every other repo
-reported as a hyperdev container, and the SessionStart hook fired everywhere.
+reported as a hyperdev space, and the SessionStart hook fired everywhere.
 
 **Fix:** the checkout layout requires an **opt-in marker** (`HYPERDEV.md` or an
-existing `.claude/worktrees/`). The bare layout is self-identifying and needs no
-gate. `adopt` deliberately bypasses the gate via `effective_layout`, because
+existing `.claude/worktrees/`). The bare layout looked self-identifying at the
+time; it has since gained its own gate (`worktrees/` or the marker beside
+`.git`), because `core.bare=true` alone also matches mirrors and plain bare
+clones. `adopt` deliberately bypasses the gate via `effective_layout`, because
 adopt is the thing that *performs* the opt-in.
 
-### 7. A linked worktree claiming to be a container root
+### 7. A linked worktree claiming to be a space root
 
 `git rev-parse --show-toplevel` returns the worktree's own top, so a linked
 worktree satisfied "is the root of a working tree" and stopped the upward walk
-before reaching the real container.
+before reaching the real space.
 
 Compounding it: in the checkout layout `HYPERDEV.md` is a **tracked file**, so
 every worktree carries a copy and the marker check matched too.
 
-**Fix:** `container_layout` requires `.git` to be a *directory* (a linked
-worktree has a `.git` **file**), and `is_container` requires both the marker and
+**Fix:** `space_layout` requires `.git` to be a *directory* (a linked
+worktree has a `.git` **file**), and `is_space` requires both the marker and
 a real repo root.
 
 ### 8. An interrupted run that looked complete
@@ -288,30 +294,30 @@ call the functions directly — that is also how to test them.
 
 ```bash
 source plugins/hyperdev/scripts/hyperdev-lib.sh
-container_layout /path/to/thing     # prints bare | checkout | nothing
+space_layout /path/to/thing     # prints bare | checkout | nothing
 ```
 
 | Function | Contract |
 |---|---|
-| `container_layout <dir>` | prints `bare`/`checkout`, or exits non-zero. **Checkout requires opt-in** (marker or `.claude/worktrees/`). |
+| `space_layout <dir>` | prints `bare`/`checkout`, or exits non-zero. **Checkout requires opt-in** (marker or `.claude/worktrees/`). |
 | `effective_layout <dir>` | same, but classifies a repo that has *not* opted in. Used by adopt, which performs the opt-in. |
 | `worktrees_dir <dir>` | `<root>/worktrees` (bare) or `<root>/.claude/worktrees` (checkout) |
-| `is_container <dir>` | marker **plus** a real repo root, or structural detection |
-| `find_container_root [dir]` | walks up; skips linked worktrees (`.git` file) |
-| `at_container_root` | true when `$PWD` is the root itself |
-| `scaffold_dirs <root>` | creates `CONTAINER_DIRS`, layout-aware; calls `ensure_gitignored` for checkout |
+| `is_space <dir>` | marker **plus** a real repo root, or structural detection |
+| `find_space_root [dir]` | walks up; skips linked worktrees (`.git` file) |
+| `at_space_root` | true when `$PWD` is the root itself |
+| `scaffold_dirs <root>` | creates `SPACE_DIRS`, layout-aware; calls `ensure_gitignored` for checkout |
 | `ensure_gitignored <root>` | additive; asks `git check-ignore` so it never duplicates an existing rule |
 | `write_hyperdev_md <root> <name>` | layout-specific `HYPERDEV.md` |
 | `write_memory_seed <root> <name>` | `.claude/memory/hyperdev-layout.md` + index line |
 
-`CONTAINER_DIRS=(worktrees data notes scratch bin)` is the single source of truth
+`SPACE_DIRS=(worktrees data notes scratch bin)` is the single source of truth
 for the directory set.
 
 **Verified behaviour** (run against real paths on this machine):
 
-| Path | `container_layout` | `is_container` |
+| Path | `space_layout` | `is_space` |
 |---|---|---|
-| a bare container root | `bare` | yes |
+| a bare space root | `bare` | yes |
 | a worktree inside it | — | **no** |
 | an adopted checkout root | `checkout` | yes |
 | a plain git repo | — | **no** |
@@ -331,13 +337,13 @@ done
 
 # 2. detection — the four rows above
 source plugins/hyperdev/scripts/hyperdev-lib.sh
-container_layout <bare-root>; container_layout <checkout-root>
-container_layout <plain-repo>   # must print nothing, exit non-zero
+space_layout <bare-root>; space_layout <checkout-root>
+space_layout <plain-repo>   # must print nothing, exit non-zero
 
 # 3. the hooks — pipe real hook JSON, never run the command in a shell
 echo '{"tool_input":{"file_path":"/abs/path/to/real.ts"}}' \
   | bash plugins/hyperdev/scripts/hyperdev-check.sh; echo "exit=$?"
-cd <container-root> && bash plugins/hyperdev/scripts/hyperdev-context.sh
+cd <space-root> && bash plugins/hyperdev/scripts/hyperdev-context.sh
 
 # 4. adopt — always dry-run first; it prints what it would do
 bash plugins/hyperdev/scripts/hyperdev-adopt.sh <path>
@@ -379,23 +385,28 @@ bash plugins/hyperdev/scripts/hyperdev-stack.sh detect <project>
 
 ### Real limitations
 
-1. **`init` only creates bare containers.** `hyperdev-init.sh` has no notion of
+1. **`init` only creates bare spaces.** `hyperdev-init.sh` has no notion of
    the checkout layout — it always bare-clones. Adopting an existing checkout
-   works; creating one does not.
+   works; creating one does not. *(resolved 2026-08-03: `init` now takes
+   `--layout bare|checkout`.)*
 2. **`audit` has no script.** It is a markdown checklist that wraps the adopt dry
    run plus judgement checks. The command list implies parity with the other
    three that does not exist. Either write the mechanical half or keep saying so
-   plainly.
+   plainly. *(resolved 2026-08-03: `hyperdev-audit.sh` does the mechanical half;
+   the judgement calls stay in the command markdown.)*
 3. **Nothing ever deletes.** Orphaned worktrees, stale branches, and an oversized
    `scratch/` are reported for a human to act on. Defensible, but it means the
    plugin can detect debris it will not clear.
 4. **The check hook runs one command.** No lint-and-typecheck, no per-language
    routing in a polyglot repo, no incremental "only the edited file" mode. On a
    large codebase a full typecheck per edit is too slow, and the only lever is
-   `extensions` plus `timeout`.
+   `extensions` plus `timeout`. *(partly resolved 2026-08-03: a `checks` array
+   runs several commands, each with its own extension filter and timeout;
+   incremental per-file mode still absent.)*
 5. **Monorepo blind spot.** A package with no `typecheck` script is silently
    skipped: the hook fires, the command runs, it passes, and the edited file was
    never inspected. Documented in `tools.md`; not detected automatically.
+   *(resolved 2026-08-03 as documentation — automatic detection remains open.)*
 6. **`command` executes arbitrary code from a repo file.** An untrusted checkout
    runs it on first edit. Documented rather than sandboxed.
 
@@ -407,6 +418,8 @@ bash plugins/hyperdev/scripts/hyperdev-stack.sh detect <project>
    dedup, and the adopt suggestion matrix.
 8. **No CI.** Nothing runs `bash -n`, let alone shellcheck.
 9. **No README.** `REPORT.md` (this file) and the two skills are the only prose.
+   *(resolved 2026-08-03: `plugins/hyperdev/README.md` covers the layouts, the
+   commands, and install.)*
 
 ---
 
@@ -422,10 +435,10 @@ bash plugins/hyperdev/scripts/hyperdev-stack.sh detect <project>
 
   | Fixture | Must yield |
   |---|---|
-  | bare repo + `worktrees/` | `bare`, is_container yes |
-  | checkout + `HYPERDEV.md` | `checkout`, is_container yes |
-  | checkout, no marker | nothing, is_container **no** (the opt-in gate) |
-  | linked worktree | nothing, and `find_container_root` reaches the real root |
+  | bare repo + `worktrees/` | `bare`, is_space yes |
+  | checkout + `HYPERDEV.md` | `checkout`, is_space yes |
+  | checkout, no marker | nothing, is_space **no** (the opt-in gate) |
+  | linked worktree | nothing, and `find_space_root` reaches the real root |
   | repo with `/data/` in `.git/info/exclude` | `ensure_gitignored` adds nothing |
 
   Also worth pinning: adopt's suggestion matrix (a `.sqlite` with sidecars → do
@@ -441,7 +454,8 @@ bash plugins/hyperdev/scripts/hyperdev-stack.sh detect <project>
 
 - **A README** covering the two layouts, the four commands, and install. Right now
   a user must read `SKILL.md` to learn what the plugin even is. Most of the prose
-  can be lifted from this doc's first two sections.
+  can be lifted from this doc's first two sections. *(resolved 2026-08-03:
+  `plugins/hyperdev/README.md`.)*
 
 - **Make `audit` real.** Currently markdown-only, which the command list implies
   otherwise. The mechanical half is well understood from running it by hand:
@@ -455,17 +469,21 @@ bash plugins/hyperdev/scripts/hyperdev-stack.sh detect <project>
     — **report the path only, never contents**
 
   Keep the judgement calls in the markdown. The script should print findings and
-  change nothing.
+  change nothing. *(resolved 2026-08-03: `hyperdev-audit.sh`, exactly this
+  shape.)*
 
 ### Medium
 
-- **`init` for checkout containers.** `git clone` + scaffold + gitignore, sharing
+- **`init` for checkout spaces.** `git clone` + scaffold + gitignore, sharing
   `scaffold_dirs`/`ensure_gitignored` with adopt. Mostly plumbing.
+  *(resolved 2026-08-03: `--layout checkout`.)*
 - **More stacks.** Adding one means a `stacks/<name>/detect.sh` with
   `stack_matches` + `stack_detect` — no dispatcher edit. Rust (`Cargo.toml`),
   Python (`pyproject.toml`, and the uv/poetry/pip split), Deno, Elixir.
+  *(partly resolved 2026-08-03: Rust and Python landed; Deno and Elixir did not.)*
 - **Multi-command checks.** `"checks": [{run, extensions, timeout}, …]` so lint
   and typecheck can both fire on the files each cares about.
+  *(resolved 2026-08-03: exactly this shape, in `hyperdev-check.sh`.)*
 - **Detect the monorepo coverage hole.** Compare packages the check command
   touches against the workspace list; warn when a package has no script.
 - **A cleanup command** (`/hyperdev:prune`) for the debris audit reports —
@@ -481,8 +499,8 @@ bash plugins/hyperdev/scripts/hyperdev-stack.sh detect <project>
   places new worktrees outside `.claude/worktrees/`. Either generate a
   project-level `.config/wt.toml` during adopt, or document the mismatch harder
   than the current one paragraph in `SKILL.md`.
-- **Container-level check config.** Today the config must live in the worktree
-  because relative paths resolve against it. A container-level default that each
+- **Space-level check config.** Today the config must live in the worktree
+  because relative paths resolve against it. A space-level default that each
   worktree inherits — with paths resolved against the *edited file's* worktree —
   would remove the duplication.
 
@@ -535,8 +553,10 @@ If you are tempted to "simplify" one of these, this is why it is the way it is:
   wrong check command is worse than no check command.
 - **Nothing deletes.** adopt and audit report; a human acts. The one time the
   tool nearly moved something on its own it would have destroyed a database.
-- **Checkout layout needs opt-in; bare does not.** Bare is self-identifying;
-  every git repo looks like a checkout.
+- **Both layouts are gated.** Checkout needs the opt-in marker because every
+  git repo looks like a checkout; bare needs `worktrees/` or the marker beside
+  its `.git`, because `core.bare=true` alone also matches mirrors and hosting
+  remotes.
 - **`swallow` in the check hook is deliberate** — a failing *check* must not
   break a user's edit loop. But it means silent gaps, which is why the
   verification recipe insists you prove the check can fail.

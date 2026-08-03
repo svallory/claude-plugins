@@ -109,6 +109,37 @@ file there matches the extension filter, runs the command, and passes without
 ever inspecting the file. Compare the packages the command touches against the
 workspace list, and either narrow `extensions` or note the gap.
 
+## Hooks do not inherit your shell
+
+The hook runs the command without your interactive shell's environment. Two
+consequences bite in practice:
+
+**Version managers may not resolve.** With proto, mise, asdf, nvm or volta, the
+`npm`/`node` on PATH is a shim that needs environment the hook does not have.
+A command that works in your terminal can fail under the hook with something
+like `proto::detect::failed` or `command not found`. Prefer the project-local
+binary, which skips resolution entirely:
+
+```json
+{ "check": { "command": "./node_modules/.bin/tsc --build server/tsconfig.json" } }
+```
+
+**Relative paths resolve against the directory holding the config**, because the
+hook `cd`s there before running. In a bare-layout container, a config at the
+container root has no `node_modules` beside it — `./node_modules/.bin/tsc` will
+not exist. Put the config in the worktree whose files you are editing, not at
+the container root, whenever the command uses a relative path.
+
+Always test the configured command through the hook itself, not just in your
+shell:
+
+```bash
+echo '{"tool_input":{"file_path":"<abs path to a real source file>"}}' \
+  | bash "${CLAUDE_PLUGIN_ROOT}/scripts/hyperdev-check.sh"; echo "exit=$?"
+```
+
+Exit 0 on a clean file and exit 2 on a file with a deliberate error.
+
 ## Security
 
 `command` is executed as written, from a file inside the repository. A checkout

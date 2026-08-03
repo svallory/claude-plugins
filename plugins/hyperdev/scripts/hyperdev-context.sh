@@ -8,43 +8,66 @@ source "$(dirname "${BASH_SOURCE[0]}")/hyperdev-lib.sh" 2>/dev/null || exit 0
 
 root="$(find_container_root "$PWD")" || exit 0
 name="$(basename "$root")"
+layout="$(container_layout "$root" 2>/dev/null)" || layout=bare
+wt_abs="$(worktrees_dir "$root" 2>/dev/null)" || wt_abs="$root/worktrees"
+wt_rel="${wt_abs#"$root"/}"
 
-if at_container_root; then
-  # At the root, the failure modes are real: committing from a bare repo,
-  # dumping loose files. Spend the tokens here.
+# Inside a worktree? Compare against the layout's worktrees directory rather
+# than assuming a fixed path, since it differs per layout.
+in_worktree=0
+if [[ "$PWD" == "$wt_abs"/* ]]; then
+  in_worktree=1
+  rest="${PWD#"$wt_abs"/}"
+  wt_name="${rest%%/*}"
+fi
+
+if [[ $in_worktree -eq 1 ]]; then
+  cat <<EOF
+Worktree \`$wt_name\` of container $name ($root).
+Container-level local-only dirs: data/, notes/, scratch/, bin/. Sibling
+worktrees are in $wt_abs/. Normal git applies here.
+EOF
+
+elif at_container_root && [[ "$layout" == bare ]]; then
+  # Bare root: the failure modes are real (committing against a bare repo,
+  # dumping loose files), so spend the tokens here.
   cat <<EOF
 Project container: $root (cwd is the container ROOT, not a worktree).
 
 The .git here is bare — there is no working tree and nothing at this level is
-ever committed. Checkouts live in worktrees/<branch>.
+ever committed. Checkouts live in $wt_rel/<branch>.
 
-- Do not run git commit/add here. cd into worktrees/<branch> first.
+- Do not run git commit/add here. cd into $wt_rel/<branch> first.
 - Create branches with \`wt switch <branch>\`, not \`git worktree add\`.
 - New local-only files go in: data/ (dumps, fixtures), notes/ (briefs, docs),
   scratch/ (disposable), bin/ (helper scripts) — not loose at the root.
 
 See $root/HYPERDEV.md.
 EOF
-else
-  # Inside a worktree everything behaves normally; one line of orientation is
-  # enough, and it prevents "where do I put this file" guesses.
-  # Path is <root>/worktrees/<branch>/..., so the worktree name is the second
-  # segment. Anything else under the root (data/, notes/) has no branch name.
-  rel="${PWD#"$root"/}"
-  if [[ "$rel" == worktrees/* ]]; then
-    rest="${rel#worktrees/}"
-    cat <<EOF
-Worktree \`${rest%%/*}\` of container $name ($root).
-Container-level local-only dirs: data/, notes/, scratch/, bin/. Sibling
-worktrees are in $root/worktrees/. Normal git applies here.
+
+elif at_container_root; then
+  # Checkout root: this IS a working tree, so the bare-layout warnings would be
+  # wrong. The risk here is the opposite one — local-only dirs are protected
+  # only by .gitignore.
+  cat <<EOF
+Project container: $root (checkout layout — code at the root).
+
+This root is a normal git working tree; commit here as usual. Worktrees for
+other branches are in $wt_rel/<branch>, created with \`wt switch\`.
+
+- Local-only dirs (data/, notes/, scratch/, bin/) are kept out of git by
+  .gitignore, not by construction — check \`git status\` before committing.
+- New local files belong in those dirs rather than loose at the root.
+
+See $root/HYPERDEV.md.
 EOF
-  else
-    # Under the container root but not in a worktree — data/, notes/, scratch/.
-    # No git working tree here, so say so rather than implying one.
-    cat <<EOF
+
+else
+  # Under the container root but not in a worktree — data/, notes/, scratch/.
+  rel="${PWD#"$root"/}"
+  cat <<EOF
 In \`${rel%%/*}/\` of container $name ($root) — a local-only directory, not a
 worktree. Nothing here is committed or backed up. Code lives in
-$root/worktrees/<branch>.
+$wt_abs/<branch>.
 EOF
-  fi
 fi

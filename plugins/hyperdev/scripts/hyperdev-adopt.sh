@@ -30,15 +30,37 @@ fi
 
 root="$(cd "$root" && pwd)"
 
-if ! is_container "$root"; then
-  echo "not a container: $root" >&2
-  echo "expected a bare .git and a worktrees/ directory" >&2
+# adopt is the command that performs the opt-in, so it must accept a plain
+# repository that container_layout would still reject. Any git root qualifies;
+# detection tightens again once the marker exists.
+if ! git -C "$root" rev-parse --git-dir >/dev/null 2>&1; then
+  echo "not a git repository: $root" >&2
+  exit 1
+fi
+
+if [[ ! -d "$root/.git" ]]; then
+  echo "not a repository root: $root" >&2
+  echo "this looks like a linked worktree; adopt the container it belongs to" >&2
   exit 1
 fi
 
 name="$(basename "$root")"
+# Fall back by inspecting core.bare directly, since container_layout declines
+# to classify a checkout that has not opted in yet.
+layout="$(container_layout "$root" 2>/dev/null)" || {
+  if [[ "$(git --git-dir="$root/.git" config --get core.bare 2>/dev/null)" == "true" ]]; then
+    layout=bare
+  else
+    layout=checkout
+  fi
+}
 
 echo "Container: $root"
+echo "Layout:    $layout"
+if [[ "$layout" == checkout ]]; then
+  echo "           code lives at the root; worktrees in .claude/worktrees/;"
+  echo "           local-only dirs are protected by .gitignore"
+fi
 echo
 
 if [[ $apply -eq 1 ]]; then
@@ -51,20 +73,34 @@ if [[ $apply -eq 1 ]]; then
   echo "  wrote    .claude/memory/hyperdev-layout.md"
 else
   echo "Directories (dry run):"
+  wt_abs_dry="$(worktrees_dir "$root")" || wt_abs_dry="$root/worktrees"
   for d in "${CONTAINER_DIRS[@]}"; do
-    if [[ -d "$root/$d" ]]; then
-      echo "  exists   $d/"
+    if [[ "$d" == worktrees ]]; then
+      target="$wt_abs_dry"; label="${wt_abs_dry#"$root"/}"
     else
-      echo "  would create  $d/  — $(dir_purpose "$d")"
+      target="$root/$d"; label="$d"
+    fi
+    if [[ -d "$target" ]]; then
+      echo "  exists   $label/"
+    else
+      echo "  would create  $label/  — $(dir_purpose "$d")"
     fi
   done
   [[ -f "$root/HYPERDEV.md" ]] \
     && echo "  exists   HYPERDEV.md" \
     || echo "  would create  HYPERDEV.md"
+  [[ "$layout" == checkout ]] \
+    && echo "  would ensure  .gitignore covers data/ notes/ scratch/ bin/"
 fi
 
 echo
-echo "Loose entries at container root (suggestions only — nothing is moved):"
+if [[ "$layout" == checkout ]]; then
+  # In a checkout the root is full of tracked source files. Listing those as
+  # "loose" would be nonsense, so only consider what git does not track.
+  echo "Untracked/ignored entries at root (suggestions only — nothing is moved):"
+else
+  echo "Loose entries at container root (suggestions only — nothing is moved):"
+fi
 
 found_loose=0
 while IFS= read -r entry; do
@@ -74,6 +110,11 @@ while IFS= read -r entry; do
   case "$base" in
     .git|.claude|HYPERDEV.md|.DS_Store) continue ;;
   esac
+
+  # Checkout layout: anything git tracks is source, not a stray local file.
+  if [[ "$layout" == checkout ]]; then
+    git -C "$root" ls-files --error-unmatch "$base" >/dev/null 2>&1 && continue
+  fi
   skip=0
   for d in "${CONTAINER_DIRS[@]}"; do
     [[ "$base" == "$d" ]] && skip=1 && break
@@ -101,15 +142,35 @@ while IFS= read -r entry; do
     continue
   fi
 
+  # Tool-managed directories and local secrets must stay exactly where they
+  # are: their location is part of a contract with a package manager, build
+  # tool, or runtime. Moving them breaks the project.
+  case "$base" in
+    node_modules|.turbo|.cache|.next|.nuxt|.svelte-kit|dist|build|out|coverage|target|vendor|.venv|venv|__pycache__|.pytest_cache|.gradle|.angular|.parcel-cache|.vite)
+      size="$(du -sh "$entry" 2>/dev/null | cut -f1 || echo '?')"
+      printf '  %-32s %6s  → %s\n' "$base" "$size" \
+        "tool-managed — leave in place (delete to reclaim space, never move)"
+      continue ;;
+    .env|.env.*|*.pem|*.key|id_rsa|id_ed25519|.npmrc|.netrc)
+      size="$(du -sh "$entry" 2>/dev/null | cut -f1 || echo '?')"
+      printf '  %-32s %6s  → %s\n' "$base" "$size" \
+        "local secrets — leave in place; tools read this exact path"
+      continue ;;
+  esac
+
   if [[ -d "$entry" ]]; then
     case "$base" in
       *data*|*fixtures*|*dump*|*db*) suggestion="data/" ;;
       *doc*|*note*|*handoff*|*brief*) suggestion="notes/" ;;
       *bin|*scripts*)                 suggestion="bin/" ;;
+      *result*|*report*|*output*)     suggestion="scratch/ (regenerated output)" ;;
       *)                              suggestion="notes/ or data/ (inspect contents)" ;;
     esac
   else
     case "$base" in
+      # SQLite sidecars are live database state, not disposable scratch.
+      *.sqlite-shm|*.sqlite-wal|*.db-shm|*.db-wal)
+        suggestion="live DB sidecar — move only alongside its .sqlite/.db" ;;
       *.sql|*.csv|*.dump|*.tar|*.tar.gz|*.zip|*.parquet|*.db|*.sqlite) suggestion="data/" ;;
       *.md|*.txt|*.pdf)                                                suggestion="notes/" ;;
       *.sh|*.py|*.rb)                                                  suggestion="bin/" ;;

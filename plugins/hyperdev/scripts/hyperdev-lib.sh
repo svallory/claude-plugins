@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Shared helpers for container init/adopt/audit.
+# Shared helpers for space init/adopt/audit.
 # Sourced, not executed directly.
 
 set -euo pipefail
 
 # The scaffolded directories and what each is for. Order matters for display.
-CONTAINER_DIRS=(worktrees data notes scratch bin)
+SPACE_DIRS=(worktrees data notes scratch bin)
 
 dir_purpose() {
   case "$1" in
@@ -21,7 +21,7 @@ dir_purpose() {
 # Two layouts are supported, because both are legitimate and forcing a repo
 # from one into the other means re-cloning:
 #
-#   bare     <root>/.git is bare, no code at the root, checkouts in worktrees/.
+#   bare     <root>/.git is bare, no code at the root, worktrees in worktrees/.
 #            Local-only dirs sit at the root, which cannot be committed.
 #
 #   checkout <root> is an ordinary working tree with code at the root and a
@@ -29,37 +29,45 @@ dir_purpose() {
 #            repo, so local-only dirs must be gitignored rather than being
 #            uncommittable by construction.
 #
-# container_layout <dir> prints "bare", "checkout", or nothing.
+# space_layout <dir> prints "bare", "checkout", or nothing.
 #
 # The bare layout is self-identifying: a bare repo with worktrees beside it is
 # unambiguous, and nothing else looks like it. The checkout layout is not —
 # it is just an ordinary repository — so it is only recognised once the project
 # has opted in by adopting (HYPERDEV.md) or by having .claude/worktrees/.
 # Without that gate every git repo on the machine would claim to be a
-# container and the session hook would fire everywhere.
-container_layout() {
+# space and the session hook would fire everywhere.
+space_layout() {
   local d="${1:-$PWD}"
   [[ -e "$d/.git" ]] || return 1
 
   if [[ -d "$d/.git" ]] \
      && [[ "$(git --git-dir="$d/.git" config --get core.bare 2>/dev/null)" == "true" ]]; then
-    echo bare
-    return 0
+    # core.bare alone is not enough: a plain bare clone (a mirror, a hosting
+    # remote) is not a space. Require the structure the docs promise — a
+    # worktrees/ directory beside .git — or the explicit adoption marker.
+    # effective_layout still classifies a bare repo without either as "bare",
+    # which is what lets adopt perform the opt-in.
+    if [[ -d "$d/worktrees" || -f "$d/HYPERDEV.md" ]]; then
+      echo bare
+      return 0
+    fi
+    return 1
   fi
 
   # A linked worktree has a .git *file* rather than a directory. It is the top
   # of its own working tree, so --show-toplevel alone would wrongly accept it
-  # as a container root and stop the upward walk before reaching the real one.
+  # as a space root and stop the upward walk before reaching the real one.
   [[ -d "$d/.git" ]] || return 1
 
-  # A non-bare repo only counts as a container root when it is the top of the
+  # A non-bare repo only counts as a space root when it is the top of the
   # working tree, not a subdirectory of one.
   local top
   top="$(git -C "$d" rev-parse --show-toplevel 2>/dev/null)" || return 1
   [[ "$top" == "$d" ]] || return 1
 
   # Opt-in gate: an adopted marker, or worktrees already kept in .claude/.
-  # An ordinary repository is not a container just for being a repository.
+  # An ordinary repository is not a space just for being a repository.
   [[ -f "$d/HYPERDEV.md" || -d "$d/.claude/worktrees" ]] || return 1
 
   echo checkout
@@ -78,12 +86,12 @@ worktrees_dir() {
   esac
 }
 
-# Like container_layout, but classifies a repository that has not opted in yet.
+# Like space_layout, but classifies a repository that has not opted in yet.
 # Used by the scaffolding paths, which run *during* adoption and therefore
 # cannot require the marker they are about to write.
 effective_layout() {
   local d="${1:-$PWD}" layout
-  if layout="$(container_layout "$d" 2>/dev/null)"; then
+  if layout="$(space_layout "$d" 2>/dev/null)"; then
     echo "$layout"
     return 0
   fi
@@ -97,24 +105,24 @@ effective_layout() {
 
 # HYPERDEV.md is the explicit marker; structural detection is the fallback so
 # adopt works on projects that predate this plugin.
-is_container() {
+is_space() {
   local d="${1:-$PWD}"
   # The marker alone is not sufficient: in the checkout layout HYPERDEV.md is a
   # tracked file, so every linked worktree carries a copy. Requiring a real
-  # repository root as well keeps worktrees from being mistaken for containers.
+  # repository root as well keeps worktrees from being mistaken for spaces.
   [[ -f "$d/HYPERDEV.md" ]] && [[ -d "$d/.git" ]] && return 0
-  container_layout "$d" >/dev/null 2>&1
+  space_layout "$d" >/dev/null 2>&1
 }
 
-# Walk up from cwd to find the enclosing container root, if any.
+# Walk up from cwd to find the enclosing space root, if any.
 #
 # Order matters: a linked worktree contains a .git *file* pointing elsewhere,
-# so container_layout correctly rejects it and the walk continues to the real
+# so space_layout correctly rejects it and the walk continues to the real
 # root. That is what makes detection work from inside a worktree.
-find_container_root() {
+find_space_root() {
   local d="${1:-$PWD}"
   while [[ "$d" != "/" ]]; do
-    if is_container "$d"; then
+    if is_space "$d"; then
       echo "$d"
       return 0
     fi
@@ -123,12 +131,12 @@ find_container_root() {
   return 1
 }
 
-# True when cwd is the container root itself rather than inside a worktree.
+# True when cwd is the space root itself rather than inside a worktree.
 # In the bare layout this is where the dangerous mistakes happen (committing,
 # loose files); in the checkout layout the root is a normal working tree.
-at_container_root() {
+at_space_root() {
   local root
-  root="$(find_container_root "$PWD")" || return 1
+  root="$(find_space_root "$PWD")" || return 1
   [[ "$root" == "$PWD" ]]
 }
 
@@ -143,8 +151,8 @@ write_hyperdev_md() {
     cat > "$root/HYPERDEV.md" <<EOF
 # $name
 
-Project **container**, bare layout. This directory is not a git worktree —
-nothing here is committed. Real checkouts live in \`$wt/\`.
+Project **space**, bare layout. This directory is not a git worktree —
+nothing here is committed. The worktrees live in \`$wt/\`.
 
 ## Layout
 
@@ -160,7 +168,7 @@ nothing here is committed. Real checkouts live in \`$wt/\`.
 
 ## Rules
 
-- Do not run \`git commit\` from the container root; \`cd\` into a worktree first.
+- Do not run \`git commit\` from the space root; \`cd\` into a worktree first.
 - Create worktrees with \`wt switch <branch>\`, never \`git worktree add\` by hand.
 - \`scratch/\` is disposable. Anything you would miss belongs in \`data/\` or \`notes/\`.
 - Files here never reach the remote. Secrets are local-only by construction,
@@ -170,7 +178,7 @@ EOF
     cat > "$root/HYPERDEV.md" <<EOF
 # $name
 
-Project **container**, checkout layout. The code lives at this root and this
+Project **space**, checkout layout. The code lives at this root and this
 directory *is* a git working tree, so — unlike the bare layout — files here
 **can** be committed. Local-only directories are kept out of the repository by
 \`.gitignore\`, not by construction.
@@ -214,7 +222,7 @@ ensure_gitignored() {
     git -C "$root" check-ignore -q "$1" 2>/dev/null
   }
 
-  for d in "${CONTAINER_DIRS[@]}"; do
+  for d in "${SPACE_DIRS[@]}"; do
     [[ "$d" == worktrees ]] && continue   # lives under .claude/ in this layout
     _already_ignored "$d/" && continue
     if ! grep -qxF "/$d/" "$gi" 2>/dev/null; then
@@ -256,22 +264,22 @@ write_memory_seed() {
     cat > "$mem/hyperdev-layout.md" <<EOF
 ---
 name: hyperdev-layout
-description: $name uses the hyperdev bare container layout; worktrees in $wt/, root is never committed
+description: $name uses the hyperdev bare space layout; worktrees in $wt/, root is never committed
 metadata:
   type: project
 ---
 
-\`$root\` is a project container, not a checkout. The \`.git\` there is bare and
-the working copies are in \`$wt/<branch>\`, created via \`wt switch\`.
+\`$root\` is a project space, not a checkout. The \`.git\` there is bare and
+the worktrees are in \`$wt/<branch>\`, created via \`wt switch\`.
 
-Local-only directories at the container root: \`data/\` (dumps, fixtures),
+Local-only directories at the space root: \`data/\` (dumps, fixtures),
 \`notes/\` (briefs, handoffs), \`scratch/\` (disposable), \`bin/\` (helper scripts).
 None of it is committed or backed up.
 
 **Why:** keeps a single object store across branches and gives local-only files a
 home that cannot accidentally be committed.
 
-**How to apply:** never commit from the container root; put new local files in the
+**How to apply:** never commit from the space root; put new local files in the
 matching directory instead of loose at the root. See \`HYPERDEV.md\`.
 EOF
   else
@@ -306,9 +314,13 @@ EOF
   # an index line pointing at a memory file that was never written, and a
   # plain grep would treat that dangling entry as "already done".
   if grep -q 'hyperdev-layout.md' "$index" 2>/dev/null; then
-    grep -v 'hyperdev-layout.md' "$index" > "$index.tmp" && mv "$index.tmp" "$index"
+    # grep -v exits 1 when nothing survives the filter; an index containing
+    # only this entry must still be rewritten (to empty), so ignore the exit
+    # code and always move the temp file into place.
+    grep -v 'hyperdev-layout.md' "$index" > "$index.tmp" || :
+    mv "$index.tmp" "$index"
   fi
-  printf -- '- [Container layout](memory/hyperdev-layout.md) — worktrees/, local-only dirs, root is never committed\n' >> "$index"
+  printf -- '- [Space layout](memory/hyperdev-layout.md) — worktrees/, local-only dirs, root is never committed\n' >> "$index"
 }
 
 # Create the directory set. Idempotent: reports created vs already-present.
@@ -323,7 +335,7 @@ scaffold_dirs() {
   wt_abs="$(worktrees_dir "$root")" || wt_abs="$root/worktrees"
   wt_rel="${wt_abs#"$root"/}"
 
-  for d in "${CONTAINER_DIRS[@]}"; do
+  for d in "${SPACE_DIRS[@]}"; do
     local target label
     if [[ "$d" == worktrees ]]; then
       target="$wt_abs"; label="$wt_rel"

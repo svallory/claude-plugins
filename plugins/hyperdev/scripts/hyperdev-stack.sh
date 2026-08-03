@@ -36,27 +36,42 @@ case "$cmd" in
     ;;
 
   detect)
-    found=0
+    # First match wins: emitting two stacks would interleave conflicting keys
+    # (two PM= lines) and corrupt the KEY=VALUE stream. Other matches are
+    # reported as a trailing comment so polyglot repos stay visible.
+    winner=""
+    also=()
     for detect_file in "$STACKS_DIR"/*/detect.sh; do
       [[ -f "$detect_file" ]] || continue
 
-      # Each stack runs in a subshell so the sourced stack_matches/stack_detect
+      # Each stack is sourced in a subshell so its stack_matches/stack_detect
       # definitions cannot leak into the next iteration.
-      (
+      if (
         # shellcheck source=/dev/null
         source "$detect_file"
-        if declare -f stack_matches >/dev/null && stack_matches "$dir"; then
-          stack_detect "$dir"
-          exit 0
+        declare -f stack_matches >/dev/null && stack_matches "$dir"
+      ); then
+        if [[ -z "$winner" ]]; then
+          winner="$detect_file"
+        else
+          also+=("$(basename "$(dirname "$detect_file")")")
         fi
-        exit 1
-      ) && found=1
+      fi
     done
 
-    if [[ $found -eq 0 ]]; then
+    if [[ -z "$winner" ]]; then
       echo "STACK=unknown"
       echo "# No registered stack matched. Registered: $(list_stacks | tr '\n' ' ')"
       exit 0
+    fi
+
+    (
+      # shellcheck source=/dev/null
+      source "$winner"
+      stack_detect "$dir"
+    )
+    if (( ${#also[@]} > 0 )); then
+      echo "# also matches: ${also[*]}"
     fi
     ;;
 

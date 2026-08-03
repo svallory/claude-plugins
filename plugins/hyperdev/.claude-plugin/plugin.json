@@ -1,6 +1,6 @@
 {
   "name": "hyperdev",
-  "description": "HyperDev workflow support: project containers (bare repo + worktrees + local-only dirs) and per-edit integration with the linters and typecheckers a project already uses.",
+  "description": "HyperDev workflow support: project spaces (a project's repo, its worktrees, and local-only dirs — bare or checkout layout) and per-edit integration with the linters and typecheckers a project already uses.",
   "version": "0.2.0",
   "author": {
     "name": "Saulo Vallory"

@@ -1,7 +1,7 @@
 ---
 name: tools
-description: Detect the project's toolchain and set up the real-time check hook using the tools that project actually uses
-argument-hint: [project-path]
+description: Detect the project's toolchain and set up the check hook using the tools that project actually uses
+argument-hint: "[project-path]"
 ---
 
 # Tools
@@ -22,9 +22,9 @@ Emits `KEY=VALUE` facts. Keys are omitted when not verifiable:
 
 | Key | Meaning |
 |---|---|
-| `STACK` | `node`, `go`, or `unknown` |
-| `PM` / `PM_RUN` | package manager and its run prefix (`bun run`, `npm run`, …) |
-| `LINT` / `FORMAT` / `TYPECHECK` / `TEST` | the *script name* that exists in the project |
+| `STACK` | `node`, `go`, `python`, `rust`, or `unknown` (stacks are auto-discovered from `stacks/*/detect.sh`, so new values can appear) |
+| `PM` / `PM_RUN` | package manager and its run prefix (`bun run`, `uv run`, `cargo`, …) |
+| `LINT` / `FORMAT` / `TYPECHECK` / `TEST` | what to run. Node stacks report the *script name* that exists in the project (wire it via `run`); Go, Rust, and Python report a *full command* (`go build ./...`, `cargo check`, `uv run ruff check`) — wire those via `command`, never `run` |
 | `LINT_TOOL` / `TYPECHECK_TOOL` | underlying tool inferred from config files |
 | `LINT_MISSING` | configured but not installed |
 
@@ -46,6 +46,11 @@ Read the results, then ask the user about anything unresolved:
 - **Both `LINT` and `TYPECHECK` exist** — ask which to run per-edit. Typecheck
   usually catches more real breakage; lint is usually faster. Running both on
   every edit is normally too slow.
+- **`STACK=go`, `rust`, or `python`** — the detected values are full commands;
+  wire them with `command`, not `run`. Python only emits a runnable command
+  when a runner (`uv`/`poetry`/`pipenv`) exists *and* the tool is a declared
+  dependency; with `PM=pip` or `PM=unknown` there is no runner — ask for the
+  exact command instead of inventing one.
 - **`STACK=unknown`** — ask for the check command outright, or skip.
 
 Prefer the project's own script name over a raw binary. Scripts already encode
@@ -68,12 +73,44 @@ Write `<project>/.claude/hyperdev.json`:
 
 - `run` — a script name, invoked with the detected `PM_RUN`.
 - `command` — an explicit command; overrides `run`. Use for Go or non-script
-  entry points (`go build ./...`, `make lint`).
+  entry points (`go build ./...`, `make lint`). Quoting inside it is passed to
+  the shell untouched, so `sh -c 'a && b'` works as written.
 - `extensions` — restrict to files worth checking. Omit to check every edit.
 - `timeout` — seconds; the check is killed past this and reported as a timeout.
+  The hook uses `timeout` if on its PATH, else `gtimeout` (homebrew coreutils);
+  when neither exists — stock macOS with no coreutils, or a hook environment
+  without homebrew's PATH — the command runs with **no time limit** rather than
+  failing. Do not rely on the timeout existing on macOS.
+  **Hard ceiling: Claude Code kills the whole hook at 90 seconds**
+  (`hooks/hooks.json`), and that kill is silent — no "timed out" report
+  reaches the agent. A configured timeout at or above ~90s, or several checks
+  whose timeouts sum past it, never produces the explicit timeout message this
+  doc promises. Keep the sum of all timeouts comfortably under 90s.
 
 The hook is inert until `enabled` is true, so a project that has not run this
 command is unaffected.
+
+### Multiple checks
+
+When more than one check should fire — lint and typecheck, or per-language
+routing — use a `checks` array instead. Each entry takes the same
+`run`/`command`/`extensions`/`timeout` keys and only runs when the edited file
+matches its own filter:
+
+```json
+{
+  "checks": [
+    { "run": "lint",      "extensions": [".ts", ".tsx"], "timeout": 30 },
+    { "run": "typecheck", "extensions": [".ts", ".tsx"], "timeout": 60 }
+  ]
+}
+```
+
+Checks run in order; the first failure is reported and stops the rest, so put
+the fastest check first. Writing the array is the opt-in — there is no outer
+`enabled` flag — and a single entry can be turned off with `"enabled": false`.
+If both `checks` and `check` are present, `checks` wins; a lone `check` object
+keeps working unchanged.
 
 ## Step 4 — verify before claiming it works
 
@@ -103,11 +140,28 @@ file with a deliberate type error, confirm non-zero exit and the error in the
 output, and delete it. A check that cannot fail is worse than none, because it
 reports safety that does not exist.
 
-Also confirm the check actually covers the files the hook will fire on. In a
-monorepo, a package with no `typecheck` script is silently skipped: editing a
-file there matches the extension filter, runs the command, and passes without
-ever inspecting the file. Compare the packages the command touches against the
-workspace list, and either narrow `extensions` or note the gap.
+## Step 5 — monorepo coverage
+
+A passing check only vouches for the files it inspected. In a monorepo, a
+package with no `typecheck` (or `lint`) script is silently skipped: editing a
+file there matches the extension filter, the command runs, and it passes
+without ever inspecting the file.
+
+Compare the workspace package list against what the check command actually
+covers:
+
+1. List the workspace packages (`workspaces` in `package.json`, `pnpm-workspace.yaml`,
+   `turbo.json`/`moon.yml` project lists — whatever the repo uses).
+2. For each package, confirm it has the script the check runs (or is reached by
+   the runner: `turbo run typecheck --dry-run`, `moon query tasks`, … show
+   exactly which packages participate).
+3. **Warn the user about every package with no such script**, naming it. Those
+   packages get a green check that means nothing. Either add the script, narrow
+   `extensions` (or a per-check filter in `checks`) so uncovered files never
+   trigger the hook, or record the gap where the team will see it.
+
+Do not skip this step just because the root command exits 0 — that is exactly
+the failure mode being checked for.
 
 ## Hooks do not inherit your shell
 
@@ -125,10 +179,10 @@ binary, which skips resolution entirely:
 ```
 
 **Relative paths resolve against the directory holding the config**, because the
-hook `cd`s there before running. In a bare-layout container, a config at the
-container root has no `node_modules` beside it — `./node_modules/.bin/tsc` will
+hook `cd`s there before running. In a bare-layout space, a config at the
+space root has no `node_modules` beside it — `./node_modules/.bin/tsc` will
 not exist. Put the config in the worktree whose files you are editing, not at
-the container root, whenever the command uses a relative path.
+the space root, whenever the command uses a relative path.
 
 Always test the configured command through the hook itself, not just in your
 shell:
@@ -154,6 +208,12 @@ the same way you would read a `Makefile` before running `make`. Prefer `run`
 ## Notes
 
 - Config lives in the project's `.claude/`, so it is committed and shared with
-  the team; the container-level `.claude/` is local-only.
+  the team; the space-level `.claude/` is local-only.
 - Timeouts matter: a 3-minute typecheck on every edit makes the agent unusable.
   For large projects prefer a fast scoped command, or lint over typecheck.
+- The hook has a fixed per-edit cost *before* the `extensions` filter applies:
+  it parses the hook payload and the config (two `node` spawns) on every
+  Edit/Write in an opted-in project. Usually tens of milliseconds, but if
+  `node` resolves through a version-manager shim (proto, mise, asdf) each
+  spawn can take ~1s. `extensions` only skips the check command itself, not
+  this overhead.

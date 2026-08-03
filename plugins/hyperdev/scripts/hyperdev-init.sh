@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Create a new project container from a git remote.
-# Usage: hyperdev-init.sh <repo-url> [container-name] [--default-branch <name>]
+# Create a new project space from a git remote.
+# Usage: hyperdev-init.sh <repo-url> [space-name] [--layout bare|checkout] [--default-branch <name>]
 
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/hyperdev-lib.sh"
@@ -8,10 +8,18 @@ source "$(dirname "${BASH_SOURCE[0]}")/hyperdev-lib.sh"
 repo_url=""
 name=""
 default_branch=""
+layout="bare"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --default-branch) default_branch="$2"; shift 2 ;;
+    --layout)
+      layout="$2"
+      case "$layout" in
+        bare|checkout) ;;
+        *) echo "invalid --layout: $layout (expected bare or checkout)" >&2; exit 2 ;;
+      esac
+      shift 2 ;;
     -*) echo "unknown flag: $1" >&2; exit 2 ;;
     *)
       if [[ -z "$repo_url" ]]; then repo_url="$1"
@@ -23,11 +31,11 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$repo_url" ]]; then
-  echo "usage: hyperdev-init.sh <repo-url> [container-name] [--default-branch <name>]" >&2
+  echo "usage: hyperdev-init.sh <repo-url> [space-name] [--layout bare|checkout] [--default-branch <name>]" >&2
   exit 2
 fi
 
-# Derive container name from the repo when not given: strip .git and any path.
+# Derive space name from the repo when not given: strip .git and any path.
 if [[ -z "$name" ]]; then
   name="$(basename "$repo_url" .git)"
 fi
@@ -39,7 +47,39 @@ if [[ -e "$root" ]]; then
   exit 1
 fi
 
-echo "Creating container: $root"
+echo "Creating space: $root"
+
+if [[ "$layout" == checkout ]]; then
+  # The clone itself provides the working tree at the root; no worktree step.
+  # --branch only when overridden, so the remote HEAD stays the default.
+  echo "Cloning repository..."
+  if [[ -n "$default_branch" ]]; then
+    git clone --branch "$default_branch" "$repo_url" "$root"
+  else
+    git clone "$repo_url" "$root"
+  fi
+
+  if [[ -z "$default_branch" ]]; then
+    default_branch="$(git -C "$root" symbolic-ref --short HEAD 2>/dev/null || echo main)"
+  fi
+  git -C "$root" config worktrunk.default-branch "$default_branch"
+  git -C "$root" config worktrunk.history "$default_branch"
+
+  echo "Scaffolding directories..."
+  mkdir -p "$root/.claude"
+  # scaffold_dirs sees a non-bare .git and takes the checkout path itself:
+  # worktrees under .claude/, local-only dirs gitignored via ensure_gitignored.
+  scaffold_dirs "$root"
+
+  write_hyperdev_md "$root" "$name"
+  write_memory_seed "$root" "$name"
+
+  echo
+  echo "Space ready: $root"
+  echo "  cd $root"
+  exit 0
+fi
+
 mkdir -p "$root"
 
 echo "Cloning bare repository..."
@@ -68,7 +108,7 @@ write_memory_seed "$root" "$name"
 echo "Creating worktree for $default_branch..."
 if command -v wt >/dev/null 2>&1; then
   # `switch` creates the worktree if it does not exist. No -c: the branch
-  # already exists from the clone. -C runs wt against the container so the
+  # already exists from the clone. -C runs wt against the space so the
   # user's `{{ repo_path }}/../worktrees/` template resolves inside it.
   wt -C "$root" switch "$default_branch" || {
     echo "  wt failed; falling back to git worktree add" >&2
@@ -83,5 +123,5 @@ fi
 git --git-dir="$root/.git" config core.hooksPath "$root/.git/hooks"
 
 echo
-echo "Container ready: $root"
+echo "Space ready: $root"
 echo "  cd $root/worktrees/$default_branch"

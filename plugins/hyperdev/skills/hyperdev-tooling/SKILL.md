@@ -1,6 +1,6 @@
 ---
 name: hyperdev-tooling
-description: Use when setting up linters, formatters, typecheckers, or automated check hooks for a project — detecting which tools a project already uses rather than assuming defaults. Covers Node/Bun/TypeScript and Go. Triggers on "set up linting", "add a check hook", "run typecheck on edit", "what tools does this project use", "hyperdev tools".
+description: Use when setting up linters, formatters, typecheckers, or automated check hooks for a project — detecting which tools a project already uses rather than assuming defaults. Covers Node/Bun/TypeScript, Go, Python, and Rust. Triggers on "set up linting", "add a check hook", "run typecheck on edit", "what tools does this project use", "hyperdev tools".
 ---
 
 # Project Tooling Integration
@@ -72,6 +72,31 @@ The toolchain is fixed by convention, so `gofmt`, `go vet ./...`,
 `golangci-lint` is *not* part of the toolchain. Only use it when both
 `.golangci.yml` and the binary are present — detection reports `LINT_MISSING`
 when configured but not installed. Prefer a `Makefile` target when one exists.
+
+## Python
+
+Nothing is fixed by convention: package manager, linter, type checker, and
+test runner are all independent choices, so everything is inferred from files
+actually present. `PM` comes from the lockfile (`uv.lock` → uv, `poetry.lock`
+→ poetry, `Pipfile.lock` → pipenv; a bare `requirements.txt` → pip); `PM_RUN`
+exists only for managers with a runner — pip and unknown have none.
+
+Tool keys are two-stage: config presence (`ruff.toml`, `[tool.ruff]`,
+`mypy.ini`, `pytest.ini`, …) asserts `LINT_TOOL`/`TYPECHECK_TOOL`/`TEST_TOOL`,
+but the runnable `LINT`/`TYPECHECK`/`TEST` (e.g. `uv run ruff check`) is
+emitted only when a `PM_RUN` exists *and* the tool is a visibly declared
+dependency — a configured-but-uninstalled tool would fail on every edit. A
+`*_TOOL` key without its command means: ask how to run it, do not guess.
+Detected values are full commands — wire them with `command`, not `run`.
+
+## Rust
+
+cargo fixes most of the toolchain: `cargo fmt`, `cargo check`, and
+`cargo test` ship with every installation and are asserted without inspection
+(as full commands — use `command`). Clippy is the moving part: a rustup
+component that may be absent. Detection checks for `clippy-driver` (or
+rustup's component list) and only then emits `LINT=cargo clippy`; a
+`clippy.toml` with no installed component reports `LINT_MISSING` instead.
 
 ## Enabling the check hook
 

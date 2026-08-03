@@ -22,11 +22,9 @@ code. Each phase produces an artifact the next phase consumes.
 All artifacts for a feature go in the space's `notes/specs/<feature-slug>/`.
 The slug is the feature name lowercased, spaces to hyphens.
 
-In a **checkout-layout** space, `notes/` is gitignored — plan artifacts stay
-local and are never committed. In a **bare-layout** space the root is not a
-working tree, so they cannot be committed by construction. Either way: these
-files exist on exactly one disk. Tell the user this the first time a spec
-directory is created.
+`notes/` sits at the space root, outside every working tree, so plan
+artifacts are uncommittable by construction — and they exist on exactly one
+disk. Tell the user this the first time a spec directory is created.
 
 The native format (the section structures each skill specifies) is the only
 one for now. Do not import or convert Spec-ify, TaskMaster, or Kiro specs.

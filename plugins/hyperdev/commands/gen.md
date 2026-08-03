@@ -22,17 +22,11 @@ optional.
 
 ## Where templates live
 
-| Layout | Templates dir |
-|---|---|
-| bare | `<space>/templates/` |
-| checkout | `<project>/.claude/templates/` |
-
-Detect the layout first (see the `hyperdev` skill). In the checkout layout the
-dir sits inside the committed `.claude/`, so templates are shared with the
-team. In the bare layout the space root is local-only — templates there exist
-on exactly one disk; tell the user this the first time the dir is created.
-`/hyperdev:adopt` recognises a bare-layout `templates/` as managed, not as a
-loose entry to relocate.
+Templates live at `<space>/templates/`, beside `worktrees/` at the space
+root. The space root is local-only — templates there are never committed and
+exist on exactly one disk; tell the user this the first time the dir is
+created. `/hyperdev:adopt` recognises `templates/` as managed, not as a loose
+entry to relocate.
 
 ## Template format
 
@@ -82,7 +76,7 @@ placeholder substitution.
 
 ## Steps
 
-1. **Locate the templates dir** for the detected layout. No arguments, or the
+1. **Locate the templates dir** at the space root. No arguments, or the
    dir is missing/empty → list what exists (each template's `name` and
    `description` from its `template.md`) and stop. Named template not found →
    list what exists and offer to create one — from an exemplar, per the skill,

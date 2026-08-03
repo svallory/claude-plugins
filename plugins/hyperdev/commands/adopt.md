@@ -1,47 +1,56 @@
 ---
 name: adopt
-description: Retrofit the space layout onto an existing space — adds missing dirs and docs, suggests homes for loose files
+description: Adopt a repo into the space layout — scaffolds a bare repo additively, or converts an ordinary checkout by wrapping it in the space structure
 argument-hint: "[space-path] [--apply]"
 ---
 
 # Adopt
 
-Brings an existing space up to the standard layout. Additive only: it
-creates what is missing and never moves or deletes anything.
+Brings an existing repository into the space layout. A space has exactly one
+shape — bare `.git` at the root, the working tree in `worktrees/<branch>` —
+so what adopt does depends on what it finds:
+
+- **Already bare** (a space, or a plain bare repo opting in): additive
+  scaffold. Creates missing dirs and docs, lists loose entries at the root
+  with suggested destinations. Never moves or regenerates anything.
+- **Ordinary checkout**: **conversion**. The repo becomes bare and the entire
+  working tree is wrapped into `worktrees/<branch>`. Space files and project
+  files never share a directory, so decorating the checkout is not an option —
+  wrapping it is.
+
+In both cases, dry run by default: without `--apply` nothing changes.
+**Nothing is ever deleted, in any mode, on any path.**
 
 ## Usage
 
 ```
 /hyperdev:adopt                      # dry run on the enclosing space
-/hyperdev:adopt --apply              # create missing dirs and docs
+/hyperdev:adopt --apply              # apply (scaffold, or convert)
 /hyperdev:adopt ~/work/foo --apply
 ```
-
-## What it does
 
 ```bash
 bash "${CLAUDE_PLUGIN_ROOT}/scripts/hyperdev-adopt.sh" [path] [--apply]
 ```
 
-Dry run by default — it prints what it would create and lists loose entries at
-the space root with a suggested destination based on file type.
+## Case 1: bare repo or existing space — additive scaffold
 
-**Checkout layout: only untracked/ignored entries are listed.** Anything git
-already tracks is treated as source, so a stray that was committed (an old
-dump swept up by `git add -A`) will not appear. If the user suspects committed
-junk, check `git ls-files` at the root; untracking (`git rm --cached`) and
-re-running makes the entry show up with a suggestion.
+The dry run prints which of `worktrees/ data/ notes/ scratch/ bin/` and
+`HYPERDEV.md` would be created, then scans the root for loose entries and
+`worktrees/` for debris (orphaned or dead checkouts).
 
 With `--apply` it creates the missing directories, writes `HYPERDEV.md`, and
-seeds `.claude/memory/hyperdev-layout.md`. Existing files are left alone —
-an existing `HYPERDEV.md` or memory seed is reported as `exists` and never
-regenerated, so user edits to those files survive a re-adopt.
+seeds `.claude/memory/hyperdev-layout.md`. Existing files are left alone — an
+existing `HYPERDEV.md` or memory seed is reported as `exists` and never
+regenerated, so user edits survive a re-adopt.
 
-## Handling loose files
-
-The script only *suggests* destinations; it never moves them. That is
-deliberate — the heuristics key off file extensions and directory names, and
-they cannot tell a dump you still need from one you forgot to delete.
+The loose-entry scan only *suggests* destinations; it never moves anything.
+The heuristics key off file extensions and directory names, and they cannot
+tell a dump you still need from one you forgot to delete. Several categories
+are explicitly do-not-move: live databases (`-wal`/`-shm` sidecars present),
+tool-managed dirs (`node_modules`, build output), local secrets (`.env`,
+keys), unknown dot-directories, and checkouts (which belong in `worktrees/`,
+moved with `git worktree move`, never `mv`).
 
 When running this for the user:
 
@@ -54,3 +63,91 @@ When running this for the user:
 
 Large files and anything that looks like a database dump or credentials
 deserve an explicit confirmation before moving.
+
+## Case 2: ordinary checkout — conversion
+
+The dry run prints the full **conversion plan**: the branch, the target
+`worktrees/<branch>/`, where every top-level entry goes, how `.claude/` is
+split (project config moves with the project; the space-level memory seed is
+regenerated at the root), and what happens to each pre-existing linked
+worktree. Read it; nothing has happened yet.
+
+With `--apply`, the conversion:
+
+1. Moves the whole working tree — tracked files, uncommitted modifications,
+   untracked files, `node_modules`, everything — into `worktrees/<branch>/`
+   via a staging directory.
+2. Sets `core.bare=true` and registers `worktrees/<branch>` as a worktree of
+   the now-bare repo.
+3. Moves pre-existing linked worktrees under `worktrees/` with
+   `git worktree move` (each named after its branch). Orphaned worktrees and
+   name collisions are reported and left untouched.
+4. Scaffolds `data/ notes/ scratch/ bin/` and regenerates `HYPERDEV.md` and
+   the memory seed (unconditionally — the old files describe a shape that no
+   longer exists).
+
+### Preflight refusals
+
+`--apply` refuses to start (and the dry run lists every refusal it would hit)
+when any of these hold:
+
+- detached HEAD
+- rebase, merge, or cherry-pick in progress
+- `.gitmodules` present — submodule gitdir pointers do not survive the depth
+  change; deinit submodules first
+- the current directory is inside the repo being converted
+- a leftover `.hyperdev-convert/` staging dir from an unfinished conversion
+- `worktrees/<branch>` already exists
+- unmerged/conflicted index entries
+- refs or the stash list cannot be read — what cannot be read cannot be
+  guaranteed, so the conversion stops before touching anything
+- a tracked *file* named `worktrees`, `data`, `notes`, `scratch`, or `bin`
+  at the root (it would collide with the scaffold)
+- the root is not writable
+
+Two behaviors of a conversion worth knowing in advance:
+
+- Entries under a legacy `.claude/worktrees/` that are **not** registered
+  worktrees (build litter, dead checkouts) are left at the space root's
+  `.claude/worktrees/` for you to inspect — they are announced, never moved
+  or deleted.
+- Some tools anchor caches on the git common dir and will later drop
+  directories like `.turbo/` at the bare root. Audit flags them tool-managed;
+  they are safe to delete, never to move.
+
+### Data-safety guarantees
+
+1. **Commits** — `.git` is never rewritten; every ref and object survives
+   because nothing touches them.
+2. **Stashes** — same: they live in `.git`, which only gains
+   `core.bare=true` and a fetch refspec.
+3. **Uncommitted modifications** — stay dirty. The index is rebuilt from HEAD
+   after the move (`git reset`), so pre-existing modifications remain
+   modifications.
+4. **Untracked files** — move with everything else and stay untracked.
+
+All four are **verified**, not assumed. Before mutating anything the script
+captures every ref with its hash, the stash count and `refs/stash` hash,
+`git status --porcelain`, and a full file inventory (also written to
+`.hyperdev-convert.preflight` so a crashed run leaves evidence). Afterwards
+it re-checks each: refs byte-for-byte, stash count and hash, status parity
+in the new worktree, and that every pre-conversion path can be located under
+the worktree, the space root, or a moved worktree's new prefix. Any mismatch
+prints a loud block showing exactly what differs and exits non-zero — and
+because nothing is ever deleted, everything needed to reconcile by hand is
+still on disk. If the `git worktree add` step fails, the conversion rolls
+itself back (un-bares the repo, moves everything home); a failure after that
+prints exactly what remains in staging and how to finish or abandon by hand.
+
+### Agent instructions for a conversion
+
+Converting is safe but not trivial to undo. When running this for the user:
+
+1. **Always run the dry run first and show the user the full plan** — the
+   worktree target, the per-entry moves, and any refusals.
+2. **Get explicit confirmation before `--apply`.** Never convert on inference
+   from "set this project up"; the user must see the plan and say yes.
+3. If the preflight refuses, help resolve the cause (finish the rebase,
+   deinit submodules, `cd` out) rather than working around the check.
+4. After conversion, relay the final summary: project files are now in
+   `worktrees/<branch>/`, and the user's shell must `cd` there.

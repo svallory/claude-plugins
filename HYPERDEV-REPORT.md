@@ -6,6 +6,18 @@ and can be deleted). Version `0.2.0`. Not yet merged to `main`. On 2026-08-03
 the core concept was renamed from "container" to "space"; this doc uses the new
 term throughout.
 
+> **Design revision, 2026-08-03 (later the same day): the checkout layout was
+> removed.** Real-world use showed it mixes space files (`data/`, `notes/`,
+> `scratch/`, `bin/`, `HYPERDEV.md`, gitignore entries) into the project root —
+> the exact clutter spaces exist to prevent. A space now has exactly one shape:
+> bare `.git` at the root, all checkouts under `worktrees/<branch>`, local-only
+> dirs beside them. `/hyperdev:adopt` on an ordinary checkout now **converts**
+> it (repo goes bare, the whole working tree moves to `worktrees/<branch>`,
+> linked worktrees come in via `git worktree move`, `git status` verified
+> before/after, nothing deleted), and `init --layout` is gone. Sections below
+> that describe the checkout layout are kept as history and marked
+> **superseded** rather than rewritten.
+
 **This doc is written to be handed to someone — or some agent — with no prior
 context.** It covers what the plugin is, why each decision was made, and how to
 work on it safely. If you are picking this up cold, read in this order:
@@ -41,6 +53,9 @@ and nothing here stubs them.
 ---
 
 ## Layouts
+
+> **Superseded (2026-08-03):** only the bare layout exists now; see the design
+> revision note at the top. Kept as written for history.
 
 Both are first-class, because converting between them means re-cloning.
 
@@ -288,6 +303,12 @@ still a hypothesis.** Reproduce before acting. The doc weakness it exposed
 ## Working on it
 
 ### The library API
+
+> **Partly superseded (2026-08-03):** after the checkout layout's removal,
+> `space_layout` prints only `bare`, `effective_layout` and `ensure_gitignored`
+> no longer exist, and `worktrees_dir` is always `<root>/worktrees`. The
+> current contracts are in `plugins/hyperdev/docs/concepts.md`; the table below
+> reflects the two-layout era.
 
 Everything in `scripts/hyperdev-lib.sh` is sourced, never executed. Source it and
 call the functions directly — that is also how to test them.

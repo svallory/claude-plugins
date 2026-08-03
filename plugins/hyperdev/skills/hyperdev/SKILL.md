@@ -8,10 +8,11 @@ description: Use when working in or setting up a project space — a bare git re
 A space gives a project a fixed shape: every worktree in one place, plus
 directories for files that must never be committed.
 
-Two layouts exist, because both are legitimate and converting between them
-means re-cloning. **Detect which one you have before acting.**
+A space has exactly one layout. Space files and project files never share a
+directory — the project lives in `worktrees/<branch>`, the space's local-only
+directories live beside it.
 
-## Bare layout
+## The layout
 
 ```
 <space>/
@@ -26,49 +27,42 @@ means re-cloning. **Detect which one you have before acting.**
 
 The root is not a working tree. Nothing there can be committed — not by
 accident, not by a stray `git add -A`. Local-only files get a home structurally
-incapable of reaching the remote.
+incapable of reaching the remote. There is no `.gitignore` to maintain and no
+protection to erode: the safety is structural, which is the point.
 
-## Checkout layout
+An ordinary checkout is not a space and cannot be decorated into one.
+`/hyperdev:adopt` **converts** it: the repo becomes bare and the whole working
+tree moves to `worktrees/<branch>` — dirty state, untracked files,
+`node_modules`, everything. Existing linked worktrees are moved in with
+`git worktree move`. The conversion prints its full plan as a dry run, refuses
+unsafe states (detached HEAD, rebase/merge/cherry-pick in progress,
+submodules), verifies `git status` before and after, and never deletes
+anything.
 
-```
-<project>/            ← ordinary working tree, code lives here
-├── .git/             normal repo
-├── src/  package.json  …   tracked source
-├── .claude/
-│   └── worktrees/    one worktree per branch
-├── data/  notes/  scratch/  bin/    ← gitignored
-└── HYPERDEV.md
-```
-
-The root **is** the repository, so the safety property inverts: local-only
-directories are protected by `.gitignore`, not by construction. Delete those
-entries and a dump in `data/` becomes committable. A top-level `worktrees/`
-would sit inside the working tree, so worktrees live under `.claude/` instead.
-
-## Which one am I in
+## Am I in one
 
 ```bash
 bash "${CLAUDE_PLUGIN_ROOT}/scripts/hyperdev-stack.sh" detect   # toolchain
 ```
 
 For the layout, `hyperdev-lib.sh` exposes `space_layout <dir>` (prints
-`bare`, `checkout`, or nothing) and `worktrees_dir <dir>`. Rules of thumb:
+`bare` or nothing) and `worktrees_dir <dir>`. Rules of thumb:
 
 - `.git` is a **directory** with `core.bare=true`, with a `worktrees/` dir or
-  `HYPERDEV.md` beside it → bare layout. A bare repo with *neither* is a plain
+  `HYPERDEV.md` beside it → a space. A bare repo with *neither* is a plain
   mirror or hosting remote, not a space — `space_layout` prints nothing for it.
-- `.git` is a **directory**, not bare, and the dir is the repo root → checkout.
+- `.git` is a **directory**, not bare → an ordinary checkout; not a space
+  until `/hyperdev:adopt` converts it.
 - `.git` is a **file** → you are in a linked worktree, not a space root.
 
-A plain repository is *not* treated as a space until it opts in: a checkout by
-having `HYPERDEV.md` or `.claude/worktrees/`, a bare repo by having
-`HYPERDEV.md` or a top-level `worktrees/`. Without those gates every repo and
-mirror on the machine would claim to be one.
+A plain bare repository is *not* treated as a space until it opts in by having
+`HYPERDEV.md` or a top-level `worktrees/`. Without that gate every mirror on
+the machine would claim to be one.
 
-## The shared corollary
+## The corollary
 
 **Nothing at the space root is backed up.** A dump in `data/` exists on
-exactly one disk, in either layout.
+exactly one disk.
 
 ## Where a file goes
 
@@ -85,11 +79,8 @@ than ten minutes, it is not scratch.
 
 ## Rules
 
-- **Bare layout: never commit from the space root.** The bare repo has no
-  index in the usual sense; `cd` into a worktree first.
-- **Checkout layout: the root is a normal working tree** — commit there as
-  usual, but run `git status` first. The local-only directories are held out of
-  git only by `.gitignore`.
+- **Never commit from the space root.** The bare repo has no index in the
+  usual sense; `cd` into a worktree first.
 - **Create worktrees with `wt switch <branch>`**, not `git worktree add`. The
   user's worktrunk config controls placement and strips branch prefixes, so
   `fix/foo` becomes `worktrees/foo`. Doing it by hand puts the tree in the
@@ -102,10 +93,14 @@ than ten minutes, it is not scratch.
 
 There is no single "set this project up" command. For an existing project:
 
-1. `/hyperdev:adopt <path>` — dry run first, read the output.
-2. Act on the loose-file suggestions **one at a time**, confirming each. They
-   are heuristics; several categories are explicitly "leave in place".
-3. `/hyperdev:adopt <path> --apply` — create the scaffold.
+1. `/hyperdev:adopt <path>` — dry run first, read the output. On an ordinary
+   checkout this prints a **conversion plan** (every root entry and where it
+   moves); on a bare repo it lists what would be scaffolded.
+2. For a conversion, walk the user through the plan and get explicit
+   confirmation. For a bare space, act on the loose-file suggestions **one at
+   a time**, confirming each — they are heuristics; several categories are
+   explicitly "leave in place".
+3. `/hyperdev:adopt <path> --apply` — convert, or create the scaffold.
 4. `/hyperdev:tools <path>` — detect the toolchain and wire the check hook.
 5. `/hyperdev:audit <path>` — the judgement checks, any time after.
 
@@ -118,7 +113,8 @@ oversized `scratch/` are reported for you to act on by hand.
 ## Commands
 
 - `/hyperdev:init <repo-url> [name]` — create a new space
-- `/hyperdev:adopt [path] [--apply]` — retrofit the layout onto an existing one
+- `/hyperdev:adopt [path] [--apply]` — scaffold a bare repo into a space, or
+  convert an ordinary checkout into one
 - `/hyperdev:audit [path]` — report drift, read-only. The mechanical checks
   are scripted (`hyperdev-audit.sh`); judging each finding is not.
 - `/hyperdev:tools [path]` — detect the project toolchain and wire the
@@ -133,8 +129,8 @@ oversized `scratch/` are reported for you to act on by hand.
 
 ## Detecting a space
 
-See "Which one am I in" above for the layout rules. `HYPERDEV.md` is the
-explicit marker, but the bare layout is also recognised from structure alone —
+See "Am I in one" above for the layout rules. `HYPERDEV.md` is the
+explicit marker, but a space is also recognised from structure alone —
 a bare `.git` with a top-level `worktrees/` beside it — so spaces predating
 this plugin still work without the marker.
 
@@ -153,14 +149,7 @@ worktree-path = "{{ repo_path }}/../worktrees/{{ branch | replace('fix/', '') | 
 
 `repo_path` is the worktree `wt` runs from, so `../worktrees/` resolves to the
 space's `worktrees/`. Because this is user-level, it applies to every
-project — a bare-layout space must use that directory name for `wt` to work
-correctly.
-
-The checkout layout does not match that template: its worktrees live in
-`.claude/worktrees/`. Either add a project-level `.config/wt.toml` overriding
-`worktree-path`, or create those worktrees with `git worktree add` and accept
-that `wt switch` will place new ones elsewhere. Check where existing worktrees
-actually are (`git worktree list`) before assuming either.
+project — a space must use that directory name for `wt` to work correctly.
 
 Worktrees of a bare repo get a `.git` *file* rather than a directory, which
 breaks relative `core.hooksPath`. The worktrunk `post-start` hook fixes it with

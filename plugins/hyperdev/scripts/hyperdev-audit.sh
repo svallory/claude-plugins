@@ -21,10 +21,6 @@ if ! git -C "$root" rev-parse --git-dir >/dev/null 2>&1; then
   exit 0
 fi
 
-# effective_layout rather than space_layout, so a repo that has not adopted
-# yet still gets a report (the missing marker is itself a finding).
-layout="$(effective_layout "$root")" || layout=bare
-
 # Findings are collected first and printed grouped by severity at the end,
 # because a section-by-section dump buries the one line that matters.
 problems=()
@@ -35,25 +31,25 @@ warn()    { warnings+=("$1"); }
 info()    { infos+=("$1"); }
 
 echo "Space:  $root"
-echo "Layout: $layout"
+echo "Layout: bare"
 
 # --- 1. Layout drift -------------------------------------------------------
 
-wt_abs="$(worktrees_dir "$root" 2>/dev/null)" || wt_abs="$root/worktrees"
-wt_rel="${wt_abs#"$root"/}"
+wt_abs="$root/worktrees"
+wt_rel="worktrees"
 
 for d in "${SPACE_DIRS[@]}"; do
-  if [[ "$d" == worktrees ]]; then
-    target="$wt_abs"; label="$wt_rel"
-  else
-    target="$root/$d"; label="$d"
-  fi
-  [[ -d "$target" ]] \
-    || warn "missing $label/ — run hyperdev-adopt.sh --apply to scaffold"
+  [[ -d "$root/$d" ]] \
+    || warn "missing $d/ — run hyperdev-adopt.sh --apply to scaffold"
 done
 
 [[ -f "$root/HYPERDEV.md" ]] \
   || warn "no HYPERDEV.md marker — run hyperdev-adopt.sh --apply to opt in"
+
+# Leftover conversion evidence means a conversion's postflight verification
+# did not pass cleanly (or the run died). It is our file, not the user's data.
+[[ -f "$root/.hyperdev-convert.preflight" ]] \
+  && problem ".hyperdev-convert.preflight left behind — a conversion did not verify cleanly; reconcile against it, then delete it"
 
 # --- 2. Worktree directory -------------------------------------------------
 
@@ -85,7 +81,7 @@ fi
 
 # %(upstream:track) prints "[gone]" when the remote branch was deleted — same
 # signal as `git branch -vv | grep ': gone]'`, without parsing the `*` marker.
-# --git-dir works for both layouts; branch listing needs no working tree.
+# --git-dir needs no working tree, so a bare space works directly.
 while IFS= read -r line; do
   [[ -n "$line" ]] && warn "branch '$line': upstream gone from remote — merged/deleted; delete locally if done"
 done < <(git --git-dir="$root/.git" for-each-ref \
@@ -93,10 +89,6 @@ done < <(git --git-dir="$root/.git" for-each-ref \
          | sed -n 's/ \[gone\]$//p' || true)
 
 # --- 4. Dirty worktrees ----------------------------------------------------
-
-# In the checkout layout the root is itself a working tree; audit it alongside
-# the linked worktrees so forgotten changes there surface too.
-[[ "$layout" == checkout ]] && live_worktrees+=("$root")
 
 for w in "${live_worktrees[@]+"${live_worktrees[@]}"}"; do
   wlabel="${w#"$root"/}"; wlabel="${wlabel%/}"
@@ -116,29 +108,21 @@ if [[ -d "$root/scratch" ]]; then
   info "scratch/ is $ssize — disposable; delete freely if it has grown"
 fi
 
-# Loose big files at the root. In the bare layout every root file is loose by
-# construction; in a checkout, tracked files are source and are skipped.
+# Loose big files at the root — the root is bare, so every file here is loose
+# by construction.
 while IFS= read -r f; do
   base="$(basename "$f")"
-  if [[ "$layout" == checkout ]]; then
-    git -C "$root" ls-files --error-unmatch "$base" >/dev/null 2>&1 && continue
-  fi
   fsize="$(du -sh "$f" 2>/dev/null | cut -f1 || echo '?')"
   warn "$base ($fsize): >10MB loose at the space root — belongs in data/"
 done < <(find "$root" -mindepth 1 -maxdepth 1 -type f -size +10M 2>/dev/null || true)
 
 # --- 6. Secret-looking names at the root -----------------------------------
 
-# Paths only, never contents. In the bare layout the root cannot be committed,
-# so these are a heads-up; in a checkout a *tracked* secret is a real problem.
+# Paths only, never contents. The root cannot be committed, so these are a
+# heads-up about backup/locality, not a leak.
 while IFS= read -r f; do
   base="$(basename "$f")"
-  if [[ "$layout" == checkout ]] \
-     && git -C "$root" ls-files --error-unmatch "$base" >/dev/null 2>&1; then
-    problem "$base: secret-looking file is TRACKED by git — it reaches the remote"
-  else
-    warn "$base: secret-looking file at the space root — verify it is meant to live here"
-  fi
+  warn "$base: secret-looking file at the space root — verify it is meant to live here"
 done < <(find "$root" -mindepth 1 -maxdepth 1 \
            \( -name '.env' -o -name '.env.*' -o -name '*.pem' -o -name '*.key' \
               -o -name 'id_rsa*' -o -name 'id_ed25519*' \

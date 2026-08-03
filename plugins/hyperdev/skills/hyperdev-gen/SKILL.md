@@ -12,8 +12,8 @@ pattern deterministic; the agent's judgement is confined to the regions the
 template opens.
 
 Template location and format are defined in `/hyperdev:gen`: a directory under
-`templates/` (bare layout) or `.claude/templates/` (checkout layout),
-containing a `template.md` manifest plus the tree to copy.
+`<space>/templates/`, containing a `template.md` manifest plus the tree to
+copy.
 
 ## Rule 1 — verbatim outside prompt regions. Absolute.
 

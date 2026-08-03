@@ -55,8 +55,8 @@ read-only by contract.
    with the same caveats adopt uses: never move databases or tool-managed
    paths that something reads by exact location.
 7. **Secrets** — report the path only. Never open, print, or move the file.
-   A *tracked* secret in the checkout layout is urgent: it reaches the remote;
-   the user needs to untrack it and rotate the credential.
+   A secret *tracked in a worktree* is urgent: it reaches the remote; the
+   user needs to untrack it and rotate the credential.
 
 ## Output
 

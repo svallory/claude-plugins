@@ -8,7 +8,8 @@ source "$SCRIPTS_DIR/hyperdev-lib.sh"
 set +eu
 set +o pipefail
 
-d="$FIX/c1"; make_checkout "$d"
+# The seed lives at a space root, which is always bare now.
+d="$FIX/c1"; make_bare_space "$d"
 
 write_memory_seed "$d" proj
 write_memory_seed "$d" proj

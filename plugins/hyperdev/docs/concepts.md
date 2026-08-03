@@ -18,23 +18,19 @@ classifies it — that function is the single authority. Its invariants:
 
 - The root contains `.git` as a **directory** (a `.git` *file* means a linked
   worktree, which is never a space — see [Worktree](#worktree)).
-- The root is either a bare repository with the space structure beside it, or
-  the top of an ordinary working tree that has **opted in** (see
+- The `.git` at the root is **bare**, with the space structure beside it (see
   [Marker](#marker-hyperdevmd-and-the-opt-in-gate)).
 - Exactly one space root exists per project; `find_space_root` walks upward
   from anywhere inside and stops at it.
 
 What a space is *for*: one object store shared across branches, one canonical
 home for worktrees, and a place for files that must never reach the remote.
-The shared corollary in both layouts: **nothing local-only is backed up** — a
-dump in `data/` exists on exactly one disk.
+The corollary: **nothing local-only is backed up** — a dump in `data/` exists
+on exactly one disk.
 
-## Layout: bare vs checkout
+## Layout
 
-Two layouts, both first-class, because converting between them means
-re-cloning. `space_layout` prints `bare`, `checkout`, or nothing.
-
-### bare
+A space has exactly one shape. `space_layout` prints `bare` or nothing.
 
 ```
 <space>/
@@ -50,34 +46,19 @@ Detection: `.git` is a directory with `core.bare=true`, **and** either a
 exists so a plain bare clone — a mirror, a hosting remote — is not mistaken
 for a space.
 
+The core design rule alongside [the verifiability rule](#the-design-rule):
+**wrapping, never mixing.** Space files and project files never share a
+directory. The project lives entirely inside `worktrees/<branch>`; the space's
+local-only files live beside it, outside every working tree. There is no
+"decorated checkout" variant where space directories sit inside the repository
+root — that shape mixes space files into the project, and it is exactly what
+adoption converts away from.
+
 Safety property: **structural impossibility.** The root is not a working tree;
 there is nothing to `git add` and no commit can include it. Local-only files
 cannot reach the remote by construction — not by accident, not by a stray
-`git add -A`.
-
-### checkout
-
-```
-<project>/            ordinary working tree, code at the root
-├── .git/
-├── src/ …            tracked source
-├── .claude/worktrees/
-├── data/  notes/  scratch/  bin/   ← gitignored
-└── HYPERDEV.md
-```
-
-Detection: `.git` is a non-bare directory, the directory is the top of its
-working tree (`git rev-parse --show-toplevel` equals it), **and** the opt-in
-gate passes (`HYPERDEV.md` or `.claude/worktrees/` exists).
-
-Safety property: **`.gitignore`, not construction.** The root *is* the
-repository, so local-only directories are kept out of git only by ignore
-rules (`ensure_gitignored` writes them and asks `git check-ignore` first so it
-never duplicates coverage from `.git/info/exclude` or the global excludes
-file). Delete those entries and a dump in `data/` becomes committable — which
-is why the checkout-layout guidance always says "check `git status` before
-committing". Worktrees live under `.claude/worktrees/` because a top-level
-`worktrees/` would sit inside the working tree as untracked noise.
+`git add -A`. There is no `.gitignore` protection to maintain, because there
+is nothing to protect against: that is the point of the single shape.
 
 ## Marker (HYPERDEV.md) and the opt-in gate
 
@@ -85,38 +66,30 @@ committing". Worktrees live under `.claude/worktrees/` because a top-level
 adopted the space conventions. It documents the layout for whoever opens the
 directory, and it is the opt-in signal detection looks for.
 
-Why a gate at all: **every git repo on the machine looks like a checkout.**
-When checkout detection briefly accepted any non-bare repo root, the
-SessionStart hook fired in every repository the user owned. So:
+Why a gate at all: `core.bare=true` alone matches mirrors and hosting
+remotes, so `space_layout` requires the promised structure (`worktrees/`) or
+the marker beside `.git`. Structural detection is the fallback that keeps
+bare spaces predating this plugin working without the marker.
 
-- **checkout** requires the marker (or an existing `.claude/worktrees/`) —
-  an ordinary repository is not a space just for being a repository.
-- **bare** is nearly self-identifying, but `core.bare=true` alone still
-  matches mirrors and hosting remotes, so it requires the promised structure
-  (`worktrees/`) or the marker beside `.git`.
-- In the checkout layout the marker is a **tracked file**, so every linked
-  worktree carries a copy. The marker alone is therefore never sufficient:
-  `is_space` also requires a real repository root (`.git` directory).
-
-`adopt` is the one code path allowed to bypass the gate — via
-`effective_layout`, which classifies a repo that has *not* opted in — because
-adopt is the thing that performs the opt-in.
+`adopt` is the one code path allowed to accept a repository the gate rejects,
+because adopt is the thing that performs the opt-in: a plain bare repo is
+scaffolded in place, and an ordinary checkout is **converted** into the space
+shape (see the `/hyperdev:adopt` command).
 
 ## Worktree
 
 A **worktree** is one working tree of the space's repository, one per branch,
-living in `worktrees/` (bare) or `.claude/worktrees/` (checkout) —
-`worktrees_dir` resolves which. Created with `wt switch <branch>`
-(worktrunk), never `git worktree add` by hand, so placement and post-start
-hooks are consistent.
+living in `worktrees/` — `worktrees_dir` resolves the path. Created with
+`wt switch <branch>` (worktrunk), never `git worktree add` by hand, so
+placement and post-start hooks are consistent.
 
 **A linked worktree is never itself a space.** The distinguishing fact is
 mechanical: a linked worktree has a `.git` **file** (pointing at the shared
 repository), not a `.git` **directory**. `git rev-parse --show-toplevel`
-happily reports the worktree as the top of its own tree, and in the checkout
-layout it even carries a copy of `HYPERDEV.md` — so both the "is a repo root"
-and "has the marker" tests pass on it. The `.git`-must-be-a-directory rule is
-what rejects it, which is also what lets `find_space_root` walk *through* a
+happily reports the worktree as the top of its own tree, and a worktree can
+carry a tracked copy of `HYPERDEV.md` — so both the "is a repo root" and "has
+the marker" tests can pass on it. The `.git`-must-be-a-directory rule is what
+rejects it, which is also what lets `find_space_root` walk *through* a
 worktree up to the real space root.
 
 Worktrees have their own `.claude/` and `CLAUDE.md`, and those are committed;
@@ -137,16 +110,10 @@ single source of truth for the set. The four non-worktree members:
 Rule of thumb between `notes/` and `scratch/`: if losing it would cost more
 than ten minutes, it is not scratch.
 
-Commit/backup semantics per layout:
-
-- **bare**: they sit at the space root, which is not a working tree — they
-  are uncommittable by construction and never reach the remote.
-- **checkout**: they sit inside the working tree and are held out only by
-  `.gitignore` entries that `adopt` writes.
-
-In both layouts, nothing in them is committed **or backed up**. And nothing
-in the plugin ever moves or deletes their contents — `adopt` *suggests* where
-loose files belong; a human acts.
+They sit at the space root, which is not a working tree — they are
+uncommittable by construction and never reach the remote. Nothing in them is
+committed **or backed up**. And nothing in the plugin ever moves or deletes
+their contents — `adopt` *suggests* where loose files belong; a human acts.
 
 ## Stack
 
@@ -219,9 +186,12 @@ This is the governing principle; most of the code is downstream of it.
 - Detection omits keys it cannot prove. A wrong check command is worse than
   no check command.
 - The check hook declines to run rather than guessing a runner.
-- Nothing deletes or moves user files automatically — `adopt` and `audit`
-  report; a human acts. (The one time a heuristic nearly acted on its own it
-  would have silently emptied a live SQLite database.)
+- Nothing ever deletes user files, and no heuristic ever moves one — `adopt`'s
+  loose-file scan and `audit` report; a human acts. (The one time a heuristic
+  nearly acted on its own it would have silently emptied a live SQLite
+  database.) The single moving operation, converting a checkout into a space,
+  is not a heuristic: it moves *everything* to `worktrees/<branch>`, prints
+  its full plan first, and verifies `git status` matches afterwards.
 - Any failure path added to a hook must be impossible to hit on a healthy
   project.
 
@@ -247,7 +217,7 @@ the mistake is made rather than at review. Described above under
 
 **Reactive Context → SessionStart hook.** `scripts/hyperdev-context.sh` tells
 each new session *where it is* (space root vs worktree vs local-only dir,
-with the layout-appropriate warnings) and *how to work here* (detected
+with the warnings each location needs) and *how to work here* (detected
 toolchain facts and check-hook status). Silent outside a space, so it costs
 nothing in unrelated projects.
 

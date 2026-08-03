@@ -10,10 +10,7 @@ methodology a plugin can deliver today: **Tools Integration** and
 A space gives a project a fixed shape: the git repo, every worktree, and a
 small set of local-only directories (`data/`, `notes/`, `scratch/`, `bin/`)
 for files that must never be committed. `HYPERDEV.md` at the space root is
-the opt-in marker. Two layouts exist — both first-class, because converting
-between them means re-cloning.
-
-### Bare layout
+the opt-in marker. A space has exactly one shape:
 
 ```
 <space>/
@@ -26,22 +23,19 @@ between them means re-cloning.
 
 The root is not a working tree, so nothing there can be committed — not by
 accident, not by a stray `git add -A`. Local-only files get a home that is
-*structurally* incapable of reaching the remote.
+*structurally* incapable of reaching the remote. Space files and project
+files never share a directory: the project lives in `worktrees/<branch>`,
+the space's local-only files live beside it.
 
-### Checkout layout
-
-```
-<project>/            ordinary working tree, code at the root
-├── .git/
-├── src/ …            tracked source
-├── .claude/worktrees/
-├── data/  notes/  scratch/  bin/   ← gitignored
-└── HYPERDEV.md
-```
-
-The root **is** the repo, so the safety property inverts: local-only dirs
-are protected by `.gitignore`, not by construction. A top-level `worktrees/`
-would sit inside the working tree, so worktrees live under `.claude/`.
+Adopting an ordinary checkout therefore means **converting** it: the repo
+becomes bare, the entire working tree — dirty state, untracked files,
+`node_modules`, everything — moves to `worktrees/<branch>`, and existing
+linked worktrees are brought in via `git worktree move`. Commits and stashes
+live in `.git`, which the conversion never rewrites; uncommitted changes and
+untracked files are verified by comparing `git status` before and after, with
+a loud warning on any mismatch. It refuses to run mid-rebase/merge/cherry-pick,
+on a detached HEAD, or with submodules present, and nothing is ever deleted,
+in any mode, on any path.
 
 ## Install
 
@@ -54,8 +48,8 @@ would sit inside the working tree, so worktrees live under `.claude/`.
 
 | Command | What it does |
 |---|---|
-| `/hyperdev:init <repo-url> [space-name] [--layout bare\|checkout] [--default-branch <name>]` | Create a new space from a git remote |
-| `/hyperdev:adopt [space-path] [--apply]` | Retrofit the layout onto an existing repo — additive only, never moves or deletes |
+| `/hyperdev:init <repo-url> [space-name] [--default-branch <name>]` | Create a new space from a git remote |
+| `/hyperdev:adopt [space-path] [--apply]` | Adopt an existing repo: scaffold a bare repo additively, or convert an ordinary checkout into a space — dry run first, nothing ever deleted |
 | `/hyperdev:audit [space-path]` | Read-only drift report: missing dirs, loose files, stale worktrees |
 | `/hyperdev:tools [project-path]` | Detect the project's own toolchain and wire up the check hook |
 | `/hyperdev:plan <feature> [phase]` | 4-phase spec-driven workflow — Define, Design, Decompose, Develop — with artifacts in `notes/specs/` |
@@ -68,8 +62,8 @@ opt-ins differ:
 
 - **SessionStart** — injects space context (layout, worktrees, toolchain)
   at the start of each session. Its opt-in is the space itself: it fires once
-  the project has the space markers (`HYPERDEV.md`, or the layout's worktrees
-  directory), with or without `.claude/hyperdev.json`.
+  the project has the space markers (`HYPERDEV.md`, or a `worktrees/`
+  directory beside the bare `.git`), with or without `.claude/hyperdev.json`.
 - **PostToolUse** — after every `Edit`/`Write`/`NotebookEdit`, runs the
   project's *own* linter or typechecker and feeds failures straight back; a
   companion hook flags dependency drift after `Edit`/`Write` on a manifest.
@@ -100,5 +94,7 @@ project has no lint script", not "try `npm run lint`". With no lockfile and no
 declines to run rather than defaulting to npm. A wrong check that fails on every edit gets ignored
 within a day — and the real failures get ignored with it.
 
-Nothing deletes or moves user files automatically: audits and adopt runs
-report; a human acts.
+Nothing is ever deleted. Audit and adopt's loose-file scan only report — a
+human acts. The one operation that moves files, converting a checkout into a
+space, prints its full plan as a dry run and runs only on an explicit
+`--apply`, then verifies `git status` survived the move unchanged.

@@ -17,6 +17,13 @@ goal; your job is to extract the parts they have not said out loud.
 Ask about each of these until you could write the section without inventing
 anything. One topic at a time; do not dump a questionnaire.
 
+Running without a user who can answer (autonomous or delegated run): do not
+silently invent answers. Write your best-guess answer, collect every guess
+under an `## Assumptions (unconfirmed)` section, and mark the frontmatter
+`status: draft — assumptions unconfirmed`. The gate to Design still applies,
+but Develop must not mark the first task complete while that status stands —
+someone has to confirm the assumptions first.
+
 - **Goal** — what business outcome does this serve? Why now?
 - **Users** — who touches this, and what is their journey through it?
 - **Constraints** — deadlines, compliance, budget, compatibility, anything

@@ -71,6 +71,11 @@ existing exemplar file in the repo** — the file the team already points at as
 4. Write `template.md` listing every placeholder with a one-line meaning.
 5. Have the user review the template before first use.
 
+Running without a user to ask (autonomous or delegated run): pick the exemplar
+yourself, but record the choice — note in `template.md` which file it was
+built from and that the selection and template are unreviewed. The review in
+steps 1 and 5 is deferred, not waived.
+
 A template written from imagination encodes *your* pattern, not the team's —
 exactly the drift templates exist to prevent.
 

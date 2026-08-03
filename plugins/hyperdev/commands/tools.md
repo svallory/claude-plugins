@@ -213,7 +213,10 @@ the same way you would read a `Makefile` before running `make`. Prefer `run`
   For large projects prefer a fast scoped command, or lint over typecheck.
 - The hook has a fixed per-edit cost *before* the `extensions` filter applies:
   it parses the hook payload and the config (two `node` spawns) on every
-  Edit/Write in an opted-in project. Usually tens of milliseconds, but if
-  `node` resolves through a version-manager shim (proto, mise, asdf) each
-  spawn can take ~1s. `extensions` only skips the check command itself, not
-  this overhead.
+  Edit/Write in an opted-in project. Tens of milliseconds with a plain `node`
+  on PATH — but when `node` resolves through a version-manager shim (proto,
+  mise, asdf) each spawn can take ~1s, so every edit pays roughly 2s even
+  when `extensions` skips the check. Measured, not hypothetical. If that is
+  too slow, point the hook at a shim-free node or disable the hook for that
+  project. `extensions` only skips the check command itself, not this
+  overhead.

@@ -99,8 +99,23 @@ else
   [[ -f "$root/HYPERDEV.md" ]] \
     && echo "  exists   HYPERDEV.md" \
     || echo "  would create  HYPERDEV.md"
-  [[ "$layout" == checkout ]] \
-    && echo "  would ensure  .gitignore covers data/ notes/ scratch/ bin/"
+  # Ask git what is actually covered rather than printing a blanket "would
+  # ensure": after adoption the dry run should read clean, not perpetually
+  # claim work is pending.
+  if [[ "$layout" == checkout ]]; then
+    missing=""
+    for d in "${SPACE_DIRS[@]}"; do
+      [[ "$d" == worktrees ]] && continue
+      git -C "$root" check-ignore -q "$d/" 2>/dev/null || missing+="${missing:+ }$d/"
+    done
+    git -C "$root" check-ignore -q ".claude/worktrees/" 2>/dev/null \
+      || missing+="${missing:+ }.claude/worktrees/"
+    if [[ -n "$missing" ]]; then
+      echo "  would ensure  .gitignore covers $missing"
+    else
+      echo "  exists   .gitignore coverage for local-only dirs"
+    fi
+  fi
 fi
 
 echo
@@ -118,7 +133,7 @@ while IFS= read -r entry; do
 
   # Skip the structural pieces and the directories we manage.
   case "$base" in
-    .git|.claude|HYPERDEV.md|.DS_Store) continue ;;
+    .git|.gitignore|.claude|HYPERDEV.md|.DS_Store) continue ;;
   esac
 
   # /hyperdev:gen keeps bare-layout templates at <space>/templates/, so that
@@ -202,6 +217,10 @@ while IFS= read -r entry; do
 
   if [[ -d "$entry" ]]; then
     case "$base" in
+      # An unrecognized dot-directory is usually another tool's state (plugin
+      # caches, agent workspaces); moving it orphans it. The known-safe dot
+      # names were already handled by the tool-managed list above.
+      .*) suggestion="dot-directory — likely tool or plugin state; leave in place unless you know its owner" ;;
       *data*|*fixtures*|*dump*|*db*) suggestion="data/" ;;
       *doc*|*note*|*handoff*|*brief*) suggestion="notes/" ;;
       *bin|*scripts*)                 suggestion="bin/" ;;

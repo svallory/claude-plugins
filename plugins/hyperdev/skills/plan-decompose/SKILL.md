@@ -48,6 +48,9 @@ the `plan-design` skill.
 
 After writing `tasks.md`, create one real task per unit with the TaskCreate
 tool — the file is the spec, the tracked tasks are how progress is followed.
+If no task-tracking tool exists in the current environment, `tasks.md` alone
+is authoritative: note "no task tracker available" at its top and skip this
+section (including its line in the Gate) rather than failing the phase.
 
 - Subject: `T-n: <title>` (matching `tasks.md` exactly).
 - Description: the unit's description and acceptance criteria, plus

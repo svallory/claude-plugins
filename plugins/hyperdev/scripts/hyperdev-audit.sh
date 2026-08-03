@@ -105,6 +105,7 @@ for w in "${live_worktrees[@]+"${live_worktrees[@]}"}"; do
   [[ -n "$dirty" ]] || continue
   count="$(printf '%s\n' "$dirty" | wc -l | tr -d ' ')"
   sample="$(printf '%s\n' "$dirty" | head -3 | awk '{print $NF}' | paste -sd, -)"
+  [[ "$count" -gt 3 ]] && sample+=" +$((count - 3)) more"
   warn "$wlabel: $count uncommitted change(s) — $sample"
 done
 

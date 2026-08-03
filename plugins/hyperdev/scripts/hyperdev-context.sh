@@ -12,6 +12,14 @@ layout="$(space_layout "$root" 2>/dev/null)" || layout=bare
 wt_abs="$(worktrees_dir "$root" 2>/dev/null)" || wt_abs="$root/worktrees"
 wt_rel="${wt_abs#"$root"/}"
 
+# Recommend wt only when it is actually installed; otherwise show the raw
+# command so the advice is followable as printed.
+if command -v wt >/dev/null 2>&1; then
+  wt_make="\`wt switch <branch>\`, not \`git worktree add\`"
+else
+  wt_make="\`git worktree add $wt_rel/<branch> <branch>\` (worktrunk's \`wt switch\` automates this)"
+fi
+
 # Inside a worktree? Compare against the layout's worktrees directory rather
 # than assuming a fixed path, since it differs per layout.
 in_worktree=0
@@ -44,7 +52,7 @@ The .git here is bare — there is no working tree and nothing at this level is
 ever committed. Worktrees live in $wt_rel/<branch>.
 
 - Do not run git commit/add here. cd into $wt_rel/<branch> first.
-- Create branches with \`wt switch <branch>\`, not \`git worktree add\`.
+- Create branches with $wt_make.
 - New local-only files go in: data/ (dumps, fixtures), notes/ (briefs, docs),
   scratch/ (disposable), bin/ (helper scripts) — not loose at the root.
 
@@ -60,7 +68,7 @@ elif at_space_root; then
 Project space: $root (checkout layout — code at the root).
 
 This root is a normal git working tree; commit here as usual. Worktrees for
-other branches are in $wt_rel/<branch>, created with \`wt switch\`.
+other branches are in $wt_rel/<branch>, created with $wt_make.
 
 - Local-only dirs (data/, notes/, scratch/, bin/) are kept out of git by
   .gitignore, not by construction — check \`git status\` before committing.
@@ -80,21 +88,21 @@ else
   if [[ "$layout" == checkout ]]; then
     if git -C "$root" check-ignore -q "$top" 2>/dev/null; then
       cat <<EOF
-In \`$top/\` of space $name ($root) — a local-only directory kept out of git
-by .gitignore. Nothing here is committed or backed up. The code is the
-working tree at $root.
+In \`$rel/\` of space $name ($root) — inside \`$top/\`, a local-only directory
+kept out of git by .gitignore. Nothing here is committed or backed up. The
+code is the working tree at $root.
 EOF
     else
       tree="$root"
       cat <<EOF
-In \`$top/\` of space $name ($root, checkout layout) — inside the root
+In \`$rel/\` of space $name ($root, checkout layout) — inside the root
 working tree. Normal git applies here. Worktrees for other branches are in
 $wt_abs/<branch>.
 EOF
     fi
   else
     cat <<EOF
-In \`$top/\` of space $name ($root) — a local-only directory, not a
+In \`$rel/\` of space $name ($root) — a local-only directory, not a
 worktree. Nothing here is committed or backed up. Code lives in
 $wt_abs/<branch>.
 EOF

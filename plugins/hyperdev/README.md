@@ -53,6 +53,7 @@ in any mode, on any path.
 | `/hyperdev:init <repo-url> [space-name] [--default-branch <name>]` | Create a new space from a git remote |
 | `/hyperdev:adopt [space-path] [--apply]` | Adopt an existing repo: scaffold a bare repo additively, or convert an ordinary checkout into a space — dry run first, nothing ever deleted |
 | `/hyperdev:audit [space-path]` | Read-only drift report: missing dirs, loose files, stale worktrees |
+| `/hyperdev:cleanup [space-path]` | Delete what audit reports — candidates listed first, every deletion confirmed per item and re-verified; the plugin's one deleting command |
 | `/hyperdev:tools [project-path]` | Detect the project's own toolchain and wire up the check hook |
 | `/hyperdev:plan <feature> [phase]` | 4-phase spec-driven workflow — Define, Design, Decompose, Develop — with artifacts in `notes/specs/` |
 | `/hyperdev:gen [template] [dest]` | Generate files from a project template — deterministic copy, agent authoring only inside marked prompt regions |
@@ -96,8 +97,9 @@ project has no lint script", not "try `npm run lint`". With no lockfile and no
 declines to run rather than defaulting to npm. A wrong check that fails on every edit gets ignored
 within a day — and the real failures get ignored with it.
 
-Nothing is ever deleted. Audit and adopt's loose-file scan only report — a
-human acts. The one operation that moves files, converting a checkout into a
+Nothing is ever deleted — except by `/hyperdev:cleanup`, which deletes only
+what audit classifies as debris, one explicitly confirmed id at a time. Audit
+and adopt's loose-file scan only report — a human acts. The one operation that moves files, converting a checkout into a
 space, prints its full plan as a dry run and runs only on an explicit
 `--apply`, then verifies `git status` survived the move unchanged.
 

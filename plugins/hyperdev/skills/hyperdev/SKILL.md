@@ -112,8 +112,10 @@ There is no single "set this project up" command. For an existing project:
 `/hyperdev:init` is only for creating a *new* space from a remote. It does
 not apply to a project that already exists on disk.
 
-Nothing in the plugin deletes anything. Orphaned worktrees, stale branches and
-oversized `scratch/` are reported for you to act on by hand.
+Nothing in the plugin deletes anything, with one controlled exception:
+`/hyperdev:cleanup` deletes what audit classifies as debris — orphaned
+worktrees, parked leftovers, gone branches, scratch contents — one explicitly
+confirmed id at a time, re-verified at deletion time.
 
 ## Commands
 
@@ -124,6 +126,9 @@ oversized `scratch/` are reported for you to act on by hand.
   convert an ordinary checkout into one
 - `/hyperdev:audit [path]` — report drift, read-only. The mechanical checks
   are scripted (`hyperdev-audit.sh`); judging each finding is not.
+- `/hyperdev:cleanup [path]` — the audit-findings executor and the one
+  command that deletes: lists candidates with stable ids, deletes only ids
+  named explicitly, each confirmed per item and re-verified before `rm`.
 - `/hyperdev:tools [path]` — detect the project toolchain and wire the
   check hook. See the `hyperdev-tooling` skill; the commands are
   project-specific and must be detected or asked about, never assumed. The

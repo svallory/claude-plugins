@@ -63,9 +63,10 @@ what a project *already* uses; it should also help choose what to add.
       by design, so a fresh install produces zero signal. Investigate a
       one-time "hyperdev installed — run /hyperdev:help" nudge that never
       repeats.
-- [ ] `/hyperdev:prune` — explicit, confirmed cleanup for what audit reports
-      (parked conversion leftovers, orphaned worktrees, oversized scratch).
-      Never automatic; every deletion confirmed per item.
+- [x] `/hyperdev:prune` — **shipped as `/hyperdev:cleanup`** (renamed: git
+      owns "prune" for metadata-only deletion, and the collision would
+      mislead). List mode + per-id `--delete`, every deletion confirmed per
+      item and re-verified at deletion time; no `--all` flag, ever.
 
 ## Codex / cross-tool support
 
@@ -117,6 +118,10 @@ what a project *already* uses; it should also help choose what to add.
       the native define/design/tasks structure.
 - [ ] Starter-kit templates shipped with the plugin (per stack), not only
       user-authored exemplar templates.
+
+## To evaluate
+
+- [ ] Evaluate and adopt (or not): https://github.com/tokenRollAI/acplugin
 
 ## Infrastructure
 

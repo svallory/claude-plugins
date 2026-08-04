@@ -197,7 +197,10 @@ This is the governing principle; most of the code is downstream of it.
   no check command.
 - The check hook declines to run rather than guessing a runner.
 - Nothing ever deletes user files, and no heuristic ever moves one — `adopt`'s
-  loose-file scan and `audit` report; a human acts. (The one time a heuristic
+  loose-file scan and `audit` report; a human acts. The one controlled
+  exception is `/hyperdev:cleanup`, which deletes only what audit classifies
+  as debris, only ids named explicitly, each confirmed per item and
+  re-verified at deletion time. (The one time a heuristic
   nearly acted on its own it would have silently emptied a live SQLite
   database.) The single moving operation, converting a checkout into a space,
   is not a heuristic: it moves *everything* to `worktrees/<branch>`, prints

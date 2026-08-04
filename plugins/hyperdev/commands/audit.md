@@ -58,6 +58,10 @@ read-only by contract.
    A secret *tracked in a worktree* is urgent: it reaches the remote; the
    user needs to untrack it and rotate the credential.
 
+For the debris findings (orphans, leftover build output, parked entries,
+gone branches, oversized scratch), point the user at `/hyperdev:cleanup` —
+it lists deletion candidates and deletes only per-item confirmed ids.
+
 ## Output
 
 Summarize the script's report for the user in a few lines, leading with

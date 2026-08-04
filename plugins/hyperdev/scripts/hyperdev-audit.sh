@@ -166,6 +166,7 @@ if [[ ${#problems[@]} -gt 0 || ${#warnings[@]} -gt 0 ]]; then
   echo "Next steps:"
   [[ ${#warnings[@]} -gt 0 ]] && grep -q "missing" <<<"${warnings[*]}" \
     && echo "  /hyperdev:adopt --apply   scaffold the missing pieces"
+  echo "  /hyperdev:cleanup         delete the debris findings — listed first, confirmed per item"
   echo "  fix what the report flags — audit only reports, it never changes anything"
 fi
 

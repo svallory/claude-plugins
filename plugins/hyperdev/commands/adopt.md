@@ -147,6 +147,11 @@ Converting is safe but not trivial to undo. When running this for the user:
    worktree target, the per-entry moves, and any refusals.
 2. **Get explicit confirmation before `--apply`.** Never convert on inference
    from "set this project up"; the user must see the plan and say yes.
+3. **After a conversion, walk the user through everything it parked or
+   announced** — leftover `.claude/worktrees/` entries, the
+   `MEMORY.md.hyperdev-orig` backup — and offer to clean each one up with an
+   explicit, per-item command. The conversion never deletes; tidying is this
+   conversation's job, not the script's.
 3. If the preflight refuses, help resolve the cause (finish the rebase,
    deinit submodules, `cd` out) rather than working around the check.
 4. After conversion, relay the final summary: project files are now in

@@ -51,6 +51,20 @@ done
 [[ -f "$root/.hyperdev-convert.preflight" ]] \
   && problem ".hyperdev-convert.preflight left behind — a conversion did not verify cleanly; reconcile against it, then delete it"
 
+# A legacy .claude/worktrees/ at the space root only exists after converting a
+# previously-adopted repo, and anything still in it was not a registered
+# worktree — conversion parks such entries rather than guess. Without this
+# check they are announced exactly once, in the apply output, and then never
+# surface again.
+if [[ -d "$root/.claude/worktrees" ]]; then
+  for w in "$root/.claude/worktrees"/*/; do
+    [[ -d "$w" ]] || continue
+    wname="$(basename "$w")"
+    wsize="$(du -sh "$w" 2>/dev/null | cut -f1 || echo '?')"
+    warn ".claude/worktrees/$wname ($wsize): parked by conversion — not a registered worktree; inspect, then delete or move its contents"
+  done
+fi
+
 # --- 2. Worktree directory -------------------------------------------------
 
 # Same classification as the worktree scan in hyperdev-adopt.sh (the sibling

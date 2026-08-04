@@ -44,12 +44,21 @@ same classifications `hyperdev-audit.sh` makes, nothing of its own:
    No `--delete` means nothing is deleted — it is safe to run any time. If it
    prints "Nothing to clean.", say so and stop.
 
-2. **Confirm per item** with AskUserQuestion. Never infer consent from "clean
-   it up" alone for `worktree:`, `parked:`, or `branch:` items — each one is
-   an explicit yes or no. With more than 4 items, batch into multiple
-   questions, or use multiSelect where the items are independent.
-   `scratch:contents` and `evidence:preflight` may be confirmed as a single
-   batch — they are disposable by contract.
+2. **Let the user pick from the list** with AskUserQuestion, multiSelect:
+   one option per candidate — label is the id, description is the size and
+   evidence from the listing — so the user selects exactly what to remove in
+   one interaction. More than 4 candidates: split into multiple multiSelect
+   questions, grouped by class (`worktree:` items together, `branch:` items
+   together, disposables together). Never infer consent from "clean it up"
+   alone for `worktree:`, `parked:`, or `branch:` items — they must appear as
+   options the user actually picked. `scratch:contents` and
+   `evidence:preflight` may be presented as one combined option — they are
+   disposable by contract.
+
+   (A human at a terminal gets the same per-item flow from the script itself:
+   `hyperdev-cleanup.sh -i` asks y/N per candidate, default No. It requires a
+   tty, so agent sessions cannot use it — that is what AskUserQuestion is
+   for.)
 
 3. **Delete**, one visible step per confirmed id:
 

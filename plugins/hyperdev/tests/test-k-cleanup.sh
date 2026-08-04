@@ -163,4 +163,17 @@ assert_not_contains "no parked candidates remain"   "$out" "parked:"
 assert_not_contains "no scratch candidate remains"  "$out" "scratch:"
 assert_contains "the refused branch is still a candidate" "$out" "branch:gone-unmerged"
 
+# Interactive mode: without a tty the prompts would EOF into silent No answers,
+# so the script must refuse loudly instead — and prove it deleted nothing.
+pre="$(find "$d" | sort)"
+out="$(bash "$CLEANUP" "$d" -i </dev/null 2>&1)"
+rc=$?
+assert_eq "interactive without a tty exits 2" 2 "$rc"
+assert_contains "no-tty refusal names the agent alternative" "$out" "--delete"
+assert_eq "no-tty interactive deleted nothing" "$pre" "$(find "$d" | sort)"
+out="$(bash "$CLEANUP" "$d" -i --delete backup:memory-index 2>&1)"
+rc=$?
+assert_eq "-i with --delete is refused" 1 "$rc"
+assert_contains "mutual-exclusion message" "$out" "mutually exclusive"
+
 finish

@@ -5,26 +5,37 @@
 # deletion. A stale listing is never trusted: an id that no longer matches its
 # candidate class is refused, not deleted.
 #
-# Usage: hyperdev-cleanup.sh [space-root] [--delete <id>]...
+# Usage: hyperdev-cleanup.sh [space-root] [--delete <id>]... [-i|--interactive]
 #
 #   no --delete    LIST mode: enumerate deletion candidates with stable ids,
 #                  sizes, and evidence. Deletes nothing. Exits 0.
 #   --delete <id>  delete exactly that item (repeatable). Exit 0 when every
 #                  named id was deleted, 1 when any was refused.
+#   -i             interactive: list, then confirm each candidate y/N at the
+#                  terminal and delete what was approved. Needs a tty — an
+#                  agent session has none and must use AskUserQuestion +
+#                  --delete instead.
 #
-# There is deliberately no --all flag, and there never will be.
+# There is deliberately no --all flag, and there never will be. Interactive
+# mode preserves the per-item contract: one question per candidate, default
+# No, never a bulk yes.
 
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/hyperdev-lib.sh"
 
 root=""
 delete_ids=()
+interactive=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --delete)
       [[ $# -ge 2 ]] || { echo "--delete requires an id" >&2; exit 1; }
       delete_ids+=("$2")
       shift 2
+      ;;
+    -i|--interactive)
+      interactive=1
+      shift
       ;;
     --*)
       echo "unknown flag: $1" >&2
@@ -53,6 +64,18 @@ root="$(cd "$root" && pwd)"
 if ! git -C "$root" rev-parse --git-dir >/dev/null 2>&1; then
   echo "not a git repository: $root" >&2
   exit 1
+fi
+
+if [[ $interactive -eq 1 && ${#delete_ids[@]} -gt 0 ]]; then
+  echo "-i and --delete are mutually exclusive: interactive mode asks, --delete already knows" >&2
+  exit 1
+fi
+# Interactive confirmation is a terminal conversation. Without a tty the
+# prompts would read EOF and silently answer No to everything — refuse
+# loudly instead so a scripted caller notices the mistake.
+if [[ $interactive -eq 1 ]] && ! [[ -t 0 && -t 1 ]]; then
+  echo "interactive mode needs a terminal; in an agent session confirm per item and use --delete <id>" >&2
+  exit 2
 fi
 
 # --- shared classification --------------------------------------------------
@@ -122,7 +145,8 @@ preflight_file="$root/.hyperdev-convert.preflight"
 
 if [[ ${#delete_ids[@]} -eq 0 ]]; then
   lines=()
-  cand() { lines+=("$(printf '%-26s %-8s %s' "$1" "$2" "$3")"); }
+  cand_ids=()
+  cand() { cand_ids+=("$1"); lines+=("$(printf '%-26s %-8s %s' "$1" "$2" "$3")"); }
 
   if [[ -d "$root/worktrees" ]]; then
     for w in "$root/worktrees"/*/; do
@@ -171,11 +195,34 @@ if [[ ${#delete_ids[@]} -eq 0 ]]; then
     echo "Nothing to clean."
     exit 0
   fi
-  echo "Deletion candidates — nothing has been deleted; this is a list."
-  echo "Delete with --delete <id>, one id per item, after the user confirms each."
+  if [[ $interactive -eq 0 ]]; then
+    echo "Deletion candidates — nothing has been deleted; this is a list."
+    echo "Delete with --delete <id>, one id per item, after the user confirms each."
+    echo
+    for line in "${lines[@]}"; do echo "  $line"; done
+    exit 0
+  fi
+
+  # Interactive: one question per candidate, default No. The approved ids run
+  # through the exact same delete path as --delete, re-verification included.
+  echo "Deletion candidates — you will be asked about each one. Default is No."
   echo
-  for line in "${lines[@]}"; do echo "  $line"; done
-  exit 0
+  i=0
+  for line in "${lines[@]}"; do
+    echo "  $line"
+    printf '  delete %s? [y/N] ' "${cand_ids[$i]}"
+    IFS= read -r answer || answer=""
+    case "$answer" in
+      y|Y|yes|YES) delete_ids+=("${cand_ids[$i]}") ;;
+    esac
+    echo
+    i=$((i + 1))
+  done
+
+  if [[ ${#delete_ids[@]} -eq 0 ]]; then
+    echo "Nothing selected; nothing deleted."
+    exit 0
+  fi
 fi
 
 # --- DELETE mode ------------------------------------------------------------

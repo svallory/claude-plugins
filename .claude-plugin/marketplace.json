@@ -8,6 +8,11 @@
       "name": "ghostwriter",
       "description": "Adversarial AI text detection and humanization system. Detects AI-generated text and iteratively revises it to read as authentically human.",
       "source": "./plugins/ghostwriter"
+    },
+    {
+      "name": "hyperdev",
+      "description": "HyperDev workflow support: project spaces (a bare repo wrapping all of a project's worktrees plus local-only dirs) and per-edit integration with the linters and typecheckers a project already uses.",
+      "source": "./plugins/hyperdev"
     }
   ]
 }

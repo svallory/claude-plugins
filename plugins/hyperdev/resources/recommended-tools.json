@@ -1,0 +1,327 @@
+{
+  "$comment": "Curated tool catalog for /hyperdev:tools recommendations. Schema per tool: id, name, description, docs, repo, stacks[] (node|go|rust|python|any), aspects[] (lint|format|typecheck|test|security|ci|complexity|deps|docs|hooks|release), detect {config: [globs], bin} (both optional; absence means presence cannot be verified), notes (optional; conflicts and replacements). Read by scripts/hyperdev-recommend.sh.",
+  "tools": [
+    {
+      "id": "biome",
+      "name": "Biome",
+      "description": "Fast formatter + linter for JS/TS/JSON/CSS",
+      "docs": "https://biomejs.dev",
+      "repo": "https://github.com/biomejs/biome",
+      "stacks": ["node"],
+      "aspects": ["lint", "format"],
+      "detect": { "config": ["biome.json", "biome.jsonc"], "bin": "biome" },
+      "notes": "replaces eslint+prettier; do not recommend alongside them"
+    },
+    {
+      "id": "eslint",
+      "name": "ESLint",
+      "description": "Pluggable JS/TS linter, the ecosystem default",
+      "docs": "https://eslint.org",
+      "repo": "https://github.com/eslint/eslint",
+      "stacks": ["node"],
+      "aspects": ["lint"],
+      "detect": { "config": ["eslint.config.*", ".eslintrc*"], "bin": "eslint" },
+      "notes": "conflicts with biome and oxlint as the primary linter; pick one"
+    },
+    {
+      "id": "prettier",
+      "name": "Prettier",
+      "description": "Opinionated code formatter for JS/TS/CSS/Markdown and more",
+      "docs": "https://prettier.io",
+      "repo": "https://github.com/prettier/prettier",
+      "stacks": ["node"],
+      "aspects": ["format"],
+      "detect": { "config": [".prettierrc*", "prettier.config.*"], "bin": "prettier" },
+      "notes": "biome and dprint cover the same job; do not run two formatters on the same files"
+    },
+    {
+      "id": "oxlint",
+      "name": "Oxlint",
+      "description": "Very fast Rust-based JS/TS linter from the oxc project",
+      "docs": "https://oxc.rs",
+      "repo": "https://github.com/oxc-project/oxc",
+      "stacks": ["node"],
+      "aspects": ["lint"],
+      "detect": { "config": [".oxlintrc*"], "bin": "oxlint" },
+      "notes": "alternative to eslint (fewer rules, much faster); do not recommend alongside it"
+    },
+    {
+      "id": "vitest",
+      "name": "Vitest",
+      "description": "Vite-native test runner with Jest-compatible API",
+      "docs": "https://vitest.dev",
+      "repo": "https://github.com/vitest-dev/vitest",
+      "stacks": ["node"],
+      "aspects": ["test"],
+      "detect": { "config": ["vitest.config.*", "vitest.workspace.*"], "bin": "vitest" }
+    },
+    {
+      "id": "knip",
+      "name": "Knip",
+      "description": "Finds unused files, dependencies, and exports in JS/TS projects",
+      "docs": "https://knip.dev",
+      "repo": "https://github.com/webpro-nl/knip",
+      "stacks": ["node"],
+      "aspects": ["deps", "lint"],
+      "detect": { "config": ["knip.json", "knip.jsonc", "knip.config.*"], "bin": "knip" }
+    },
+    {
+      "id": "golangci-lint",
+      "name": "golangci-lint",
+      "description": "Aggregated Go linter runner (staticcheck, govet, and dozens more)",
+      "docs": "https://golangci-lint.run",
+      "repo": "https://github.com/golangci/golangci-lint",
+      "stacks": ["go"],
+      "aspects": ["lint"],
+      "detect": { "config": [".golangci.yml", ".golangci.yaml", ".golangci.toml", ".golangci.json"], "bin": "golangci-lint" },
+      "notes": "bundles staticcheck; running both separately is redundant"
+    },
+    {
+      "id": "staticcheck",
+      "name": "Staticcheck",
+      "description": "Advanced Go static analysis (correctness, simplification, style)",
+      "docs": "https://staticcheck.dev",
+      "repo": "https://github.com/dominikh/go-tools",
+      "stacks": ["go"],
+      "aspects": ["lint"],
+      "detect": { "config": ["staticcheck.conf"], "bin": "staticcheck" },
+      "notes": "already included in golangci-lint; standalone use only makes sense without it"
+    },
+    {
+      "id": "gofumpt",
+      "name": "gofumpt",
+      "description": "Stricter drop-in replacement for gofmt",
+      "docs": "https://github.com/mvdan/gofumpt",
+      "repo": "https://github.com/mvdan/gofumpt",
+      "stacks": ["go"],
+      "aspects": ["format"],
+      "detect": { "bin": "gofumpt" }
+    },
+    {
+      "id": "govulncheck",
+      "name": "govulncheck",
+      "description": "Official Go vulnerability scanner (reports only reachable vulns)",
+      "docs": "https://github.com/golang/vuln",
+      "repo": "https://github.com/golang/vuln",
+      "stacks": ["go"],
+      "aspects": ["security"],
+      "detect": { "bin": "govulncheck" }
+    },
+    {
+      "id": "clippy",
+      "name": "Clippy",
+      "description": "Official Rust linter with hundreds of correctness and style lints",
+      "docs": "https://doc.rust-lang.org/clippy/",
+      "repo": "https://github.com/rust-lang/rust-clippy",
+      "stacks": ["rust"],
+      "aspects": ["lint"],
+      "detect": { "config": ["clippy.toml", ".clippy.toml"], "bin": "clippy-driver" }
+    },
+    {
+      "id": "rustfmt",
+      "name": "rustfmt",
+      "description": "Official Rust code formatter",
+      "docs": "https://github.com/rust-lang/rustfmt",
+      "repo": "https://github.com/rust-lang/rustfmt",
+      "stacks": ["rust"],
+      "aspects": ["format"],
+      "detect": { "config": ["rustfmt.toml", ".rustfmt.toml"], "bin": "rustfmt" }
+    },
+    {
+      "id": "cargo-audit",
+      "name": "cargo-audit",
+      "description": "Audits Cargo.lock against the RustSec advisory database",
+      "docs": "https://github.com/rustsec/rustsec",
+      "repo": "https://github.com/rustsec/rustsec",
+      "stacks": ["rust"],
+      "aspects": ["security"],
+      "detect": { "bin": "cargo-audit" },
+      "notes": "cargo-deny includes the same advisory check plus license/source policy"
+    },
+    {
+      "id": "cargo-deny",
+      "name": "cargo-deny",
+      "description": "Lints Cargo dependencies: advisories, licenses, bans, sources",
+      "docs": "https://embarkstudios.github.io/cargo-deny/",
+      "repo": "https://github.com/EmbarkStudios/cargo-deny",
+      "stacks": ["rust"],
+      "aspects": ["security", "deps"],
+      "detect": { "config": ["deny.toml"], "bin": "cargo-deny" },
+      "notes": "superset of cargo-audit; running both is redundant"
+    },
+    {
+      "id": "cargo-nextest",
+      "name": "cargo-nextest",
+      "description": "Faster Rust test runner with better output and flaky-test handling",
+      "docs": "https://nexte.st",
+      "repo": "https://github.com/nextest-rs/nextest",
+      "stacks": ["rust"],
+      "aspects": ["test"],
+      "detect": { "config": [".config/nextest.toml"], "bin": "cargo-nextest" }
+    },
+    {
+      "id": "ruff",
+      "name": "Ruff",
+      "description": "Extremely fast Python linter and formatter in one tool",
+      "docs": "https://docs.astral.sh/ruff/",
+      "repo": "https://github.com/astral-sh/ruff",
+      "stacks": ["python"],
+      "aspects": ["lint", "format"],
+      "detect": { "config": ["ruff.toml", ".ruff.toml"], "bin": "ruff" },
+      "notes": "covers what black+flake8+isort did; do not recommend those alongside it"
+    },
+    {
+      "id": "mypy",
+      "name": "mypy",
+      "description": "The reference Python static type checker",
+      "docs": "https://mypy-lang.org",
+      "repo": "https://github.com/python/mypy",
+      "stacks": ["python"],
+      "aspects": ["typecheck"],
+      "detect": { "config": ["mypy.ini", ".mypy.ini"], "bin": "mypy" },
+      "notes": "pick one of mypy/pyright; two type checkers disagree more than they help"
+    },
+    {
+      "id": "pyright",
+      "name": "Pyright",
+      "description": "Fast Python type checker from Microsoft (powers Pylance)",
+      "docs": "https://microsoft.github.io/pyright/",
+      "repo": "https://github.com/microsoft/pyright",
+      "stacks": ["python"],
+      "aspects": ["typecheck"],
+      "detect": { "config": ["pyrightconfig.json"], "bin": "pyright" },
+      "notes": "pick one of mypy/pyright; two type checkers disagree more than they help"
+    },
+    {
+      "id": "pytest",
+      "name": "pytest",
+      "description": "De-facto standard Python test framework",
+      "docs": "https://docs.pytest.org",
+      "repo": "https://github.com/pytest-dev/pytest",
+      "stacks": ["python"],
+      "aspects": ["test"],
+      "detect": { "config": ["pytest.ini", "conftest.py"], "bin": "pytest" }
+    },
+    {
+      "id": "bandit",
+      "name": "Bandit",
+      "description": "Finds common security issues in Python code (SAST)",
+      "docs": "https://bandit.readthedocs.io",
+      "repo": "https://github.com/PyCQA/bandit",
+      "stacks": ["python"],
+      "aspects": ["security"],
+      "detect": { "config": [".bandit", "bandit.yaml"], "bin": "bandit" }
+    },
+    {
+      "id": "uv",
+      "name": "uv",
+      "description": "Fast Python package and project manager (lockfiles, venvs, tool runs)",
+      "docs": "https://docs.astral.sh/uv/",
+      "repo": "https://github.com/astral-sh/uv",
+      "stacks": ["python"],
+      "aspects": ["deps"],
+      "detect": { "config": ["uv.lock"], "bin": "uv" }
+    },
+    {
+      "id": "gitleaks",
+      "name": "Gitleaks",
+      "description": "Scans repos and history for hardcoded secrets",
+      "docs": "https://github.com/gitleaks/gitleaks",
+      "repo": "https://github.com/gitleaks/gitleaks",
+      "stacks": ["any"],
+      "aspects": ["security"],
+      "detect": { "config": [".gitleaks.toml"], "bin": "gitleaks" }
+    },
+    {
+      "id": "semgrep",
+      "name": "Semgrep",
+      "description": "Multi-language SAST with a large open rule registry",
+      "docs": "https://semgrep.dev",
+      "repo": "https://github.com/semgrep/semgrep",
+      "stacks": ["any"],
+      "aspects": ["security"],
+      "detect": { "config": [".semgrep.yml", ".semgrep.yaml"], "bin": "semgrep" }
+    },
+    {
+      "id": "osv-scanner",
+      "name": "OSV-Scanner",
+      "description": "Scans lockfiles across ecosystems against the OSV vulnerability database",
+      "docs": "https://google.github.io/osv-scanner/",
+      "repo": "https://github.com/google/osv-scanner",
+      "stacks": ["any"],
+      "aspects": ["security"],
+      "detect": { "config": ["osv-scanner.toml"], "bin": "osv-scanner" }
+    },
+    {
+      "id": "trivy",
+      "name": "Trivy",
+      "description": "Scanner for dependencies, container images, IaC, and secrets",
+      "docs": "https://github.com/aquasecurity/trivy",
+      "repo": "https://github.com/aquasecurity/trivy",
+      "stacks": ["any"],
+      "aspects": ["security"],
+      "detect": { "config": ["trivy.yaml"], "bin": "trivy" }
+    },
+    {
+      "id": "renovate",
+      "name": "Renovate",
+      "description": "Automated dependency update PRs across ecosystems",
+      "docs": "https://docs.renovatebot.com",
+      "repo": "https://github.com/renovatebot/renovate",
+      "stacks": ["any"],
+      "aspects": ["deps"],
+      "detect": { "config": ["renovate.json", "renovate.json5", ".github/renovate.json", ".github/renovate.json5", ".renovaterc*"] }
+    },
+    {
+      "id": "lefthook",
+      "name": "Lefthook",
+      "description": "Fast, language-agnostic git hooks manager",
+      "docs": "https://github.com/evilmartians/lefthook",
+      "repo": "https://github.com/evilmartians/lefthook",
+      "stacks": ["any"],
+      "aspects": ["hooks"],
+      "detect": { "config": ["lefthook.yml", "lefthook.yaml", ".lefthook.yml", "lefthook.toml"], "bin": "lefthook" }
+    },
+    {
+      "id": "actionlint",
+      "name": "actionlint",
+      "description": "Static checker for GitHub Actions workflow files",
+      "docs": "https://rhysd.github.io/actionlint/",
+      "repo": "https://github.com/rhysd/actionlint",
+      "stacks": ["any"],
+      "aspects": ["ci"],
+      "detect": { "config": [".github/actionlint.yml", ".github/actionlint.yaml"], "bin": "actionlint" }
+    },
+    {
+      "id": "typos",
+      "name": "typos",
+      "description": "Fast source-code spell checker with a low false-positive rate",
+      "docs": "https://github.com/crate-ci/typos",
+      "repo": "https://github.com/crate-ci/typos",
+      "stacks": ["any"],
+      "aspects": ["lint"],
+      "detect": { "config": ["typos.toml", "_typos.toml", ".typos.toml"], "bin": "typos" }
+    },
+    {
+      "id": "dprint",
+      "name": "dprint",
+      "description": "Pluggable multi-language code formatter (TS/JSON/Markdown/TOML and more)",
+      "docs": "https://dprint.dev",
+      "repo": "https://github.com/dprint/dprint",
+      "stacks": ["any"],
+      "aspects": ["format"],
+      "detect": { "config": ["dprint.json", ".dprint.json", "dprint.jsonc", ".dprint.jsonc"], "bin": "dprint" },
+      "notes": "overlaps prettier and biome formatting; one formatter per file type"
+    },
+    {
+      "id": "release-please",
+      "name": "release-please",
+      "description": "Automated release PRs and changelogs from conventional commits",
+      "docs": "https://github.com/googleapis/release-please",
+      "repo": "https://github.com/googleapis/release-please",
+      "stacks": ["any"],
+      "aspects": ["release"],
+      "detect": { "config": ["release-please-config.json", ".release-please-manifest.json"] }
+    }
+  ]
+}

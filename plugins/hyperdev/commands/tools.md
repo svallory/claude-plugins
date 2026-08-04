@@ -194,6 +194,50 @@ echo '{"tool_input":{"file_path":"<abs path to a real source file>"}}' \
 
 Exit 0 on a clean file and exit 2 on a file with a deliberate error.
 
+## Recommending new tools
+
+Everything above wires up what the project *already* uses — that stays the
+primary purpose of this command. When the user asks what to *add* (or asks for
+"recommendations", "security tooling", "a formatter", …), use the curated
+catalog instead of improvising:
+
+1. **Ask which aspects to configure** with AskUserQuestion (multi-select).
+   The aspect taxonomy: `lint`, `format`, `typecheck`, `test`, `security`,
+   `ci`, `complexity`, `deps`, `docs`, `hooks`, `release`. Do not recommend
+   anything for aspects the user did not pick.
+
+2. **Run the recommender** with the chosen aspects:
+
+   ```bash
+   bash "${CLAUDE_PLUGIN_ROOT}/scripts/hyperdev-recommend.sh" <project-dir> [aspect ...]
+   ```
+
+   It detects *all* matching stacks (a node+go repo gets both), filters the
+   catalog (`resources/recommended-tools.json`), and prints matches grouped by
+   aspect. Within a group, tools covering more of the detected stacks print
+   first — in a polyglot repo a cross-language tool beats a per-language pair.
+   `[configured]` means a known config file exists in the project;
+   `[installed]` means the binary is on PATH; an unmarked tool is *unverified*,
+   not absent. Report-only; it never installs or writes anything. If it prints
+   "node unavailable", read the catalog JSON directly.
+
+3. **Present recommendations per aspect as questions.** Note tools already
+   marked `[configured]`/`[installed]` as present rather than re-recommending
+   them. Tools whose `notes` field declares a conflict (biome vs
+   eslint+prettier, oxlint vs eslint, pyright vs mypy, dprint vs prettier)
+   are *alternatives*: never co-recommend them in one question — offer them as
+   options to choose between, and surface the note so the user knows why.
+
+4. **Configure only what the user selects.** For each chosen tool, propose the
+   install and config steps (from its docs URL) and get confirmation before
+   running anything. When a selection covers `lint` or `typecheck`, wire it
+   into the check hook config (`.claude/hyperdev.json`, per Steps 3–4 above)
+   so the choice actually feeds back into the edit loop.
+
+5. **Never auto-install.** No package is added, no config written, without an
+   explicit per-tool confirmation. Declining a recommendation is a fine
+   outcome; record nothing.
+
 ## Security
 
 `command` is executed as written, from a file inside the repository. A checkout

@@ -30,7 +30,7 @@ for Claude Code. Two ideas:
 |---|---|
 | `/hyperdev:init <repo-url>` | create a new space from a remote |
 | `/hyperdev:adopt [path]` | bring an existing repo into the layout — scaffolds a bare repo, **converts** an ordinary checkout (dry run first, four data-safety guarantees) |
-| `/hyperdev:tools` | detect the project's toolchain, wire the per-edit check hook |
+| `/hyperdev:tools` | detect the project's toolchain, wire the per-edit check hook, recommend new tools by aspect |
 | `/hyperdev:audit` | read-only health report: drift, debris, stale branches, secrets |
 | `/hyperdev:plan <feature>` | four-phase spec-driven workflow: Define → Design → Decompose → Develop |
 | `/hyperdev:gen <template>` | generate files from project templates, verbatim outside marked regions |

@@ -9,6 +9,11 @@ close a gap in the [Hyper Coding](https://hyperdev.saulo.engineer) coverage
 The biggest planned expansion of `/hyperdev:tools`. Today it only wires up
 what a project *already* uses; it should also help choose what to add.
 
+- [x] **Shipped:** `resources/recommended-tools.json` (31 tools) +
+      `scripts/hyperdev-recommend.sh` (multi-stack detection, aspect
+      filtering, coverage ranking, presence markers) + the interactive flow
+      in `commands/tools.md` ("Recommending new tools") +
+      `tests/test-j-recommend.sh`. Details below describe what was built.
 - **`resources/recommended-tools.json`** — one machine-parsable catalog, not
   per-stack markdown files, because tools cross stacks and the interesting
   recommendations come from querying across them. Per tool:
@@ -46,8 +51,9 @@ what a project *already* uses; it should also help choose what to add.
      tools pre-noted, conflicting tools (see `notes`) never co-recommended.
   4. Configure only what the user selects; wire lint/typecheck choices into
      the check hook.
-- Stack detectors gain a generic pass that reports catalog tools found via
-  `detect`, so the catalog and detection stay one system.
+- [ ] Stack detectors gain a generic pass that reports catalog tools found
+      via `detect`, so the catalog and detection stay one system. (Not part
+      of the shipped work above.)
 
 ## Onboarding / UX
 

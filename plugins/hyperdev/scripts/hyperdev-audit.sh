@@ -161,4 +161,12 @@ print_group "Problems:" "${problems[@]+"${problems[@]}"}"
 print_group "Warnings:" "${warnings[@]+"${warnings[@]}"}"
 print_group "Info:"     "${infos[@]+"${infos[@]}"}"
 
+if [[ ${#problems[@]} -gt 0 || ${#warnings[@]} -gt 0 ]]; then
+  echo
+  echo "Next steps:"
+  [[ ${#warnings[@]} -gt 0 ]] && grep -q "missing" <<<"${warnings[*]}" \
+    && echo "  /hyperdev:adopt --apply   scaffold the missing pieces"
+  echo "  fix what the report flags — audit only reports, it never changes anything"
+fi
+
 exit 0

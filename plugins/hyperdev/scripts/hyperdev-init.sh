@@ -95,4 +95,7 @@ fi
 
 echo
 echo "Space ready: $root"
+echo
+echo "Next steps:"
 echo "  cd $root/worktrees/$default_branch"
+echo "  /hyperdev:tools   wire the project's linter/typechecker into the check hook"

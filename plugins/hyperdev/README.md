@@ -49,6 +49,7 @@ in any mode, on any path.
 
 | Command | What it does |
 |---|---|
+| `/hyperdev:help` | What the plugin is, all commands, and the standard setup flow |
 | `/hyperdev:init <repo-url> [space-name] [--default-branch <name>]` | Create a new space from a git remote |
 | `/hyperdev:adopt [space-path] [--apply]` | Adopt an existing repo: scaffold a bare repo additively, or convert an ordinary checkout into a space — dry run first, nothing ever deleted |
 | `/hyperdev:audit [space-path]` | Read-only drift report: missing dirs, loose files, stale worktrees |
@@ -99,3 +100,28 @@ Nothing is ever deleted. Audit and adopt's loose-file scan only report — a
 human acts. The one operation that moves files, converting a checkout into a
 space, prints its full plan as a dry run and runs only on an explicit
 `--apply`, then verifies `git status` survived the move unchanged.
+
+## Methodology coverage
+
+What the plugin sets up from the five [Hyper Coding](https://hyperdev.saulo.engineer)
+pillars, honestly scored:
+
+| Pillar | Status | What exists | What's missing |
+|---|---|---|---|
+| Tools Integration | ✅ | `/hyperdev:tools` + check hook: the project's own linter/typechecker/tests, detected never guessed, four stacks (node, go, rust, python) | security scanning, SAST, architecture-compliance checks |
+| Real-time Feedback | ✅ | per-edit check hook: halted execution (exit 2) with the specific failure, multi-command `checks` array | per-file routing (fast `eslint <file>`) |
+| Reactive Context | 🟡 | SessionStart injects layout + toolchain + check status; space auto-memory at `.hyperdev/memory/` loads every session | task-scoped injection (a task's docs/schemas appearing when it starts) |
+| Engineered Friction | 🟡 | deps hook (new dependency → justify or remove, once per session); plan-develop's `deviations.md` gate | complexity scoring, formal simplicity-first enforcement |
+| Deterministic First | 🟡 | `/hyperdev:gen`: verbatim-outside-prompt-regions templates built from exemplars | starter kits, a real generation engine |
+
+Toolkit components: `hyper plan` → `/hyperdev:plan` (full four-phase flow,
+native format only); `hyper gen` → `/hyperdev:gen` (templates, no engine);
+`hyper tools` → `/hyperdev:tools` (checks only — see `TODO.md` for the
+recommended-tools catalog plan); `hyper watch` and `hyper dash` are
+deliberately not stubbed — they need real infrastructure a plugin cannot
+fake.
+
+What the plugin adds beyond the methodology: the space itself — structural
+separation of project and local files, with a conversion that verifies four
+data-safety guarantees (commits, stashes, uncommitted changes, full file
+inventory) before declaring success.

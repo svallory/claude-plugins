@@ -278,6 +278,10 @@ if [[ "$(git --git-dir="$root/.git" config --get core.bare 2>/dev/null)" == "tru
   if [[ $apply -eq 1 ]]; then
     echo "Scaffold applied. Move loose entries yourself — the suggestions above are"
     echo "heuristics, and only you know which files still matter."
+    echo
+    echo "Next steps:"
+    echo "  /hyperdev:tools   wire the project's linter/typechecker into the check hook"
+    echo "  /hyperdev:audit   periodic health report (drift, debris, stale branches)"
   else
     echo "Dry run. Re-run with --apply to create directories and docs."
   fi
@@ -812,4 +816,8 @@ echo "The repository is now a bare space:"
 echo "  project files:  worktrees/$branch_dir/"
 echo "  space-local:    data/ notes/ scratch/ bin/ (never committed)"
 echo
+echo "Next steps:"
 echo "  cd $root/worktrees/$branch_dir"
+echo "  /hyperdev:tools   wire the project's linter/typechecker into the check hook"
+echo "  /hyperdev:audit   review what the conversion parked (see warnings above)"
+echo "  inspect anything announced as parked or left behind — cleanup is yours"

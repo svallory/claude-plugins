@@ -117,6 +117,8 @@ oversized `scratch/` are reported for you to act on by hand.
 
 ## Commands
 
+- `/hyperdev:help` — orientation: what the plugin is, all commands, the
+  standard flow. Point new users here first.
 - `/hyperdev:init <repo-url> [name]` — create a new space
 - `/hyperdev:adopt [path] [--apply]` — scaffold a bare repo into a space, or
   convert an ordinary checkout into one

@@ -32,9 +32,21 @@ It will:
 2. Record `worktrunk.default-branch` and `worktrunk.history` in the repo config.
 3. Create `worktrees/ data/ notes/ scratch/ bin/`, each with a
    `.what-goes-here` note.
-4. Write `HYPERDEV.md` and seed `.claude/memory/hyperdev-layout.md`.
+4. Write `HYPERDEV.md`, seed `.hyperdev/memory/hyperdev-layout.md`, and wire
+   `autoMemoryDirectory` into the space's `.claude/settings.json`.
 5. Create the default-branch worktree via `wt switch`, falling back to
-   `git worktree add` when `wt` is unavailable.
+   `git worktree add` when `wt` is unavailable — then write the same
+   `autoMemoryDirectory` into that worktree's `.claude/settings.local.json`.
+
+## Space memory
+
+Space memory lives at `.hyperdev/memory/` and loads through the
+`autoMemoryDirectory` key written into the space's `.claude/settings.json`
+and the worktree's `.claude/settings.local.json` — settings resolve per
+project root, so a session inside a worktree reads the worktree's file.
+Claude Code requires the value to be an absolute path, so **moving the space
+means re-running `/hyperdev:adopt --apply`** to refresh it. Project-scope
+settings take effect only after the workspace trust dialog is accepted.
 
 ## Notes
 

@@ -92,7 +92,8 @@ nothing here is committed. The worktrees live in \`worktrees/\`.
 | Path | Purpose |
 |------|---------|
 | \`.git/\` | bare repository (shared object store for all worktrees) |
-| \`.claude/\` | Claude settings and memory scoped to this project |
+| \`.claude/\` | Claude settings scoped to this project |
+| \`.hyperdev/\` | plugin metadata; space memory in \`.hyperdev/memory/\` |
 | \`worktrees/\` | $(dir_purpose worktrees) |
 | \`data/\` | $(dir_purpose data) |
 | \`notes/\` | $(dir_purpose notes) |
@@ -109,11 +110,71 @@ nothing here is committed. The worktrees live in \`worktrees/\`.
 EOF
 }
 
-# Seed .claude/ with a memory describing the layout, so future sessions in this
-# project know the conventions without relying on the hook alone.
+# ensure_auto_memory <settings-file> <memory-dir> <label> — make the settings
+# file point autoMemoryDirectory at the space memory, creating it if absent.
+# An existing file is merged, never clobbered: only that one key is set, via
+# node (JSON.parse/stringify, 2-space) so every other key survives. No node
+# means no safe merge, so the file is left alone and the skip is reported —
+# a scaffold step must degrade to a message, never break the flow.
+ensure_auto_memory() {
+  local file="$1" mem="$2" label="$3" rc=0
+  if [[ ! -f "$file" ]]; then
+    printf '{\n  "autoMemoryDirectory": "%s"\n}\n' "$mem" > "$file"
+    echo "  wrote    $label (autoMemoryDirectory)"
+    return 0
+  fi
+  if ! command -v node >/dev/null 2>&1; then
+    echo "  skipped  $label (node unavailable; set autoMemoryDirectory manually)"
+    return 0
+  fi
+  node -e '
+    const fs = require("fs");
+    const [file, dir] = process.argv.slice(1);
+    let obj;
+    try { obj = JSON.parse(fs.readFileSync(file, "utf8")); } catch { process.exit(4); }
+    if (!obj || typeof obj !== "object" || Array.isArray(obj)) process.exit(4);
+    if (obj.autoMemoryDirectory === dir) process.exit(3);
+    obj.autoMemoryDirectory = dir;
+    fs.writeFileSync(file, JSON.stringify(obj, null, 2) + "\n");
+  ' "$file" "$mem" 2>/dev/null || rc=$?
+  case $rc in
+    0) echo "  updated  $label (autoMemoryDirectory)" ;;
+    3) echo "  exists   $label (autoMemoryDirectory already set)" ;;
+    *) echo "  skipped  $label (could not parse JSON; set autoMemoryDirectory manually)" ;;
+  esac
+  return 0
+}
+
+# Wire the space memory into Claude Code. Auto memory loads only from the
+# directory settings.json names in autoMemoryDirectory — nothing under
+# .claude/memory/ is ever read on its own. The value must be an absolute path
+# (or start with ~/), so it is computed at write time; moving the space means
+# re-running adopt --apply to refresh it.
+write_settings_json() {
+  local root="$1"
+  mkdir -p "$root/.hyperdev/memory" "$root/.claude"
+  ensure_auto_memory "$root/.claude/settings.json" "$root/.hyperdev/memory" \
+    ".claude/settings.json"
+}
+
+# Same wiring for a worktree. Settings resolve per project root: a session
+# inside a worktree reads the worktree's .claude, not the space's, so each
+# worktree needs its own pointer. settings.local.json because the file is
+# untracked by convention — an absolute path there never reaches the remote.
+write_worktree_settings() {
+  local root="$1" wt="$2"
+  mkdir -p "$root/.hyperdev/memory" "$wt/.claude"
+  ensure_auto_memory "$wt/.claude/settings.local.json" "$root/.hyperdev/memory" \
+    "${wt#"$root"/}/.claude/settings.local.json"
+}
+
+# Seed the space memory with a note describing the layout, so future sessions
+# in this project know the conventions without relying on the hook alone.
+# It lives in .hyperdev/memory/ — the plugin's tool-agnostic metadata home —
+# and loads via the autoMemoryDirectory wiring above.
 write_memory_seed() {
   local root="$1" name="$2"
-  local mem="$root/.claude/memory"
+  local mem="$root/.hyperdev/memory"
   mkdir -p "$mem"
 
   cat > "$mem/hyperdev-layout.md" <<EOF
@@ -138,7 +199,7 @@ home that cannot accidentally be committed.
 matching directory instead of loose at the root. See \`HYPERDEV.md\`.
 EOF
 
-  local index="$root/.claude/MEMORY.md"
+  local index="$mem/MEMORY.md"
   if [[ ! -f "$index" ]]; then
     printf '# Memory index\n\n' > "$index"
   fi
@@ -152,7 +213,7 @@ EOF
     grep -v 'hyperdev-layout.md' "$index" > "$index.tmp" || :
     mv "$index.tmp" "$index"
   fi
-  printf -- '- [Space layout](memory/hyperdev-layout.md) — worktrees/, local-only dirs, root is never committed\n' >> "$index"
+  printf -- '- [Space layout](hyperdev-layout.md) — worktrees/, local-only dirs, root is never committed\n' >> "$index"
 }
 
 # Create the directory set. Idempotent: reports created vs already-present.
@@ -170,5 +231,8 @@ scaffold_dirs() {
       echo "  created  $d/"
     fi
   done
+  # .hyperdev/ is plugin-managed metadata, not a user-facing dir, so it stays
+  # out of SPACE_DIRS — but every scaffold wires the memory settings.
+  write_settings_json "$root"
   return 0
 }

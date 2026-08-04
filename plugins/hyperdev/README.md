@@ -15,7 +15,8 @@ the opt-in marker. A space has exactly one shape:
 ```
 <space>/
 ├── .git/         bare — no working tree
-├── .claude/      settings + memory
+├── .claude/      settings (wire the space memory)
+├── .hyperdev/    plugin metadata; space memory in .hyperdev/memory/
 ├── worktrees/    one checkout per branch
 ├── data/  notes/  scratch/  bin/
 └── HYPERDEV.md

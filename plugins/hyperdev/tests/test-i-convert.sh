@@ -35,7 +35,16 @@ for sd in data notes scratch bin; do
   assert_ok "scaffolded $sd/" test -d "$d/$sd"
 done
 assert_ok "HYPERDEV.md written at the space root" test -f "$d/HYPERDEV.md"
-assert_ok "memory seed written" test -f "$d/.claude/memory/hyperdev-layout.md"
+assert_ok "memory seed written" test -f "$d/.hyperdev/memory/hyperdev-layout.md"
+assert_ok "space memory index written" test -f "$d/.hyperdev/memory/MEMORY.md"
+# The worktree resolves its own .claude, so conversion must leave a local
+# settings file there pointing at the space's memory — absolute, as Claude
+# Code requires.
+slj="$d/worktrees/main/.claude/settings.local.json"
+assert_ok "worktree settings.local.json written" test -f "$slj"
+assert_eq "worktree autoMemoryDirectory points at the space memory" \
+  "$d/.hyperdev/memory" \
+  "$(node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).autoMemoryDirectory)' "$slj")"
 assert_fails "preflight evidence file removed after success" \
   test -e "$d/.hyperdev-convert.preflight"
 assert_fails "no staging dir left behind" test -e "$d/.hyperdev-convert"

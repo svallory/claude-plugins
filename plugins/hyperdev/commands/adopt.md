@@ -39,10 +39,11 @@ The dry run prints which of `worktrees/ data/ notes/ scratch/ bin/` and
 `HYPERDEV.md` would be created, then scans the root for loose entries and
 `worktrees/` for debris (orphaned or dead checkouts).
 
-With `--apply` it creates the missing directories, writes `HYPERDEV.md`, and
-seeds `.claude/memory/hyperdev-layout.md`. Existing files are left alone — an
-existing `HYPERDEV.md` or memory seed is reported as `exists` and never
-regenerated, so user edits survive a re-adopt.
+With `--apply` it creates the missing directories, writes `HYPERDEV.md`,
+seeds `.hyperdev/memory/hyperdev-layout.md`, and wires `autoMemoryDirectory`
+into the space's `.claude/settings.json` (see [Space memory](#space-memory)).
+Existing files are left alone — an existing `HYPERDEV.md` or memory seed is
+reported as `exists` and never regenerated, so user edits survive a re-adopt.
 
 The loose-entry scan only *suggests* destinations; it never moves anything.
 The heuristics key off file extensions and directory names, and they cannot
@@ -64,13 +65,24 @@ When running this for the user:
 Large files and anything that looks like a database dump or credentials
 deserve an explicit confirmation before moving.
 
+## Space memory
+
+Space memory lives at `.hyperdev/memory/` and loads through the
+`autoMemoryDirectory` key the scaffold writes into the space's
+`.claude/settings.json` and each worktree's `.claude/settings.local.json` —
+settings resolve per project root, so a session inside a worktree reads the
+worktree's file, not the space's. Claude Code requires the value to be an
+absolute path, so **moving the space means re-running
+`/hyperdev:adopt --apply`** to refresh it. Project-scope settings take effect
+only after the workspace trust dialog is accepted.
+
 ## Case 2: ordinary checkout — conversion
 
 The dry run prints the full **conversion plan**: the branch, the target
 `worktrees/<branch>/`, where every top-level entry goes, how `.claude/` is
 split (project config moves with the project; the space-level memory seed is
-regenerated at the root), and what happens to each pre-existing linked
-worktree. Read it; nothing has happened yet.
+regenerated at the root, under `.hyperdev/memory/`), and what happens to each
+pre-existing linked worktree. Read it; nothing has happened yet.
 
 With `--apply`, the conversion:
 
@@ -85,6 +97,9 @@ With `--apply`, the conversion:
 4. Scaffolds `data/ notes/ scratch/ bin/` and regenerates `HYPERDEV.md` and
    the memory seed (unconditionally — the old files describe a shape that no
    longer exists).
+5. Wires `autoMemoryDirectory` into the space's `.claude/settings.json` and,
+   after the guarantees verify, the new worktree's `.claude/settings.local.json`
+   (see [Space memory](#space-memory)).
 
 ### Preflight refusals
 

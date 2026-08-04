@@ -17,7 +17,8 @@ directories live beside it.
 ```
 <space>/
 ├── .git/         bare repo — shared object store, no working tree
-├── .claude/      settings and memory scoped to this project
+├── .claude/      settings scoped to this project (wire the space memory)
+├── .hyperdev/    plugin metadata; space memory in .hyperdev/memory/
 ├── worktrees/    one worktree per branch, created by `wt switch`
 │   ├── main/
 │   └── fix-thing/
@@ -87,7 +88,11 @@ than ten minutes, it is not scratch.
   wrong place and skips post-start hooks (dependency install, hooksPath fix).
 - **`scratch/` is disposable.** Anything there may be deleted without warning.
 - Worktrees have their own `.claude/` and `CLAUDE.md`; those *are* committed.
-  Space-level `.claude/` is local and shared across all worktrees.
+  Space-level `.claude/` is local and shared across all worktrees. Space
+  memory lives in `.hyperdev/memory/`, wired via `autoMemoryDirectory` in the
+  space's `.claude/settings.json` and each worktree's
+  `.claude/settings.local.json` (the value must be absolute — moving the
+  space means re-running `/hyperdev:adopt --apply`).
 
 ## Which command, in what order
 

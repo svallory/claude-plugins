@@ -35,7 +35,8 @@ A space has exactly one shape. `space_layout` prints `bare` or nothing.
 ```
 <space>/
 ├── .git/         bare — no working tree
-├── .claude/      settings + memory, shared by all worktrees
+├── .claude/      settings (wire the space memory via autoMemoryDirectory)
+├── .hyperdev/    plugin metadata; space memory in .hyperdev/memory/
 ├── worktrees/    one working tree per branch
 ├── data/  notes/  scratch/  bin/
 └── HYPERDEV.md
@@ -94,6 +95,15 @@ worktree up to the real space root.
 
 Worktrees have their own `.claude/` and `CLAUDE.md`, and those are committed;
 the space-level `.claude/` is local and shared across all worktrees.
+
+Space memory lives at `.hyperdev/memory/` — `.hyperdev/` is the plugin's
+tool-agnostic metadata home at the space root. Claude Code does not read that
+directory on its own; the scaffold wires it via `autoMemoryDirectory` in the
+space's `.claude/settings.json` and each worktree's
+`.claude/settings.local.json` (settings resolve per project root, so a
+worktree session reads the worktree's file). The value must be an absolute
+path, which is why moving a space calls for a re-run of
+`/hyperdev:adopt --apply`.
 
 ## Local-only directories
 

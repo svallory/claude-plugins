@@ -72,7 +72,7 @@ report_loose_entries() {
 
     # Skip the structural pieces and the directories we manage.
     case "$base" in
-      .git|.gitignore|.claude|HYPERDEV.md|.DS_Store) continue ;;
+      .git|.gitignore|.claude|.hyperdev|HYPERDEV.md|.DS_Store) continue ;;
       # Our own conversion-verification evidence. Moving it to data/ would
       # enshrine debris; the right remedy is reconcile, then delete.
       .hyperdev-convert.preflight)
@@ -237,11 +237,11 @@ scaffold_space() {
     write_hyperdev_md "$r" "$n"
     echo "  wrote    HYPERDEV.md"
   fi
-  if [[ -f "$r/.claude/memory/hyperdev-layout.md" ]]; then
-    echo "  exists   .claude/memory/hyperdev-layout.md (left untouched)"
+  if [[ -f "$r/.hyperdev/memory/hyperdev-layout.md" ]]; then
+    echo "  exists   .hyperdev/memory/hyperdev-layout.md (left untouched)"
   else
     write_memory_seed "$r" "$n"
-    echo "  wrote    .claude/memory/hyperdev-layout.md"
+    echo "  wrote    .hyperdev/memory/hyperdev-layout.md"
   fi
 }
 
@@ -424,7 +424,7 @@ while IFS= read -r entry; do
         keep_space+=("$base")        # untracked marker: regenerated anyway
       fi
       continue ;;
-    data|notes|scratch|bin)
+    data|notes|scratch|bin|.hyperdev)
       if dir_is_space_local "$base"; then
         keep_space+=("$base")
       else
@@ -457,7 +457,8 @@ if [[ $apply -eq 0 ]]; then
   if [[ $claude_split -eq 1 ]]; then
     printf '  %-32s → worktrees/%s/.claude (project config)\n' ".claude" "${branch_dir:-<branch>}"
     echo "                                     except memory/hyperdev-layout.md + its"
-    echo "                                     MEMORY.md index line (space root; regenerated)"
+    echo "                                     MEMORY.md index line (kept at the space root;"
+    echo "                                     the seed is regenerated in .hyperdev/memory/)"
     echo "                                     and .claude/worktrees/* (moved as worktrees)"
   fi
   for i in "${!linked_worktrees[@]}"; do
@@ -473,7 +474,9 @@ if [[ $apply -eq 0 ]]; then
   done
   echo
   echo "Then: core.bare=true, scaffold data/ notes/ scratch/ bin/, write"
-  echo "HYPERDEV.md and the memory seed. Nothing is deleted at any point."
+  echo "HYPERDEV.md and the memory seed (.hyperdev/memory/), and wire"
+  echo "autoMemoryDirectory into .claude/settings.json and the worktree's"
+  echo ".claude/settings.local.json. Nothing is deleted at any point."
   echo
   echo "Guarantees verified after conversion (any mismatch is a loud failure, exit 1):"
   echo "  1. every ref (branches, tags, stash) byte-identical"
@@ -696,7 +699,7 @@ scaffold_dirs "$root"
 write_hyperdev_md "$root" "$name"
 echo "  wrote    HYPERDEV.md (regenerated for the bare layout)"
 write_memory_seed "$root" "$name"
-echo "  wrote    .claude/memory/hyperdev-layout.md (regenerated)"
+echo "  wrote    .hyperdev/memory/hyperdev-layout.md (regenerated)"
 
 # Step 10: the conversion must be provably lossless before it may claim
 # success. Four guarantees, each checked against the pre-capture; any
@@ -789,6 +792,12 @@ fi
 
 # All four guarantees held; the evidence file is ours and no longer needed.
 rm -f "$preflight_file"
+
+# Step 11: wire the worktree's auto memory. Deliberately after verification —
+# settings.local.json is a new untracked file inside the worktree, and writing
+# it earlier would surface in the status-parity check as a difference the
+# conversion did not cause.
+write_worktree_settings "$root" "$wt_dir"
 
 echo
 report_loose_entries "$root"

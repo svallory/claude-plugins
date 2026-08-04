@@ -40,6 +40,7 @@ assert_contains "stray zip suggested for data/" "$zip_line" "data/"
 
 # A dry run changes nothing on disk
 assert_fails "dry run scaffolds no directories" test -d "$d/data"
-assert_fails "dry run writes no memory seed"    test -e "$d/.claude/memory"
+assert_fails "dry run writes no memory seed"    test -e "$d/.hyperdev"
+assert_fails "dry run writes no settings"       test -e "$d/.claude/settings.json"
 
 finish

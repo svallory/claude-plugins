@@ -86,6 +86,13 @@ fi
 # resolution differs. Match the user's existing post-start fix.
 git --git-dir="$root/.git" config core.hooksPath "$root/.git/hooks"
 
+# Settings resolve per project root, so the worktree needs its own pointer at
+# the space memory. Guarded: wt may have placed the worktree elsewhere, and a
+# missed pointer must not break init.
+if [[ -d "$root/worktrees/$default_branch" ]]; then
+  write_worktree_settings "$root" "$root/worktrees/$default_branch"
+fi
+
 echo
 echo "Space ready: $root"
 echo "  cd $root/worktrees/$default_branch"

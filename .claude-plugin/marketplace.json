@@ -10,9 +10,13 @@
       "source": "./plugins/ghostwriter"
     },
     {
-      "name": "hyperdev",
-      "description": "HyperDev workflow support: project spaces (a bare repo wrapping all of a project's worktrees plus local-only dirs) and per-edit integration with the linters and typecheckers a project already uses.",
-      "source": "./plugins/hyperdev"
+      "name": "hyper",
+      "description": "Hyper Coding workflow support: project spaces (a bare repo wrapping all of a project's worktrees plus local-only dirs), per-edit integration with the linters and typecheckers a project already uses, spec-driven planning, and template-driven generation.",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/svallory/hyper-coding.git",
+        "path": "agent-plugin"
+      }
     }
   ]
 }

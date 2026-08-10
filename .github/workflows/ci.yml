@@ -4,44 +4,10 @@ on:
   push:
   pull_request:
 
+# The shell-script jobs (bash -n, shellcheck) moved with the hyper plugin to
+# svallory/hyper-coding (.github/workflows/agent-plugin.yml) — no plugin in
+# this repo ships shell scripts anymore.
 jobs:
-  syntax:
-    name: bash -n
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Syntax-check plugin shell scripts
-        run: |
-          shopt -s nullglob
-          files=(plugins/*/scripts/*.sh plugins/*/stacks/*/detect.sh)
-          # An empty match means the layout changed under us; fail loudly rather than green.
-          if [ "${#files[@]}" -eq 0 ]; then
-            echo "no shell scripts matched — check the globs" >&2
-            exit 1
-          fi
-          rc=0
-          for f in "${files[@]}"; do
-            bash -n "$f" || { echo "syntax error: $f" >&2; rc=1; }
-          done
-          exit "$rc"
-
-  shellcheck:
-    name: shellcheck
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Shellcheck plugin shell scripts
-        # -x -P SCRIPTDIR: scripts source hyperdev-lib.sh from their own dir.
-        # Severity warning matches strict-mode bash; no checks are excluded.
-        run: |
-          shopt -s nullglob
-          files=(plugins/*/scripts/*.sh plugins/*/stacks/*/detect.sh)
-          if [ "${#files[@]}" -eq 0 ]; then
-            echo "no shell scripts matched — check the globs" >&2
-            exit 1
-          fi
-          shellcheck --severity=warning -x -P SCRIPTDIR "${files[@]}"
-
   json:
     name: validate JSON
     runs-on: ubuntu-latest

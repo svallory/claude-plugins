@@ -136,6 +136,8 @@ Policy: no merge commits, ever. Downstream branches are rewritten onto the hotfi
 4. **Resume** each dev: "Base was rewritten and your branch rebased. If your worktree is mid-rebase, resolve conflicts, `git rebase --continue`, `git push --force-with-lease`, run verify; otherwise continue." A conflicted worktree with no live agent gets a fresh Sonnet dev.
 5. Confirm CI green on each PR and that the deploy platform redeployed the rewritten branches.
 
+Merge trains: when merges trigger deploys (CI/CD on the base branch, per-PR previews), merge one PR, wait for its deploy to finish, then rebase and merge the next. Rebases of open PRs also trigger preview builds, so rebase only the next PR in line, not all of them, when previews are enabled. A burst of merges plus rebases can overload a shared build host.
+
 ## Review checklist
 
 Before accepting a delivery, verify (run commands yourself or dispatch a Haiku reviewer for large diffs):

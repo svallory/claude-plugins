@@ -233,6 +233,10 @@ Do not poll by hand and do not spend a subagent on watching. Record `started` an
 
 Calibrate budgets: after each task write the actual brief→DONE time next to the budget class in the status table; adjust the class table when reality disagrees three times in a row.
 
+## Protect the lead's own files
+
+The status table, budgets file, and briefs are the lead's memory. Any agent asked to test or run a script must work on **copies under `scratch/`**, never on the live status file; say so in the prompt. Keep the status table append-only from your side and take a copy (`cp notes/<table> scratch/<table>.bak`) before handing its path to any agent.
+
 ## Load budget
 
 The operator's machine is shared by every agent. Hard caps, unless the user raises them:

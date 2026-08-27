@@ -43,7 +43,7 @@ Procedure:
 | Mechanic | `haiku` | Purely mechanical edits: renames, moving files, applying a known pattern to N places, formatting |
 | Developer | `sonnet` | Default for normal tasks: features, bug fixes, tests, small refactors |
 | Senior Dev | `opus` | Tasks where Sonnet will likely struggle or burn attempts: tricky concurrency, gnarly types, subtle bugs, multi-system changes |
-| Squad Leader | `fable` | Only for deep thinking, planning, architecture, risky/many-factor decisions, OR when the coordination work *you* would do is extensive and isolatable (large feature, big refactor). A Squad Leader operates exactly like you for its feature and reports back to you at the end |
+| Squad Leader | `fable` | A lead for one feature. Launch when any of these holds: the work spans 3+ layers or 2+ apps *and* needs design decisions; a data migration or rename touches persisted data; the plan needs investigation before it can be written; or the coordination you would do yourself exceeds ~30 min of your context. Operates exactly like you (may spawn its own devs and subagents — the no-fork rule does not apply to it), and reports back to you at the end |
 
 Pick the cheapest role that will finish in one or two attempts. Escalate one tier when a dev gets stuck (see below). Never start at Fable to "be safe".
 
@@ -91,12 +91,14 @@ Every brief must contain these parts in this order:
 1. **Task**: ref, title, full description, acceptance criteria.
 2. **Where**: absolute worktree path, branch name. Work only there.
 3. **Context**: relevant files, patterns to follow, related recent changes, project rules file to read (CLAUDE.md, HYPER.md, etc).
-4. **Done means**: tests pass (name the command), lint/typecheck pass, conventional commit(s) on the branch. No push until the lead accepts the review; then the dev pushes and opens the PR with the project's tool (`but pr` when GitButler is in use, else `gh pr create`) against the project's base branch.
-5. **Stuck rule**: "Max 3 attempts on any one thing. On the 3rd failure stop, write what you tried and what you observed, and report back. Do not try a 4th approach. Do not widen scope to route around the blocker."
-6. **Report format**: a file at a path you name, first line `STATUS: DONE` | `BLOCKED` | `NEEDS-USER`, then: what changed (files), how verified (commands + counts), decisions made where the brief left a choice, open questions, anything out of scope noticed but not touched. Writing this file is the dev's last action before going idle; the lead reads the status line, not the agent's mood.
-7. **Identity**: the operator's name and the dev's session id (the launcher knows it — in Herdr `agent start` returns `.result.agent.agent_session.value`). The dev puts both in the PR description's AI-assisted note so the session can be resumed (`claude --resume <id>`). Never in commit messages.
-8. **Instructions duty**: "If you learn a fact the project's agent instructions file should hold (command, environment id, service, known local failure, convention) and it is missing or wrong there, fix it in this branch as a `docs(agents):` commit and list it in your report under *Instructions updated* (write *none* if nothing)."
-9. **User contact rule**: "If the operator talks to you directly in your tab, before writing `STATUS: DONE` ask them whether they consider the task done, and record `User-accepted: yes/no` in the report." 
+4. **Done means**: the tests and typecheck **for the packages you touched** pass (name the commands; e.g. the package's own `npm test` and `tsc -p` — not the monorepo-wide suite), conventional commit(s) on the branch. The full `verify` run is the lead's verifier's job, once, after acceptance — do not run it yourself unless you changed shared contracts. No push until the lead accepts the review; then the dev pushes and opens the PR with the project's tool (`but pr` when GitButler is in use, else `gh pr create`) against the project's base branch.
+5. **Time budget**: `S` (one layer, ≤3 files) 15 min · `M` (2–3 layers) 45 min · `L` (multi-app or infra) 90 min. Tasks bigger than L are not briefed to a dev: split them, or launch a Squad Leader. Check-in rule in the brief: "If you pass the budget, stop, write a progress report (`STATUS: OVER-BUDGET`, what is done, what is left, what is slow) and go idle."
+6. **Load rule**: "Work inline; no forking the whole task into a subagent; read-only Explore subagents are fine. Kill any watcher or server you started before you report. Do not start a second heavy process (tests/build) while one is running."
+7. **Stuck rule**: "Max 3 attempts on any one thing. On the 3rd failure stop, write what you tried and what you observed, and report back. Do not try a 4th approach. Do not widen scope to route around the blocker."
+8. **Report format**: a file at a path you name, first line `STATUS: DONE` | `BLOCKED` | `NEEDS-USER`, then: what changed (files), how verified (commands + counts), decisions made where the brief left a choice, open questions, anything out of scope noticed but not touched. Writing this file is the dev's last action before going idle; the lead reads the status line, not the agent's mood.
+9. **Identity**: the operator's name and the dev's session id (the launcher knows it — in Herdr `agent start` returns `.result.agent.agent_session.value`). The dev puts both in the PR description's AI-assisted note so the session can be resumed (`claude --resume <id>`). Never in commit messages.
+10. **Instructions duty**: "If you learn a fact the project's agent instructions file should hold (command, environment id, service, known local failure, convention) and it is missing or wrong there, fix it in this branch as a `docs(agents):` commit and list it in your report under *Instructions updated* (write *none* if nothing)."
+11. **User contact rule**: "If the operator talks to you directly in your tab, before writing `STATUS: DONE` ask them whether they consider the task done, and record `User-accepted: yes/no` in the report." 
 
 Only put in the brief what a Researcher has confirmed exists on the *base branch* of the worktree; a requirement copied from another branch or from memory (a CI gate, a changelog file) sends the dev hunting for something that is not there.
 
@@ -118,7 +120,7 @@ A waiter firing, an idle status, or the word "done" is a claim. Run this before 
 
 1. **Real completion?** Report file exists and its first line is `STATUS: DONE`; `agent get` still idle ~20s later; no unsent prompt in the input box (`agent read --lines 25`). `BLOCKED`/`NEEDS-USER` → go to [Handling "stuck"](#handling-stuck) or the user. Otherwise re-arm the waiter.
 2. **Verify state, not the story** (git facts, cheap enough for you or a Haiku verifier): branch exists off the right base (`git merge-base --is-ancestor origin/<base> HEAD`), commits present (`git log --oneline origin/<base>..HEAD`), working tree clean, `git diff --stat origin/<base>...HEAD` touches only expected areas, and **the base branch was not pushed to** — compare `origin/<base>` against the SHA you noted when briefing.
-3. **Re-run the gates yourself.** A Haiku verifier runs the project's verify command (from the repo's agent instructions: the single `verify` script when the project has one) in the worktree and returns counts only. Compare with the report; a mismatch is a finding.
+3. **Re-run the gates yourself — once.** Devs verify only what they touched; this is the single full run. A Haiku verifier runs the project's verify command (from the repo's agent instructions: the single `verify` script when the project has one) in the worktree and returns counts only. Compare with the report; a mismatch is a finding.
 4. **Criteria → evidence.** Each acceptance criterion maps to a file/test; open questions in the report are answered by you or the user before acceptance.
 5. **Independent review** with the [review checklist](#review-checklist) → accept, or round N with `file:line` findings. Three rounds max, then escalate or ask the user.
 6. **Ship on accept**: dev pushes, opens the PR (project template, identity note), fresh `/code-review` agent, project-skill extras, status table + tracker updated.
@@ -147,7 +149,7 @@ Before accepting a delivery, verify (run commands yourself or dispatch a Haiku r
 - [ ] Commit messages follow `type(scope): summary`.
 - [ ] Push + PR only after the checklist passes; then independent `/code-review` on the PR.
 
-Reject with concrete findings (`file:line`, what is wrong, what "fixed" looks like). Accept with a one-line note in the status table.
+Reject with concrete findings (`file:line`, what is wrong, what "fixed" looks like) — **all findings in one round**: every round costs the dev a re-test cycle (10–25 min on Angular/turbo repos), so batch the Haiku review, the fact-check, and your own reading before sending anything back. Accept with a one-line note in the status table.
 
 ## Squad Leader (Fable) handoff
 
@@ -224,6 +226,20 @@ herdr agent wait "$name" --timeout 3600000     # run via Bash run_in_background
 Check `herdr agent get "$name"` shows `idle` before prompting (`agent start` returns before the TUI is fully ready; `.result.agent.agent_status` may be null right after start). Do not `--wait` on the prompt itself: it blocks your turn for the whole task. Only prompt an agent whose status is `idle`/`done`: a prompt sent while it is `working` lands in the input box unsubmitted and the agent goes idle forever. If `agent get` reports idle but nothing happened, `agent read --lines 25` — a pending prompt in the `❯` box means send `herdr agent send-keys <name> enter`. Waiters time out at 1h; on timeout re-arm unless the status table says the dev is done. `agent wait` can also return `done` on a brief idle right after a prompt (the dev paused, then continued). Treat a waiter firing as a signal to check, not as proof of completion: confirm the dev's report file exists (or `agent get` still says idle after ~20s) before reviewing; otherwise re-arm. Read results with `herdr agent read "$name" --source recent-unwrapped --lines 200`; on failure fall back to asking the dev to write its report to a file under `scratch/` and read that. Herdr agent names must match `[a-z][a-z0-9_-]{0,31}`. If `PROJECT-REF` is longer, truncate `PROJECT` to its first 8 chars; the ref is never shortened.
 
 Outside Herdr, the Agent tool is the launcher; the naming rule still applies to the agent `description`.
+
+## Monitoring
+
+Do not poll by hand and do not spend a subagent on watching. Record `started` and the budget for every dev in the status table, then run one `Monitor` (the harness tool) that loops `scripts/team-status.sh --alerts-only --state <file>` every ~3 min (`--state` makes each alert fire once and emit `CLEARED` when it stops); it emits a line only for `OVER-BUDGET`, `BLOCKED`, `DONE`, `MISSING`, `LOAD`, `HEAVY`. React to events: `DONE` → the "dev says finished" protocol; `OVER-BUDGET` → `agent read --lines 40`, then continue / interrupt (`send-keys esc`) / split; `LOAD`/`HEAVY` → stop your own reviewers first, then pause dispatching. `agent wait` is still fine for a single short step (a ship or a fix round).
+
+Calibrate budgets: after each task write the actual brief→DONE time next to the budget class in the status table; adjust the class table when reality disagrees three times in a row.
+
+## Load budget
+
+The operator's machine is shared by every agent. Hard caps, unless the user raises them:
+- At most **2 heavy jobs** at a time across the team (a dev running tests/builds, a verifier, a `/code-review`, a Playwright run). Queue the rest; a waiting waiter costs nothing.
+- Devs work inline; they may use read-only Explore subagents but must not fork the whole task into a subagent, and must kill any watcher/server they started before reporting.
+- Verification runs are serialized: one `verify` at a time.
+- If the user says "slow down": stop your own background reviewers/verifiers first (they are yours), then tell devs to finish their current step and go idle.
 
 ## Shared local resources
 

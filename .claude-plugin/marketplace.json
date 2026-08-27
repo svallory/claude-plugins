@@ -10,6 +10,11 @@
       "source": "./plugins/ghostwriter"
     },
     {
+      "name": "team-lead",
+      "description": "Act as a dev team leader: decompose tasks, spawn developer agents at the cheapest adequate model, review their work, and track progress across a batch (sprint, board, epic, list of tickets).",
+      "source": "./plugins/team-lead"
+    },
+    {
       "name": "hyper",
       "description": "Hyper Coding workflow support: project spaces (a bare repo wrapping all of a project's worktrees plus local-only dirs), per-edit integration with the linters and typecheckers a project already uses, spec-driven planning, and template-driven generation.",
       "source": {

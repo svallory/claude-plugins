@@ -15,6 +15,11 @@
       "source": "./plugins/team-lead"
     },
     {
+      "name": "demo-video",
+      "description": "Produce narrated, subtitled MP4 demos of web-app features: Playwright records the browser with an animated cursor, ffmpeg assembles takes paced by TTS narration, with optional title cards, subtitles, and an outro slate.",
+      "source": "./plugins/demo-video"
+    },
+    {
       "name": "hyper",
       "description": "Hyper Coding workflow support: project spaces (a bare repo wrapping all of a project's worktrees plus local-only dirs), per-edit integration with the linters and typecheckers a project already uses, spec-driven planning, and template-driven generation.",
       "source": {

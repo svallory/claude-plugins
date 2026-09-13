@@ -34,3 +34,5 @@ See [ghostwriter README](plugins/ghostwriter/README.md) for full documentation.
 Ask for a "demo video" or "feature walkthrough video" of a web-app feature. The skill installs the pipeline into the project on first use (`scripts/demo/`, `e2e/demo/`), writes `.claude/demo-video-skill.config.json`, then records, narrates and builds the MP4.
 
 Requires ffmpeg, Playwright, and either `GEMINI_API_KEY` (gemini-tts) or the offline `qwen3-tts-mlx` engine.
+
+See [demo-video README](plugins/demo-video/README.md) for config schema, commands, and troubleshooting.

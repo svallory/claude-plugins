@@ -39,10 +39,16 @@ edge.mount(join(BUILD, 'templates'))
 const readYaml = (path: string) => parseYaml(readFileSync(path, 'utf8'))
 
 const config = readYaml(join(ROOT, 'tutor.config.yaml'))
+for (const section of ['marketplace', 'platforms', 'skills']) {
+  if (config[section] === undefined || config[section] === null) {
+    console.error(`tutor.config.yaml: missing required top-level section "${section}"`)
+    process.exit(1)
+  }
+}
 const marketplace = config.marketplace
-const platforms: Record<string, Record<string, any>> = config.platforms ?? {}
+const platforms: Record<string, Record<string, any>> = config.platforms
 const pluginConfig: Record<string, { platforms?: string[] }> = config.plugins ?? {}
-const skillsConfig: { public?: string[]; groups?: any[] } = config.skills ?? {}
+const skillsConfig: { public?: string[]; groups?: any[] } = config.skills
 
 const pluginNames = readdirSync(SRC, { withFileTypes: true })
   .filter((d) => d.isDirectory() && existsSync(join(SRC, d.name, 'plugin.yaml')))
@@ -67,6 +73,19 @@ for (const name of pluginNames) {
   if (plugin.name !== name) {
     console.error(`${file}: name "${plugin.name}" does not match its directory "${name}"`)
     process.exit(1)
+  }
+}
+
+for (const name of Object.keys(pluginConfig)) {
+  if (!pluginNames.includes(name)) {
+    console.error(`tutor.config.yaml: plugins."${name}" does not match any plugin under src/plugins/`)
+    process.exit(1)
+  }
+  for (const platformId of pluginConfig[name]?.platforms ?? []) {
+    if (!(platformId in platforms)) {
+      console.error(`tutor.config.yaml: plugins.${name}.platforms names unknown platform "${platformId}"`)
+      process.exit(1)
+    }
   }
 }
 
@@ -181,7 +200,9 @@ for (const [platformId, platform] of Object.entries(platforms)) {
 }
 
 const marketplaceEntries = [
-  ...pluginNames.map((n) => ({ name: plugins[n].name, description: plugins[n].description, external: false })),
+  ...pluginNames
+    .filter((n) => platformsFor(n).includes('claude'))
+    .map((n) => ({ name: plugins[n].name, description: plugins[n].description, external: false })),
   ...(marketplace.external ?? []).map((entry: Record<string, any>) => ({ ...entry, external: true })),
 ]
 const ROOT_CATALOG = join(ROOT, '.claude-plugin', 'marketplace.json')
@@ -206,6 +227,10 @@ for (const pluginName of pluginNames) {
   const skillsDir = join(SRC, pluginName, 'skills')
   if (!existsSync(skillsDir)) continue
   for (const entry of readdirSync(skillsDir, { withFileTypes: true })) {
+    if (entry.isSymbolicLink()) {
+      console.error(`symlinks are not supported in src/plugins: ${relative(ROOT, join(skillsDir, entry.name))}`)
+      process.exit(1)
+    }
     if (!entry.isDirectory()) continue
     const skillDir = join(skillsDir, entry.name)
     const skillMdPath = existsSync(join(skillDir, 'SKILL.md'))
@@ -216,6 +241,11 @@ for (const pluginName of pluginNames) {
     if (!skillMdPath) continue
     const frontmatter = parseFrontmatter(readFileSync(skillMdPath, 'utf8'))
     const name = frontmatter.name ?? entry.name
+    const existing = skillsByName.get(name)
+    if (existing) {
+      console.error(`skill "${name}" is defined by both ${existing.pluginName} and ${pluginName}`)
+      process.exit(1)
+    }
     skillsByName.set(name, {
       name,
       pluginName,
@@ -230,6 +260,18 @@ for (const pluginName of pluginNames) {
 
 const publicSkills: string[] = skillsConfig.public ?? []
 const groups = skillsConfig.groups ?? []
+
+groups.forEach((g: any, i: number) => {
+  if (!g.title) {
+    console.error(`tutor.config.yaml: skills.groups[${i}] is missing a non-empty "title"`)
+    process.exit(1)
+  }
+  if (!Array.isArray(g.skills) || g.skills.length === 0) {
+    console.error(`tutor.config.yaml: skills.groups[${i}] ("${g.title}") is missing a non-empty "skills" array`)
+    process.exit(1)
+  }
+})
+
 const namedSkills = new Set<string>([...publicSkills, ...groups.flatMap((g: any) => g.skills ?? [])])
 
 for (const skillName of namedSkills) {
@@ -244,15 +286,27 @@ for (const skillName of namedSkills) {
   }
 }
 
-const groupingsJson = groups
-  .map(
-    (g: any) =>
-      `    {\n      "title": ${JSON.stringify(g.title)},\n      "description": ${JSON.stringify(g.description)},\n      "skills": ${JSON.stringify(g.skills)}\n    }`,
-  )
-  .join(',\n')
+for (const g of groups) {
+  for (const skillName of g.skills) {
+    if (!publicSkills.includes(skillName)) {
+      console.error(`tutor.config.yaml: skills.groups["${g.title}"] lists "${skillName}", which is not in skills.public`)
+      process.exit(1)
+    }
+  }
+}
+
 add(
   join(ROOT, 'skills.sh.json'),
-  `{\n  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",\n  "notGrouped": "bottom",\n  "groupings": [\n${groupingsJson}\n  ]\n}`,
+  JSON.stringify(
+    {
+      $schema: 'https://skills.sh/schemas/skills.sh.schema.json',
+      notGrouped: 'bottom',
+      groupings: groups,
+    },
+    null,
+    2,
+  ),
+  { json: true },
 )
 
 // --- Omni: dist/omni/skills/<skill-name>/, public skills only ---

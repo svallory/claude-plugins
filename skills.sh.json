@@ -5,17 +5,23 @@
     {
       "title": "Knowledge",
       "description": "Structure organizational knowledge as agent-readable markdown bundles (Open Knowledge Format).",
-      "skills": ["okf-open-knowledge-format"]
+      "skills": [
+        "okf-open-knowledge-format"
+      ]
     },
     {
       "title": "Agent Workflow",
       "description": "Orchestrate batches of coding tasks across developer subagents.",
-      "skills": ["team-lead"]
+      "skills": [
+        "team-lead"
+      ]
     },
     {
       "title": "Demos & Video",
       "description": "Record narrated, subtitled MP4 walkthroughs of web-app features.",
-      "skills": ["demo-video"]
+      "skills": [
+        "demo-video"
+      ]
     }
   ]
 }

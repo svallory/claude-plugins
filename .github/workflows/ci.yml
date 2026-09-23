@@ -6,7 +6,7 @@ on:
 
 # The shell-script jobs (bash -n, shellcheck) moved with the hyper plugin to
 # svallory/hyper-coding (.github/workflows/agent-plugin.yml). The okf plugin
-# ships one skill-bundled script (plugins/okf/skills/okf/scripts/validate.sh),
+# ships one skill-bundled script (src/plugins/okf/skills/okf/scripts/validate.sh),
 # a consumer-facing fallback validator that needs no CI gate.
 jobs:
   json:

@@ -1,6 +1,8 @@
-# Claude Plugins by svallory
+# Tutor
 
-A Claude Code plugin marketplace.
+Tutor your AI Agents to make them better.
+
+A marketplace of plugins and skills that tutor AI agents.
 
 ## Installation
 

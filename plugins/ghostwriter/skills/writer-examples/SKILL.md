@@ -2,6 +2,8 @@
 name: writer-examples
 description: Good vs bad examples for humanizing AI text. Load when the writer agent needs transformation examples.
 user-invocable: false
+metadata:
+  internal: true
 ---
 
 # Writer Agent Examples

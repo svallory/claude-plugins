@@ -1,0 +1,15 @@
+{
+  "name": "okf",
+  "description": "Create, validate, and enrich Open Knowledge Format (OKF) bundles — the open spec for representing organizational knowledge as markdown files with YAML frontmatter. Covers v0.2 provenance, trust, lifecycle, and Attested Computations.",
+  "version": "2.1.0",
+  "author": {
+    "name": "Saulo Vallory"
+  },
+  "keywords": [
+    "okf",
+    "open-knowledge-format",
+    "knowledge-base",
+    "metadata",
+    "llm-wiki"
+  ]
+}

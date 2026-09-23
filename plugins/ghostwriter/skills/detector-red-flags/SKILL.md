@@ -2,6 +2,8 @@
 name: detector-red-flags
 description: AI writing detection patterns and red flags. Load when the slop-detector agent needs to analyze text for AI signals.
 user-invocable: false
+metadata:
+  internal: true
 ---
 
 # AI Writing Detection Red Flags

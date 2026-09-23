@@ -22,6 +22,13 @@
       "skills": [
         "demo-video"
       ]
+    },
+    {
+      "title": "Problem Solving",
+      "description": "Break hard problems into smaller, testable knowns.",
+      "skills": [
+        "decompose"
+      ]
     }
   ]
 }

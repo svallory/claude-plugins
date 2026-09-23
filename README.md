@@ -7,7 +7,7 @@ A marketplace of plugins and skills that tutor AI agents.
 ## Installation
 
 ```
-/plugin marketplace add svallory/claude-plugins
+/plugin marketplace add svallory/tutor
 ```
 
 ## Available Plugins
@@ -24,7 +24,7 @@ A marketplace of plugins and skills that tutor AI agents.
 ### Ghostwriter
 
 ```
-/plugin install ghostwriter@svallory-plugins
+/plugin install ghostwriter@tutor
 ```
 
 Then run `/setup` to configure your author profile and first publication.
@@ -34,7 +34,7 @@ See [ghostwriter README](src/plugins/ghostwriter/README.md) for full documentati
 ### Decompose
 
 ```
-/plugin install decompose@svallory-plugins
+/plugin install decompose@tutor
 ```
 
 Ask for "decompose" or "break this down" when facing a hard problem, bug with no obvious cause, or vague problem statement ("it's slow", "it doesn't work"). The skill turns problem-solving into a systematic 6-step loop: define the gap, enumerate variables, map relationships, decompose into testable subproblems, test one variable at a time, validate and iterate.
@@ -44,7 +44,7 @@ See [decompose README](src/plugins/decompose/README.md) for details.
 ### Team Lead
 
 ```
-/plugin install team-lead@svallory-plugins
+/plugin install team-lead@tutor
 ```
 
 Hand it a batch of tasks ("team-lead this sprint", "assign these tickets to devs"). Requires `git`, `gh`, `jq`, and [worktrunk](https://github.com/max-sixty/worktrunk); Herdr integration is optional.
@@ -54,7 +54,7 @@ See [team-lead README](src/plugins/team-lead/README.md) for the full dependency 
 ### Demo Video
 
 ```
-/plugin install demo-video@svallory-plugins
+/plugin install demo-video@tutor
 ```
 
 Ask for a "demo video" or "feature walkthrough video" of a web-app feature. The skill installs the pipeline into the project on first use (`scripts/demo/`, `e2e/demo/`), writes `.claude/demo-video-skill.config.json`, then records, narrates and builds the MP4.
@@ -66,7 +66,7 @@ See [demo-video README](src/plugins/demo-video/README.md) for config schema, com
 ### OKF
 
 ```
-/plugin install okf@svallory-plugins
+/plugin install okf@tutor
 ```
 
 Teaches the agent the [Open Knowledge Format](https://github.com/GoogleCloudPlatform/open-knowledge-format): create bundles, validate them (via [okflint](https://github.com/mattdav/okflint) or the bundled fallback script), enrich concepts with provenance and trust fields, migrate v0.1 → v0.2, and convert Notion/Obsidian/CSV sources.
@@ -78,12 +78,12 @@ See [okf README](src/plugins/okf/README.md) for contents and details.
 The standalone skills are also installable with the [skills CLI](https://skills.sh) (works with Claude Code, Codex, Cursor, and others):
 
 ```
-npx skills add svallory/claude-plugins
+npx skills add svallory/tutor
 ```
 
 This lists `okf-open-knowledge-format`, `team-lead`, and `demo-video`. Ghostwriter's internal helper skills (`detector-red-flags`, `surgical-update`, `writer-examples`) are marked internal and hidden by default — they only make sense inside the ghostwriter plugin's agent pipeline.
 
-The repo's [skills.sh](https://skills.sh/svallory/claude-plugins) page layout is configured in [skills.sh.json](skills.sh.json).
+The repo's [skills.sh](https://skills.sh/svallory/tutor) page layout is configured in [skills.sh.json](skills.sh.json).
 
 ## For maintainers
 

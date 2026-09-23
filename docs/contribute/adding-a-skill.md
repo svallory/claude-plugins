@@ -42,7 +42,7 @@ skills:
 Being public means:
 
 - It ships to `dist/omni/skills/<skill-name>/` (rendered with the `omni` platform's vars — no `models` key, so any `@if(platform.models)` branch in its template takes the `@else` path).
-- It's eligible to appear in `skills.sh.json`, discoverable via `npx skills add svallory/claude-plugins`.
+- It's eligible to appear in `skills.sh.json`, discoverable via `npx skills add svallory/tutor`.
 
 A public skill does **not** have to belong to a `skills.groups` entry — `skills.sh.json`'s `notGrouped: "bottom"` setting means ungrouped public skills still show up, just at the bottom of the skills.sh page.
 

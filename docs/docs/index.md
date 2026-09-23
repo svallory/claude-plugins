@@ -13,7 +13,7 @@ Plugins available in the Tutor marketplace.
 ## Install
 
 ```
-/plugin marketplace add svallory/claude-plugins
+/plugin marketplace add svallory/tutor
 ```
 
 Then install any plugin by name — see each plugin's page for its exact install line.

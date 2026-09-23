@@ -1,6 +1,6 @@
 {
   "title": "Tutor",
-  "url": "https://svallory.github.io/claude-plugins",
+  "url": "https://tutor.saulo.tech",
   "src": "./docs",
   "out": "./site",
   "layout": {

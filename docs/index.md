@@ -12,7 +12,7 @@ Tutor is a Claude Code plugin marketplace: a collection of plugins and skills th
 ## Quick install
 
 ```
-/plugin marketplace add svallory/claude-plugins
+/plugin marketplace add svallory/tutor
 ```
 
 Then install any plugin listed under [Docs](/docs).

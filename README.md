@@ -15,6 +15,7 @@ A marketplace of plugins and skills that tutor AI agents.
 | Plugin | Description |
 |--------|-------------|
 | **ghostwriter** | Adversarial AI text detection and humanization system. Detects AI-generated text and iteratively revises it to read as authentically human. |
+| **decompose** | Structured problem decomposition for hard problems. Triggers when the answer isn't immediately known: define the gap, enumerate variables, decompose into testable hypotheses, test one variable at a time. |
 | **team-lead** | Dev team leader: decomposes a batch of tasks, assigns them to developer agents at the cheapest adequate model, reviews their work, and tracks progress. |
 | **demo-video** | Narrated, subtitled MP4 demos of web-app features: Playwright recording with animated cursor, ffmpeg assembly paced by TTS narration, title cards and outro. |
 | **okf** | Create, validate, and enrich Open Knowledge Format (OKF) bundles — knowledge as markdown files with YAML frontmatter, incl. v0.2 provenance, trust, and Attested Computations. |
@@ -29,6 +30,16 @@ A marketplace of plugins and skills that tutor AI agents.
 Then run `/setup` to configure your author profile and first publication.
 
 See [ghostwriter README](src/plugins/ghostwriter/README.md) for full documentation.
+
+### Decompose
+
+```
+/plugin install decompose@svallory-plugins
+```
+
+Ask for "decompose" or "break this down" when facing a hard problem, bug with no obvious cause, or vague problem statement ("it's slow", "it doesn't work"). The skill turns problem-solving into a systematic 6-step loop: define the gap, enumerate variables, map relationships, decompose into testable subproblems, test one variable at a time, validate and iterate.
+
+See [decompose README](src/plugins/decompose/README.md) for details.
 
 ### Team Lead
 

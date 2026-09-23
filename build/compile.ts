@@ -1,11 +1,11 @@
 /**
- * Compiles canonical plugin sources (src/plugins/<name>/, marketplace.yaml,
+ * Compiles canonical plugin sources (src/plugins/<name>/, tutor.config.yaml,
  * *.jig templates) into per-platform distributable trees.
  *
  *   bun run build           # regenerate every dist tree + the root catalog
  *   bun run build:check     # verify committed outputs are fresh (CI)
  *
- * For every platform in build/platforms/<id>.yaml the build owns
+ * For every platform in tutor.config.yaml's `platforms:` map the build owns
  * dist/<id>/ entirely: it is wiped and regenerated from src/, so no stale
  * output can survive. Each plugin lands at dist/<id>/plugins/<name>/ with its
  * *.jig files rendered (extension stripped, `{ platform, plugin }` scope) and
@@ -15,6 +15,11 @@
  *            root (.claude-plugin/marketplace.json, a Claude requirement) and
  *            points local plugins at ./dist/claude/plugins/<name>.
  *   kimi   — kimi.plugin.json, plus a dist/kimi/marketplace.json catalog.
+ *   omni   — no manifest, no catalog. dist/omni/skills/<skill-name>/ holds
+ *            only the public skills (tutor.config.yaml's skills.public),
+ *            rendered with the omni platform's vars (no `models` key).
+ *
+ * skills.sh.json (repo root, committed) is generated from skills.groups.
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join, relative } from 'node:path'
@@ -33,13 +38,11 @@ edge.mount(join(BUILD, 'templates'))
 
 const readYaml = (path: string) => parseYaml(readFileSync(path, 'utf8'))
 
-const marketplace = readYaml(join(ROOT, 'marketplace.yaml'))
-const platforms: Record<string, Record<string, any>> = {}
-for (const file of readdirSync(join(BUILD, 'platforms')).sort()) {
-  if (file.endsWith('.yaml')) {
-    platforms[file.slice(0, -'.yaml'.length)] = readYaml(join(BUILD, 'platforms', file))
-  }
-}
+const config = readYaml(join(ROOT, 'tutor.config.yaml'))
+const marketplace = config.marketplace
+const platforms: Record<string, Record<string, any>> = config.platforms ?? {}
+const pluginConfig: Record<string, { platforms?: string[] }> = config.plugins ?? {}
+const skillsConfig: { public?: string[]; groups?: any[] } = config.skills ?? {}
 
 const pluginNames = readdirSync(SRC, { withFileTypes: true })
   .filter((d) => d.isDirectory() && existsSync(join(SRC, d.name, 'plugin.yaml')))
@@ -65,6 +68,11 @@ for (const name of pluginNames) {
     console.error(`${file}: name "${plugin.name}" does not match its directory "${name}"`)
     process.exit(1)
   }
+}
+
+function platformsFor(pluginName: string): string[] {
+  const restriction = pluginConfig[pluginName]?.platforms
+  return restriction ?? Object.keys(platforms)
 }
 
 const COMPONENT_DIRS = ['skills', 'agents', 'commands']
@@ -121,21 +129,27 @@ function add(path: string, content: string | Buffer, { json = false, mode = 0o64
   outputs.set(path, { content: data, mode })
 }
 
-// Platform-specific plugin manifests and catalogs.
+// Platform-specific plugin manifests and catalogs. Omni has neither — it is
+// skill-scoped and skips manifest/catalog rendering entirely.
 const MANIFESTS: Record<string, { path: string; template: string }> = {
   claude: { path: join('.claude-plugin', 'plugin.json'), template: 'claude-plugin.jig' },
   kimi: { path: 'kimi.plugin.json', template: 'kimi-plugin.jig' },
 }
 const CATALOGS: Record<string, string> = { kimi: 'kimi-marketplace.jig' }
+const NO_MANIFEST = new Set(['omni'])
 
 for (const [platformId, platform] of Object.entries(platforms)) {
+  if (NO_MANIFEST.has(platformId)) continue
+
   const manifest = MANIFESTS[platformId]
   if (!manifest) {
     console.error(`no manifest defined for platform "${platformId}" in build/compile.ts`)
     process.exit(1)
   }
 
-  for (const name of pluginNames) {
+  const namesForPlatform = pluginNames.filter((name) => platformsFor(name).includes(platformId))
+
+  for (const name of namesForPlatform) {
     const pluginDir = join(SRC, name)
     const plugin = plugins[name]
     const outDir = join(DIST, platformId, 'plugins', name)
@@ -158,9 +172,11 @@ for (const [platformId, platform] of Object.entries(platforms)) {
 
   const catalog = CATALOGS[platformId]
   if (catalog) {
-    add(join(DIST, platformId, 'marketplace.json'), edge.renderSync(catalog, { plugins: pluginNames.map((n) => plugins[n]) }), {
-      json: true,
-    })
+    add(
+      join(DIST, platformId, 'marketplace.json'),
+      edge.renderSync(catalog, { plugins: namesForPlatform.map((n) => plugins[n]) }),
+      { json: true },
+    )
   }
 }
 
@@ -174,6 +190,92 @@ add(
   edge.renderSync('marketplace.jig', { marketplace, plugins: marketplaceEntries, sourcePrefix: './dist/claude/plugins' }),
   { json: true },
 )
+
+// --- Skill discovery: every skills/<dir>/SKILL.md(.jig) across all plugins ---
+
+function parseFrontmatter(text: string): Record<string, any> {
+  const match = text.match(/^---\r?\n([\s\S]*?)\r?\n---/)
+  if (!match) return {}
+  return parseYaml(match[1]) ?? {}
+}
+
+type SkillEntry = { name: string; pluginName: string; skillDirName: string; skillDir: string; internal: boolean }
+const skillsByName = new Map<string, SkillEntry>()
+
+for (const pluginName of pluginNames) {
+  const skillsDir = join(SRC, pluginName, 'skills')
+  if (!existsSync(skillsDir)) continue
+  for (const entry of readdirSync(skillsDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue
+    const skillDir = join(skillsDir, entry.name)
+    const skillMdPath = existsSync(join(skillDir, 'SKILL.md'))
+      ? join(skillDir, 'SKILL.md')
+      : existsSync(join(skillDir, 'SKILL.md.jig'))
+        ? join(skillDir, 'SKILL.md.jig')
+        : null
+    if (!skillMdPath) continue
+    const frontmatter = parseFrontmatter(readFileSync(skillMdPath, 'utf8'))
+    const name = frontmatter.name ?? entry.name
+    skillsByName.set(name, {
+      name,
+      pluginName,
+      skillDirName: entry.name,
+      skillDir,
+      internal: frontmatter.metadata?.internal === true,
+    })
+  }
+}
+
+// --- skills.sh.json validation + generation ---
+
+const publicSkills: string[] = skillsConfig.public ?? []
+const groups = skillsConfig.groups ?? []
+const namedSkills = new Set<string>([...publicSkills, ...groups.flatMap((g: any) => g.skills ?? [])])
+
+for (const skillName of namedSkills) {
+  const skill = skillsByName.get(skillName)
+  if (!skill) {
+    console.error(`tutor.config.yaml: skill "${skillName}" is not defined by any plugin's skills/<name>/SKILL.md`)
+    process.exit(1)
+  }
+  if (skill.internal) {
+    console.error(`tutor.config.yaml: skill "${skillName}" has metadata.internal: true and cannot be listed under public/groups`)
+    process.exit(1)
+  }
+}
+
+const groupingsJson = groups
+  .map(
+    (g: any) =>
+      `    {\n      "title": ${JSON.stringify(g.title)},\n      "description": ${JSON.stringify(g.description)},\n      "skills": ${JSON.stringify(g.skills)}\n    }`,
+  )
+  .join(',\n')
+add(
+  join(ROOT, 'skills.sh.json'),
+  `{\n  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",\n  "notGrouped": "bottom",\n  "groupings": [\n${groupingsJson}\n  ]\n}`,
+)
+
+// --- Omni: dist/omni/skills/<skill-name>/, public skills only ---
+
+if (platforms.omni) {
+  const omniPlatform = platforms.omni
+  for (const skillName of publicSkills) {
+    const skill = skillsByName.get(skillName)!
+    const outDir = join(DIST, 'omni', 'skills', skillName)
+    const plugin = plugins[skill.pluginName]
+
+    for (const file of walk(skill.skillDir)) {
+      const rel = relative(skill.skillDir, file)
+      if (file.endsWith('.jig')) {
+        const rendered = edge.renderRawSync(readFileSync(file, 'utf8'), { platform: omniPlatform, plugin }, file)
+        add(join(outDir, rel.slice(0, -'.jig'.length)), rendered)
+      } else {
+        const executable = statSync(file).mode & 0o111
+        add(join(outDir, rel), readFileSync(file), { mode: executable ? 0o755 : 0o644 })
+      }
+    }
+  }
+}
 
 // --- Check or write ---
 
@@ -204,7 +306,7 @@ if (CHECK) {
   // A removed platform leaves its whole dist tree behind; the build never
   // touches it again, so it must be deleted by hand.
   for (const entry of existsSync(DIST) ? readdirSync(DIST) : []) {
-    if (!(entry in platforms)) stale.push(`orphaned    dist/${entry}: no build/platforms/${entry}.yaml (delete it)`)
+    if (!(entry in platforms)) stale.push(`orphaned    dist/${entry}: no "${entry}" entry under platforms: in tutor.config.yaml (delete it)`)
   }
   if (stale.length) {
     console.error(`stale generated files (run \`bun run build\`):\n  ${stale.sort().join('\n  ')}`)

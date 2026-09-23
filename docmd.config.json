@@ -1,0 +1,43 @@
+{
+  "title": "Tutor",
+  "url": "https://svallory.github.io/claude-plugins",
+  "src": "./docs",
+  "out": "./site",
+  "layout": {
+    "footer": {
+      "branding": false
+    },
+    "menubar": {
+      "enabled": true,
+      "left": [
+        { "type": "title", "text": "Tutor", "url": "/" },
+        { "text": "Docs", "url": "/docs" },
+        { "text": "Contribute", "url": "/contribute" }
+      ]
+    }
+  },
+  "navigation": [
+    {
+      "title": "Docs",
+      "path": "/docs",
+      "children": [
+        { "title": "Overview", "path": "/docs/" },
+        { "title": "Ghostwriter", "path": "/docs/ghostwriter" },
+        { "title": "Team Lead", "path": "/docs/team-lead" },
+        { "title": "Demo Video", "path": "/docs/demo-video" },
+        { "title": "OKF", "path": "/docs/okf" },
+        { "title": "Decompose", "path": "/docs/decompose" }
+      ]
+    },
+    {
+      "title": "Contribute",
+      "path": "/contribute",
+      "children": [
+        { "title": "Overview", "path": "/contribute/" },
+        { "title": "Build System", "path": "/contribute/build-system" },
+        { "title": "Adding a Plugin", "path": "/contribute/adding-a-plugin" },
+        { "title": "Adding a Skill", "path": "/contribute/adding-a-skill" }
+      ]
+    }
+  ]
+}

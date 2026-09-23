@@ -4,9 +4,13 @@
   "type": "module",
   "scripts": {
     "build": "bun build/compile.ts",
-    "build:check": "bun build/compile.ts --check"
+    "build:check": "bun build/compile.ts --check",
+    "docs:build": "docmd build",
+    "docs:dev": "docmd dev",
+    "docs:validate": "docmd validate"
   },
   "devDependencies": {
+    "@docmd/core": "^0.9.6",
     "@jig-lang/jig": "^1.0.1",
     "yaml": "^2"
   }

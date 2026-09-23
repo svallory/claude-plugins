@@ -1,0 +1,12 @@
+# Personal Blog Template
+# Conversational, high personality, tangents welcome, relaxed punctuation.
+# Preset: casual
+
+publication:
+  media: blog
+  audience: general
+
+writing_style:
+  tone: conversational
+  formality: informal
+  voice: first-person

@@ -1,0 +1,267 @@
+---
+title: "Pangram Labs Analysis - Comprehensive Guide To Spotting Ai Writing Patterns"
+source: "https://www.pangram.com/blog/comprehensive-guide-to-spotting-ai-writing-patterns"
+summary: "This comprehensive guide identifies key patterns and markers of AI-generated writing across multiple dimensions including vocabulary overuse, phrasing consistency, grammar perfection, organizational structure, and lack of originality. The guide provides extensive lists of words, phrases, and stylistic patterns that frequently appear in AI text but are uncommon in human writing, along with analysis of how AI differs in tone, specificity, reflection, and creativity."
+---
+
+# Comprehensive Guide to Spotting AI Writing Patterns
+
+By Bradley Emi  
+April 2, 2025
+
+## Words and Phrases
+
+AI overuses certain words and phrases much more than others. Here is a non-exhaustive, but large list of words that frequently appear in AI-generated text that do not appear in human text.
+
+### Nouns
+
+aim, aims, aspect, challenges, change, climate, community, compel, compelling, compels, complexities, complexity, component, comprehensive, confront, confrontation, confrontational, confrontations, confronts, deep, deepens, deeper, deepest, deeply, delve, delve/dive, delves, depth, development, diverse, draw, drawn, draws, dreams, dynamics, elegant, elevate, elevates, elucidate, elucidates, elucidatory, elusiveness, embark, embarks, embodies, embodiment, embodiments, embody, embrace, embraces, empower, emulate, emulates, enact, endeavor, endeavors, endurance, endure, engage, enhance, enlightenment, enlightenments, enlightens, entwine, entwines, environment, era, eras, espouse, espouses, evoke, evokes, exacerbate, exacerbates, exemplifies, exploration, explorations, exploratory, explore, explores, facet, facets, foster, fosters, grapple, grapples, groundwork, harness, health, hidden, highlight, highlights, illuminate, illuminates, illumination, imperative, imperatives, importance, innovate, innovates, innovation, innovator, innovators, insight, insightful, insights, insignificant, inspiration, inspirations, inspire, inspires, integrate, interplay, interplayed, interplays, intertwine, intertwines, intricacies, intricate, jeopardizing, journey, kaleidoscope, kaleidoscopes, key, landscape, landscapes, lens, life, manifold, meaningful, meticulousness, moreover, navigate, navigates, notes, nuance, nuances, offering, paramount, pivot, pivotal, pivots, poignancy, poignant, possibilities, potent, profound, quest, quirky, readers, realm, realms, reimagine, reimagines, relentless, relentlessness, resonance, resonate, resonates, reveal, reveals, reverberate, reverberates, revolution, revolutionizes, roadmap, robust, role, scheme, seamless, seamlessness, seek, seeks, shape, showcase, showcases, significance, straightforward, strive, strives, support, symphony, tailor, tapestries, tapestry, tempest, testament, testaments, timeless, timelessness, tireless, toolkit, transcend, transcendence, transcendent, transcends, transformative, underlies, underline, underlines, undermine, undermines, underpin, underscore, underscores, undervalues, unleash, unleashes, unlock, unlocks, unravel, unravels, value, values, vast, versatile, versatility, vibrant, vital, vitalize, vivid, weave, whimsy, wove
+
+### Verbs
+
+aimed, aiming, capturing, confronted, confronting, consider, crafted, curated, deepen, deepened, deepening, delved, delving, drawing, elevated, elevating, elucidated, elucidating, embarked, embarking, embodied, embodying, embraced, embracing, emulated, endeavored, endeavoring, endured, enduring, enhanced, enhancing, enlighten, enlightened, enlightening, ensure, entwined, entwining, espoused, espousing, esteemed, evoked, evoking, evolving, exacerbated, exacerbating, exemplify, exemplifying, explored, exploring, faceted, fostered, fostering, grappled, grappling, groundbreaking, guiding, highlighted, highlighting, illuminated, illuminating, improve, innovated, innovating, inspired, inspiring, interplaying, intertwined, intertwining, multifaceted, navigated, navigating, partaking, pivoted, pivoting, reimagined, reimagining, resonating, revealed, revealing, reverberated, reverberating, revitalize, revolutionize, revolutionized, revolutionizing, seeking, showcased, showcasing, strived, striving, structured, transcended, transcending, underlining, underlying, undermining, underpinning, underscoring, understanding, undervalued, undervaluing, uninspiring, unleashing, unlocking, unraveling, valued, valuing, weaving
+
+### Adjectives
+
+aimless, authentic, commendable, complex, creative, critical, crucial, dynamic, elucidative, elusive, endurable, essential, exemplary, explorational, explorative, grand, indelible, innovative, inspirational, invaluable, meticulous, nonconfrontational, notable, nuanced, powerful, professional, rich, significant, sustainable, underlined, undermined, underpinned, underscored, undervalue, uninspired, unleashed, unlocked, unraveled, valuable, whimsical
+
+### Adverbs
+
+additionally, aimlessly, aptly, creatively, critically, crucially, dynamically, elusively, embracingly, endurably, enduringly, indelibly, insightfully, insignificantly, intricately, invaluably, mere, merely, meticulously, notably, pivotally, poignantly, powerfully, profoundly, relentlessly, seamlessly, significantly, successfully, timelessly, tirelessly, underly, vibrantly, vividly, woven
+
+### Common Phrases
+
+- about the potential
+- additionally, we
+- advancements
+- adversity
+- advocate for
+- ai language / ai language model
+- amidst
+- any potential
+- anyone looking / anyone looking for / anyone with information
+- appreciation for
+- are committed / are committed to
+- are urging
+- as a reminder
+- as an ai
+- as the days
+- as we verb the topic
+- been met / been met with
+- best regards
+- bustling
+- can help to
+- can vary
+- captivating
+- cautionary tale
+- challenges
+- commitment to
+- complexities
+- connect with
+- consult with
+- could n't help / could n't shake
+- crucial for / crucial role / crucial role in
+- dedication / dedication to
+- deeper understanding
+- despite these
+- email finds / email finds you
+- emphasizing
+- enduring
+- enigmatic
+- explores
+- expressed his / expressed their / expressing their
+- factors, including
+- feel a sense / felt a sense
+- financial advisor
+- findings suggest
+- finds you / finds you well
+- for greater / for individuals / for understanding
+- from that day
+- further research
+- future generations
+- generations to
+- genetic disorder
+- glimpse into
+- grateful for
+- gratitude for
+- groundbreaking
+- has expressed / has shaped the / has sparked
+- have expressed / have important
+- heart pounding
+- help but feel / help but wonder
+- here are some
+- high-quality
+- highlights the importance
+- his legacy
+- hope this email
+- human spirit
+- i hope this
+- implications / implications for / important implications / important implications for
+- important to note
+- in a world of/where
+- in conclusion
+- in shaping
+- in summary
+- incident has
+- individuals to
+- insights / insights into
+- interplay between
+- intricate
+- is a complex / is a draft / is a reminder / is a testament
+- is crucial for
+- is sure to
+- it's important / it is essential
+- it remains to
+- its potential
+- it's crucial to / it's important to note
+- it's not about ___ it's about ___
+- knew that he / knew that i / knew that she / knew that they
+- known for his / known for its
+- language model
+- lay ahead
+- manage topic issues/problems
+- meticulously
+- model, i
+- n't shake
+- natural world
+- navigate
+- nestled
+- new insights / new insights into
+- newfound
+- news article
+- not only ___ but also
+- our findings / our understanding
+- overall, i / overall, this
+- packs a punch / brings a punch
+- paper presents
+- paragraph / paragraph 1 / paragraph 2
+- paving the way
+- perseverance
+- personal growth
+- personalized
+- potential applications
+- pounding in
+- prioritize
+- provide valuable / provide valuable insights
+- quality of life
+- raised concerns about
+- rare genetic
+- relentless
+- remember that
+- reminder
+- resilience
+- results provide
+- rich history
+- said, his
+- sense of peace / sense of purpose
+- serves as
+- several reasons
+- shake the feeling
+- shaping
+- shed light / shed light on
+- showcasing
+- significant impact / significant impact on / significant role / significant role in
+- simple yet ___
+- societal
+- solace / solace in
+- standout
+- stark reminder
+- step-by-step
+- storytelling
+- stumbled upon
+- such as
+- sustainability
+- tapestry
+- testament / testament to
+- the effects of / the rise of
+- their understanding of
+- these challenges
+- they identified patterns
+- thick with
+- this email / this email finds
+- this paper presents
+- thought-provoking
+- timeless
+- tirelessly / tirelessly to
+- to anyone looking
+- to consult / to consult with
+- to form the
+- to inspire
+- to mitigate the risk
+- to navigate
+- to the power
+- turn of events
+- underscores
+- unease
+- unwavering
+- unyielding
+- valuable insights / valuable insights into
+- vibrant
+- was known for
+- wash over
+- weaving
+- well-being
+- when it comes to topic
+- which can lead
+- with a sense
+- world around
+- you well
+
+## Phrasing Patterns
+
+- **Sentence monotony**: Lots of complex clauses with similar length and style, rather than human text which uses varied phrasing patterns
+- **Sentence variety**: Human writing mixes simple and complex sentences; even expert writers occasionally use non-standard grammar, misplaced modifiers, or inconsistent tenses
+- **Em dash overuse**: AI frequently uses em dashes — often as explanatory clauses or dramatic pauses
+- **Punctuation avoidance**: AI rarely uses semicolons or parentheses
+
+## Spelling and Grammar
+
+- AI uses American English spelling consistently
+- AI rarely makes spelling errors (unless prompted)
+- Rarely uses contractions like "we've" or "it's"
+- "Perfect" grammar: avoids fragments, run-ons, starting sentences with "And" or "But"
+- Uses Oxford commas consistently
+
+## Organization and Structure
+
+- **AI organization**: Very neat, organized paragraphs of similar length with list-like structures; bullet points sometimes appear mid-essay (rare in formal human writing); very neat introductions and conclusions
+- **AI conclusions**: Often very long, start with "Overall," "In Conclusion," or "In summary," and repeat most of what was already written
+- **Human organization**: Contains variety in structure with varied paragraph lengths; conclusions tend to be shorter and more concise
+
+## Purpose and Intent
+
+Because AI is trained to be assistive and people-pleasing, it tends to write essays that could fit a wide variety of possible prompts and instructions, to avoid being irrelevant or off-topic. As a result, the writing is usually very vague and full of generalities.
+
+Human writing is generally more aligned to the particular assignment or prompt that is given.
+
+## Tone
+
+- **AI tone**: Extremely formal unless instructed otherwise; tends to be overly positive and avoids criticizing particular viewpoints or opinions
+- **AI earnestness**: Often exhibits earnestness by specifically pointing out evidence that it is being helpful
+
+## Creativity and Originality
+
+- **Lack of creativity**: Because AI merely replicates patterns in its training set, it cannot produce creative or original thoughts; it simply parrots thoughts already in its training data
+- **Bias reflection**: AI reflects the political views and biases of its creators
+- **Lack of perspective**: AI often aggregates so many sources that it has no clear perspective or point of view; it reflects many perspectives and therefore has none itself
+
+## Specificity
+
+- **Avoidance of details**: AI does not create specific details when writing creatively and tries hard to avoid proper nouns
+- **Generic proper nouns**: When forced to use proper nouns, AI defaults to the most generic, common examples
+- **AI names pattern**: 60-70% of names in AI-generated articles from ChatGPT and Claude are either "Emily" or "Sarah"
+
+## Reflection and Metacognition
+
+- **Inability to reflect**: AI is very bad at reflecting and relating writing to personal experiences because it has no personal experiences to draw from
+- **No writing process**: AI cannot reflect upon its own writing process because it is a machine with no equivalent "writing process"
+- **Human voice**: Human writing shows the unique voice and personal experience of its author
+
+## Repetition
+
+- AI often repeats itself, especially in conclusions
+- AI will often repeat the prompt back to the user to confirm it is following instructions
+
+## Abrupt Shifts in Style and Tone
+
+In cases where human writing is mixed with AI writing, there are often abrupt shifts in style and tone where the text transitions between human and AI-generated content.

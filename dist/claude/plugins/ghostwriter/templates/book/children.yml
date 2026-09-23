@@ -1,0 +1,19 @@
+# Children's Book Template
+# Simple vocabulary, short sentences, repetition OK, playful tone.
+# Preset: casual
+
+publication:
+  media: book
+  audience: general
+  genre: children
+
+writing_style:
+  tone: playful
+  formality: informal
+  voice: third-person
+
+  prose:
+    em_dash_density: 0.5
+    auxiliary_density: 8.0
+    pronoun_density: 10.0
+    max_dependency_depth: 3.0

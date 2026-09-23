@@ -1,0 +1,21 @@
+{
+  "name": "ghostwriter",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "package": "cd .. && zip -r ghostwriter.zip ghostwriter/ -x 'ghostwriter/node_modules/*' 'ghostwriter/.venv/*' 'ghostwriter/bun.lock*' 'ghostwriter/.claude/*' '*__pycache__*' '*.pyc' && echo 'Packaged: ghostwriter.zip'"
+  },
+  "dependencies": {
+    "@343dev/languagetool-node": "^2.0.2",
+    "jsdom": "^28.0.0",
+    "sentence-splitter": "^5.0.0",
+    "turndown": "^7.2.2"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "ts-json-schema-generator": "^2.4.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

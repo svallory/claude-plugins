@@ -1,0 +1,40 @@
+# Casual preset - informal social media and messages
+publication:
+  media: casual
+  audience: general
+
+writing_style:
+  formality: informal
+  tone: casual
+
+rules:
+  punctuation:
+    period_quote:
+      disabled: true
+    oxford_comma:
+      disabled: true
+    em_dash:
+      ai_threshold: 2.0
+      human_baseline: 1.0
+  structure:
+    paragraph_fano_factor:
+      ai_threshold: 0.6
+      human_baseline: 2.0
+  content:
+    hedging:
+      ai_threshold: 8
+      human_baseline: 4
+    filler:
+      ai_threshold: 1
+      human_baseline: 0
+  burstiness:
+    coefficient_of_variation:
+      ai_threshold: 20
+      human_baseline: 60
+    fano_factor:
+      ai_threshold: 1.0
+      human_baseline: 2.5
+  perplexity:
+    perplexity:
+      ai_threshold: 30
+      human_baseline: 100

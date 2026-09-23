@@ -1,0 +1,49 @@
+# Example: Technical book by a specific author
+# This demonstrates using presets with author profiles and overrides
+
+version: "1.0"
+
+# Presets are merged in order: later overrides former
+presets:
+  - technical-book  # Built-in preset for technical books
+
+# Author profile (context for Detector agent's final assessment)
+author:
+  name: "John Doe"
+  gender: male
+  age: 45
+  personality:
+    - analytical
+    - direct
+    - methodical
+  background:
+    profession: "Software Architect"
+    years_experience: 20
+    education: "MS Computer Science"
+    industry: "Technology"
+  writing_background:
+    native_language: english
+    published_works: true
+    technical_writer: true
+
+# Override or extend preset values
+publication:
+  publisher:
+    name: "O'Reilly Media"
+  domain: cloud-computing
+
+writing_style:
+  tone: conversational
+  voice: first-person-plural
+
+# Override specific thresholds for this author-media combo
+rules:
+  vocabulary:
+    # This specific book needs even higher vocab tolerance
+    ai_vocab_density:
+      ai_threshold: 25
+  content:
+    # Author tends to use more hedging language
+    hedging:
+      ai_threshold: 20
+      human_baseline: 12

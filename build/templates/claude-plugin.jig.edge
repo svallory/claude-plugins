@@ -1,0 +1,13 @@
+{
+  "name": {{ json :: plugin.name }},
+  "description": {{ json :: plugin.description }},
+  "version": {{ json :: plugin.version }},
+  "author": {
+    "name": {{ json :: plugin.author }}
+@if(plugin.keywords && plugin.keywords.length)
+  },
+  "keywords": {{ json :: plugin.keywords }}
+@else
+  }
+@end
+}

@@ -38,27 +38,15 @@ Procedure:
 
 ## Roles and models
 
-@if(platform.models)
 | Role | Model | Use for |
 |------|-------|---------|
-| Researcher | `{{ platform.models.fast }}` | Codebase/web searches, "where is X", "how does Y work", collecting facts |
-| Mechanic | `{{ platform.models.fast }}` | Purely mechanical edits: renames, moving files, applying a known pattern to N places, formatting |
-| Developer | `{{ platform.models.balanced }}` | Default for normal tasks: features, bug fixes, tests, small refactors |
-| Senior Dev | `{{ platform.models.strong }}` | Tasks where Sonnet will likely struggle or burn attempts: tricky concurrency, gnarly types, subtle bugs, multi-system changes |
-| Squad Leader | `{{ platform.models.orchestrator }}` | A lead for one feature. Launch when any of these holds: the work spans 3+ layers or 2+ apps *and* needs design decisions; a data migration or rename touches persisted data; the plan needs investigation before it can be written; or the coordination you would do yourself exceeds ~30 min of your context. Operates exactly like you (may spawn its own devs and subagents — the no-fork rule does not apply to it), and reports back to you at the end |
+| Researcher | `haiku` | Codebase/web searches, "where is X", "how does Y work", collecting facts |
+| Mechanic | `haiku` | Purely mechanical edits: renames, moving files, applying a known pattern to N places, formatting |
+| Developer | `sonnet` | Default for normal tasks: features, bug fixes, tests, small refactors |
+| Senior Dev | `opus` | Tasks where Sonnet will likely struggle or burn attempts: tricky concurrency, gnarly types, subtle bugs, multi-system changes |
+| Squad Leader | `fable` | A lead for one feature. Launch when any of these holds: the work spans 3+ layers or 2+ apps *and* needs design decisions; a data migration or rename touches persisted data; the plan needs investigation before it can be written; or the coordination you would do yourself exceeds ~30 min of your context. Operates exactly like you (may spawn its own devs and subagents — the no-fork rule does not apply to it), and reports back to you at the end |
 
 Pick the cheapest role that will finish in one or two attempts. Escalate one tier when a dev gets stuck (see below). Never start at Fable to "be safe".
-@else
-| Role | Use for |
-|------|---------|
-| Researcher | Codebase/web searches, "where is X", "how does Y work", collecting facts |
-| Mechanic | Purely mechanical edits: renames, moving files, applying a known pattern to N places, formatting |
-| Developer | Default for normal tasks: features, bug fixes, tests, small refactors |
-| Senior Dev | Tasks where the default tier will likely struggle or burn attempts: tricky concurrency, gnarly types, subtle bugs, multi-system changes |
-| Squad Leader | A lead for one feature. Launch when any of these holds: the work spans 3+ layers or 2+ apps *and* needs design decisions; a data migration or rename touches persisted data; the plan needs investigation before it can be written; or the coordination you would do yourself exceeds ~30 min of your context. Operates exactly like you (may spawn its own devs and subagents — the no-fork rule does not apply to it), and reports back to you at the end |
-
-Model tiers are named here rather than pinned because {{ platform.harness }} assigns the model per sub-agent — map the roles to the cheapest available tiers when configuring your harness. Pick the cheapest role that will finish in one or two attempts. Escalate one tier when a dev gets stuck (see below). Never start at the top tier to "be safe".
-@end
 
 Overrides to the table:
 - A "mechanical" change that touches a DB schema, migration, API contract, or serialized key is not mechanical. Researcher first, then Sonnet.

@@ -1,0 +1,15 @@
+{
+  "version": "2",
+  "plugins": [
+@each((plugin, index) in plugins)
+@if(index > 0)
+    ,
+@end
+    {
+      "id": {{ json :: plugin.name }},
+      "displayName": {{ json :: plugin.interface.displayName }},
+      "source": "./plugins/{{ plugin.name }}"
+    }
+@end
+  ]
+}

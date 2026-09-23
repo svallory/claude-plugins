@@ -1,0 +1,8 @@
+# Kimi Code platform variables.
+# Kimi has no per-agent model field — agent frontmatter from other tools
+# (Claude's `model`, OpenCode's `mode`) is ignored by design, so there is no
+# `models` block here; templates must branch on its absence.
+id: kimi
+harness: Kimi Code
+configDir: .kimi-code
+pluginRootVar: $KIMI_PLUGIN_ROOT

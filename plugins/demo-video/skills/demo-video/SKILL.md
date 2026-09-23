@@ -11,7 +11,7 @@ Produce narrated, subtitled MP4 demos of web-app features: a Playwright script r
 
 ## Workflow
 
-1. **Read project options.** Check `{{ platform.configDir }}/demo-video-skill.config.json` at the target project root.
+1. **Read project options.** Check `.claude/demo-video-skill.config.json` at the target project root.
    - Exists → use it; do NOT re-ask the questions below.
    - Missing → first ask: **quick defaults or customize?** Quick = narration on (gemini-tts), subtitles on, title cards on with the product's name, no outro, cursor on — only confirm product name, base URL (Vite 5173 / Angular 4200 / etc.), and package runner. Customize = ask grouped (AskUserQuestion):
      - Voice narration? If yes: engine (`gemini-tts`, needs `GEMINI_API_KEY`; or `qwen3-tts-mlx`, offline, ~2 GB first download) and voice.
@@ -39,7 +39,7 @@ Produce narrated, subtitled MP4 demos of web-app features: a Playwright script r
 | Take scoping, narration, selectors, dwell | `reference/script-writing.md` |
 | Config schema | `templates/demo-video-skill.config.example.json` |
 | Pipeline source | `templates/scripts/demo/`, `templates/e2e/demo/` |
-| Per-project options | `{{ platform.configDir }}/demo-video-skill.config.json` in the project |
+| Per-project options | `.claude/demo-video-skill.config.json` in the project |
 
 ## Common mistakes
 

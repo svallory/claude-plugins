@@ -1,0 +1,14 @@
+{
+  "name": {{ json :: plugin.name }},
+  "version": {{ json :: plugin.version }},
+  "description": {{ json :: plugin.description }},
+  "author": {{ json :: plugin.author }},
+  "keywords": {{ json :: plugin.keywords }},
+  "interface": {
+    "displayName": {{ json :: plugin.interface.displayName }},
+    "shortDescription": {{ json :: plugin.interface.shortDescription }}
+  }
+@each(dir in components)
+  ,{{ json :: dir.key }}: {{ json :: dir.value }}
+@end
+}

@@ -5,8 +5,9 @@ on:
   pull_request:
 
 # The shell-script jobs (bash -n, shellcheck) moved with the hyper plugin to
-# svallory/hyper-coding (.github/workflows/agent-plugin.yml) — no plugin in
-# this repo ships shell scripts anymore.
+# svallory/hyper-coding (.github/workflows/agent-plugin.yml). The okf plugin
+# ships one skill-bundled script (plugins/okf/skills/okf/scripts/validate.sh),
+# a consumer-facing fallback validator that needs no CI gate.
 jobs:
   json:
     name: validate JSON
@@ -22,3 +23,12 @@ jobs:
             jq empty "$f" || { echo "invalid JSON: $f" >&2; rc=1; }
           done < <(git ls-files '*.json')
           exit "$rc"
+
+  build-check:
+    name: generated files are fresh
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+      - run: bun run build:check

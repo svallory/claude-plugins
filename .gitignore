@@ -4,3 +4,4 @@ bun.lock*
 .claude/
 __pycache__/
 *.pyc
+dist/

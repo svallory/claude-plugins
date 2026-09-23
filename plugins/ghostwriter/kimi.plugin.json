@@ -1,14 +1,19 @@
 {
   "name": "ghostwriter",
   "version": "2.3.0",
-  "description": "Ghostwriter: adversarial AI text detection and humanization system. Detects AI-generated text and iteratively revises it to read as authentically human.",
+  "description": "Adversarial AI text detection and humanization system. Detects AI-generated text and iteratively revises it to read as authentically human.",
   "author": "hlibco",
-  "keywords": ["ghostwriter", "ai-detection", "humanize", "writing"],
-  "skills": "./skills/",
-  "agents": "./agents/",
-  "commands": "./commands/",
+  "keywords": [
+    "ghostwriter",
+    "ai-detection",
+    "humanize",
+    "writing"
+  ],
   "interface": {
     "displayName": "Ghostwriter",
     "shortDescription": "Adversarial AI text detection and humanization"
-  }
+  },
+  "skills": "./skills/",
+  "agents": "./agents/",
+  "commands": "./commands/"
 }

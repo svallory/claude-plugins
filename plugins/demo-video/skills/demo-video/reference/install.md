@@ -18,7 +18,7 @@ If the project already uses different directories for e2e tests, keep the `scrip
 
 ## 2. Write the project config
 
-If the skill workflow hasn't already written it, write the user's chosen options to `{{ platform.configDir }}/demo-video-skill.config.json` (schema + example: `templates/demo-video-skill.config.example.json`). `scripts/demo/config.ts` reads it at startup — cwd-relative, so always run pipeline scripts from the repo root; missing keys fall back to defaults in that file. Do NOT edit config.ts for per-project choices.
+If the skill workflow hasn't already written it, write the user's chosen options to `.claude/demo-video-skill.config.json` (schema + example: `templates/demo-video-skill.config.example.json`). `scripts/demo/config.ts` reads it at startup — cwd-relative, so always run pipeline scripts from the repo root; missing keys fall back to defaults in that file. Do NOT edit config.ts for per-project choices.
 
 `geminiModel` names a preview model that will eventually rot; if TTS fails with a model-not-found error, check the current Gemini TTS model name and update the JSON.
 

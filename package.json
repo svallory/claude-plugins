@@ -1,0 +1,13 @@
+{
+  "name": "svallory-claude-plugins",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun build/compile.ts",
+    "build:check": "bun build/compile.ts --check"
+  },
+  "devDependencies": {
+    "@jig-lang/jig": "^1.0.1",
+    "yaml": "^2"
+  }
+}

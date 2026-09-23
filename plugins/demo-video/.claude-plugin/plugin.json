@@ -5,5 +5,12 @@
   "author": {
     "name": "Saulo Vallory"
   },
-  "keywords": ["demo", "video", "playwright", "ffmpeg", "tts", "walkthrough"]
+  "keywords": [
+    "demo",
+    "video",
+    "playwright",
+    "ffmpeg",
+    "tts",
+    "walkthrough"
+  ]
 }

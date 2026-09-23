@@ -1,0 +1,22 @@
+{
+  "name": {{ json :: marketplace.name }},
+  "owner": {
+    "name": {{ json :: marketplace.owner }}
+  },
+  "plugins": [
+@each((plugin, index) in plugins)
+@if(index > 0)
+    ,
+@end
+    {
+      "name": {{ json :: plugin.name }},
+      "description": {{ json :: plugin.description }},
+@if(plugin.external)
+      "source": {{ json :: plugin.source }}
+@else
+      "source": "./plugins/{{ plugin.name }}"
+@end
+    }
+@end
+  ]
+}

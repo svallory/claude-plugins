@@ -4,5 +4,11 @@
   "version": "0.2.0",
   "author": {
     "name": "Saulo Vallory"
-  }
+  },
+  "keywords": [
+    "team-lead",
+    "decompose",
+    "agents",
+    "orchestration"
+  ]
 }

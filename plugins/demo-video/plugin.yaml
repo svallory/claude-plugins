@@ -1,0 +1,9 @@
+name: demo-video
+version: 0.1.0
+description: >-
+  Produce narrated, subtitled MP4 demos of web-app features: Playwright records the browser with an animated cursor, ffmpeg assembles takes paced by TTS narration, with optional title cards, subtitles, and an outro slate.
+author: Saulo Vallory
+keywords: [demo, video, playwright, ffmpeg, tts, walkthrough]
+interface:
+  displayName: Demo Video
+  shortDescription: Narrated, subtitled MP4 demos of web-app features

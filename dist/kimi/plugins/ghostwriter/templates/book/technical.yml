@@ -1,0 +1,12 @@
+# Technical Book Template
+# Expert-casual voice, code examples, high semicolons, concrete specificity.
+# Preset: technical-book
+
+publication:
+  media: book
+  audience: expert
+
+writing_style:
+  tone: conversational
+  formality: informal
+  voice: first-person

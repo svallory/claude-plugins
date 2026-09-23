@@ -1,0 +1,12 @@
+# Newsletter Template
+# Personal, direct address, recurring audience, CTA patterns.
+# Preset: casual
+
+publication:
+  media: newsletter
+  audience: general
+
+writing_style:
+  tone: conversational
+  formality: informal
+  voice: first-person

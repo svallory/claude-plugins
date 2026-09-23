@@ -1,0 +1,12 @@
+# Opinion / Editorial Template
+# Strong voice, argument structure, editorial stance, persuasion.
+# Preset: book
+
+publication:
+  media: article
+  audience: general
+
+writing_style:
+  tone: persuasive
+  formality: moderate
+  voice: first-person

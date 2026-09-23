@@ -1,0 +1,25 @@
+{
+  "version": "2",
+  "plugins": [
+    {
+      "id": "demo-video",
+      "displayName": "Demo Video",
+      "source": "./plugins/demo-video"
+    },
+    {
+      "id": "ghostwriter",
+      "displayName": "Ghostwriter",
+      "source": "./plugins/ghostwriter"
+    },
+    {
+      "id": "okf",
+      "displayName": "OKF",
+      "source": "./plugins/okf"
+    },
+    {
+      "id": "team-lead",
+      "displayName": "Team Lead",
+      "source": "./plugins/team-lead"
+    }
+  ]
+}

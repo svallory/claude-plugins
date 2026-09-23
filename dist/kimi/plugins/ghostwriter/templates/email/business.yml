@@ -1,0 +1,12 @@
+# Business Email / Communications Template
+# Concise, action-oriented, executive summary, formal-casual mix.
+# Preset: business
+
+publication:
+  media: business
+  audience: expert
+
+writing_style:
+  tone: professional
+  formality: formal
+  voice: first-person

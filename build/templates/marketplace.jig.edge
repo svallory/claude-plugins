@@ -14,7 +14,7 @@
 @if(plugin.external)
       "source": {{ json :: plugin.source }}
 @else
-      "source": "./plugins/{{ plugin.name }}"
+      "source": "{{ sourcePrefix }}/{{ plugin.name }}"
 @end
     }
 @end

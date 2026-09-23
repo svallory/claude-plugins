@@ -1,0 +1,49 @@
+# Technical Book preset - published technical content (book + technical standards)
+publication:
+  media: book
+  audience: expert
+
+writing_style:
+  formality: formal
+  prose:
+    pronoun_density: 7.0      # Conversational technical books use more pronouns
+    em_dash_density: 2.0      # Punchy parentheticals encouraged
+    em_dash_min_density: 1.0
+
+rules:
+  punctuation:
+    period_quote:
+      human_baseline: 100
+      ai_threshold: 100
+      weight: 0.2
+      disabled: true # 100% consistency expected for technical books - exceeds AI threshold
+    oxford_comma:
+      human_baseline: 100
+    em_dash:
+      ai_threshold: 4.0
+      human_baseline: 2.0
+  structure:
+    paragraph_fano_factor:
+      ai_threshold: 0.3
+      human_baseline: 0.8
+    bullet_density:
+      ai_threshold: 8
+      human_baseline: 3
+    transition_density:
+      ai_threshold: 30
+      human_baseline: 15
+  content:
+    hedging:
+      ai_threshold: 15
+      human_baseline: 8
+  vocabulary:
+    ai_vocab_density:
+      ai_threshold: 20
+      human_baseline: 5
+  burstiness:
+    coefficient_of_variation:
+      ai_threshold: 35
+      human_baseline: 55
+    fano_factor:
+      ai_threshold: 0.6
+      human_baseline: 2.0

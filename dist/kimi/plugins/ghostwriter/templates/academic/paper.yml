@@ -1,0 +1,12 @@
+# Academic Paper Template
+# Formal hedging OK, passive voice acceptable, citations, style guide adherence.
+# Preset: academic
+
+publication:
+  media: academic
+  audience: expert
+
+writing_style:
+  tone: formal
+  formality: formal
+  voice: third-person

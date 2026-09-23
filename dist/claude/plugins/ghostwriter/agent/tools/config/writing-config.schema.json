@@ -1,0 +1,686 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$ref": "#/definitions/WritingConfig",
+  "definitions": {
+    "WritingConfig": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "$ref": "#/definitions/ConfigVersion",
+          "description": "Configuration version for compatibility"
+        },
+        "presets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Presets to merge before this config. Can be:\n- Built-in preset names (e.g., \"blog\", \"technical-book\")\n- File paths (e.g., \"./authors/john-doe.yaml\")\n\nMerged in order: later overrides former."
+        },
+        "author": {
+          "$ref": "#/definitions/AuthorProfile",
+          "description": "Author profile"
+        },
+        "publication": {
+          "type": "object",
+          "properties": {
+            "media": {
+              "$ref": "#/definitions/MediaType",
+              "description": "Media type (determines baseline thresholds) - Required"
+            },
+            "audience": {
+              "$ref": "#/definitions/AudienceLevel",
+              "description": "Target audience level"
+            },
+            "length_category": {
+              "$ref": "#/definitions/LengthCategory",
+              "description": "Content length category"
+            },
+            "platform": {
+              "$ref": "#/definitions/Platform",
+              "description": "Publishing platform type"
+            },
+            "editorial_level": {
+              "$ref": "#/definitions/EditorialLevel",
+              "description": "Editorial/editing level received"
+            },
+            "era": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Era"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "description": "Time period/era - can be string literal or year number"
+            },
+            "publisher": {
+              "$ref": "#/definitions/PublisherInfo",
+              "description": "Publisher or brand information"
+            },
+            "domain": {
+              "type": "string",
+              "description": "Content domain (e.g., \"technology\", \"medicine\", \"finance\")"
+            },
+            "genre": {
+              "type": "string",
+              "description": "Primary genre (e.g., \"mystery\", \"how-to\", \"tutorial\")"
+            },
+            "genres": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Multiple genres (e.g., [\"dystopian\", \"young-adult\"])"
+            },
+            "content_type": {
+              "type": "string",
+              "description": "Content type (e.g., \"article\", \"essay\", \"novel\", \"whitepaper\")"
+            },
+            "subjects": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Subject tags (e.g., [\"machine-learning\", \"python\"])"
+            },
+            "source_language": {
+              "type": "string",
+              "description": "Source language if translated (ISO code or name)"
+            },
+            "is_translation": {
+              "type": "boolean",
+              "description": "Whether content is a translation"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Publication metadata (media, publisher, genre, etc.)"
+        },
+        "writing_style": {
+          "type": "object",
+          "properties": {
+            "tone": {
+              "$ref": "#/definitions/WritingTone",
+              "description": "Tone of the writing"
+            },
+            "formality": {
+              "$ref": "#/definitions/FormalityLevel",
+              "description": "Formality level"
+            },
+            "voice": {
+              "$ref": "#/definitions/NarrativeVoice",
+              "description": "Narrative voice"
+            },
+            "tense": {
+              "$ref": "#/definitions/PrimaryTense",
+              "description": "Primary tense"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Writing style preferences"
+        },
+        "rules": {
+          "$ref": "#/definitions/RuleConfigs",
+          "description": "Rule threshold configurations"
+        }
+      },
+      "required": [
+        "version"
+      ],
+      "additionalProperties": false,
+      "description": "Writing configuration as written in YAML files. This is the user-facing format before preset resolution."
+    },
+    "ConfigVersion": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Configuration version for compatibility checking."
+    },
+    "AuthorProfile": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Author's name"
+        },
+        "gender": {
+          "type": "string",
+          "enum": [
+            "male",
+            "female",
+            "non-binary",
+            "other"
+          ],
+          "description": "Author's gender"
+        },
+        "age": {
+          "type": [
+            "number",
+            "string"
+          ],
+          "description": "Author's age or age range (e.g., 45 or \"40-50\")"
+        },
+        "personality": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Personality traits (free-form for flexibility)"
+        },
+        "background": {
+          "$ref": "#/definitions/AuthorBackground",
+          "description": "Professional background"
+        },
+        "writing_background": {
+          "$ref": "#/definitions/WritingBackground",
+          "description": "Writing-specific background"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Complete author profile. Used as context for the Detector agent's final assessment."
+    },
+    "AuthorBackground": {
+      "type": "object",
+      "properties": {
+        "profession": {
+          "type": "string",
+          "description": "Author's profession or job title"
+        },
+        "years_experience": {
+          "type": "number",
+          "description": "Years of experience in their field"
+        },
+        "education": {
+          "type": "string",
+          "description": "Highest education level or degree"
+        },
+        "industry": {
+          "type": "string",
+          "description": "Industry they work in"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Author's professional background."
+    },
+    "WritingBackground": {
+      "type": "object",
+      "properties": {
+        "native_language": {
+          "type": "string",
+          "description": "Author's native language"
+        },
+        "other_languages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Other languages the author knows"
+        },
+        "published_works": {
+          "type": "boolean",
+          "description": "Whether the author has published works"
+        },
+        "technical_writer": {
+          "type": "boolean",
+          "description": "Whether the author is a technical writer"
+        },
+        "academic_writer": {
+          "type": "boolean",
+          "description": "Whether the author is an academic writer"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Author's writing-specific background."
+    },
+    "MediaType": {
+      "type": "string",
+      "enum": [
+        "blog",
+        "book",
+        "technical",
+        "academic",
+        "casual",
+        "student",
+        "business",
+        "unknown"
+      ],
+      "description": "Media types that have different writing conventions."
+    },
+    "AudienceLevel": {
+      "type": "string",
+      "enum": [
+        "general",
+        "expert",
+        "beginner",
+        "mixed"
+      ],
+      "description": "Target audience level."
+    },
+    "LengthCategory": {
+      "type": "string",
+      "enum": [
+        "short_form",
+        "medium_form",
+        "long_form"
+      ],
+      "description": "Content length category."
+    },
+    "Platform": {
+      "type": "string",
+      "enum": [
+        "self_published",
+        "traditional",
+        "web",
+        "academic_journal",
+        "blog_platform",
+        "social_media"
+      ],
+      "description": "Publishing platform type."
+    },
+    "EditorialLevel": {
+      "type": "string",
+      "enum": [
+        "unedited",
+        "self_edited",
+        "copy_edited",
+        "professionally_edited",
+        "peer_reviewed"
+      ],
+      "description": "Editorial/editing level the content has received."
+    },
+    "Era": {
+      "type": "string",
+      "enum": [
+        "contemporary",
+        "modern",
+        "classic",
+        "historical"
+      ],
+      "description": "Time period/era of the writing style."
+    },
+    "PublisherInfo": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Publisher or brand name"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Publisher or brand information."
+    },
+    "WritingTone": {
+      "type": "string",
+      "enum": [
+        "formal",
+        "conversational",
+        "casual",
+        "academic",
+        "technical"
+      ],
+      "description": "Tone of the writing."
+    },
+    "FormalityLevel": {
+      "type": "string",
+      "enum": [
+        "formal",
+        "informal",
+        "mixed"
+      ],
+      "description": "Formality level."
+    },
+    "NarrativeVoice": {
+      "type": "string",
+      "enum": [
+        "first-person",
+        "first-person-plural",
+        "second-person",
+        "third-person"
+      ],
+      "description": "Narrative voice."
+    },
+    "PrimaryTense": {
+      "type": "string",
+      "enum": [
+        "past",
+        "present",
+        "mixed"
+      ],
+      "description": "Primary tense."
+    },
+    "RuleConfigs": {
+      "type": "object",
+      "properties": {
+        "punctuation": {
+          "$ref": "#/definitions/PunctuationRules",
+          "description": "Punctuation consistency rules (period-quote, Oxford comma, em-dashes, etc.)"
+        },
+        "structure": {
+          "$ref": "#/definitions/StructureRules",
+          "description": "Document and paragraph structure rules (paragraph uniformity, bullets, transitions)"
+        },
+        "vocabulary": {
+          "$ref": "#/definitions/VocabularyRules",
+          "description": "Vocabulary pattern rules (AI-typical words and phrases)"
+        },
+        "burstiness": {
+          "$ref": "#/definitions/BurstinessRules",
+          "description": "Sentence length variation rules (burstiness metrics)"
+        },
+        "ngram": {
+          "$ref": "#/definitions/NgramRules",
+          "description": "Phrase repetition and diversity rules (n-gram analysis)"
+        },
+        "content": {
+          "$ref": "#/definitions/ContentRules",
+          "description": "Content-level analysis rules (hedging, cliches, superlatives, fillers)"
+        },
+        "syntactic": {
+          "$ref": "#/definitions/SyntacticRules",
+          "description": "Grammar and sentence structure rules (dependency depth, sentence type uniformity)"
+        },
+        "perplexity": {
+          "$ref": "#/definitions/PerplexityRules",
+          "description": "Language model-based perplexity rules (GPT-2 perplexity)"
+        },
+        "detectgpt": {
+          "$ref": "#/definitions/DetectGPTRules",
+          "description": "DetectGPT curvature-based rules (d-score)"
+        },
+        "fast_detectgpt": {
+          "$ref": "#/definitions/FastDetectGPTRules",
+          "description": "Fast-DetectGPT probability-based rules (conditional probability curvature)"
+        },
+        "binoculars": {
+          "$ref": "#/definitions/BinocularsRules",
+          "description": "Binoculars cross-perplexity ratio rules (observer/performer comparison)"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Root configuration object containing all configurable rule thresholds organized by category.\n\nThis is the top-level interface that aggregates all rule categories. Context-aware detection systems use this interface to configure thresholds for different media types, formality levels, and writing styles.\n\nExample usage: ```typescript const config: RuleConfigs = {   punctuation: {     period_quote: { expected: \"american\", weight: 0.8 },     em_dash: { ai_threshold: 15, human_baseline: 25 }   },   burstiness: {     fano_factor: { ai_threshold: 0.8, human_baseline: 1.5, weight: 0.9 }   } }; ```"
+    },
+    "PunctuationRules": {
+      "type": "object",
+      "properties": {
+        "period_quote": {
+          "$ref": "#/definitions/PeriodQuoteRuleConfig",
+          "description": "Period-quote consistency. Checks if quotation marks are placed correctly relative to periods/commas. AI models sometimes have inconsistent period-quote placement based on training data."
+        },
+        "oxford_comma": {
+          "$ref": "#/definitions/OxfordCommaRuleConfig",
+          "description": "Oxford comma consistency. Measures whether serial commas are used consistently in lists. AI models may show patterns different from typical human writing conventions."
+        },
+        "em_dash": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "Em-dash usage rate. Measured as frequency per 1000 words. AI-generated text often shows atypical em-dash usage compared to human writing."
+        },
+        "semicolon_to_em_dash_ratio": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "Semicolon to em-dash ratio. Measures the relative frequency of semicolons versus em-dashes. Different genres and authors have characteristic ratios; AI may deviate from these."
+        },
+        "parenthesis_to_em_dash_ratio": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "Parenthesis to em-dash ratio. Measures the relative frequency of parentheses versus em-dashes. AI models may substitute one form for another in patterns that differ from human conventions."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Punctuation-related rules for detecting AI-generated text patterns.\n\nAI-generated text often shows distinctive punctuation patterns that differ from human writing. These rules measure punctuation consistency and usage patterns that may indicate automated generation."
+    },
+    "PeriodQuoteRuleConfig": {
+      "type": "object",
+      "properties": {
+        "ai_threshold": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Value above/below which triggers AI signal. null = metric unreliable for this context (skip check)"
+        },
+        "human_baseline": {
+          "type": "number",
+          "description": "Expected value for human-written text in this context"
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "If true, completely skip this metric for this context"
+        },
+        "weight": {
+          "type": "number",
+          "description": "Weight multiplier for this context (0-1). Lower values reduce metric influence."
+        },
+        "expected": {
+          "$ref": "#/definitions/PeriodQuoteConvention",
+          "description": "Expected convention for this context"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Rule config for period-quote placement checking."
+    },
+    "PeriodQuoteConvention": {
+      "type": "string",
+      "enum": [
+        "american",
+        "british",
+        "logical"
+      ],
+      "description": "Period-quote placement convention.\n\nDefines where punctuation marks are placed relative to closing quotation marks:\n- `american`: Period/comma inside closing quote (e.g., \"Hello.\")\n- `british`: Period/comma outside closing quote (e.g., \"Hello\".)\n- `logical`: Placement based on semantic meaning rather than convention"
+    },
+    "OxfordCommaRuleConfig": {
+      "type": "object",
+      "properties": {
+        "ai_threshold": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Value above/below which triggers AI signal. null = metric unreliable for this context (skip check)"
+        },
+        "human_baseline": {
+          "type": "number",
+          "description": "Expected value for human-written text in this context"
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "If true, completely skip this metric for this context"
+        },
+        "weight": {
+          "type": "number",
+          "description": "Weight multiplier for this context (0-1). Lower values reduce metric influence."
+        },
+        "expected": {
+          "$ref": "#/definitions/OxfordCommaConvention",
+          "description": "Expected convention for this context"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Rule config for Oxford comma usage checking."
+    },
+    "OxfordCommaConvention": {
+      "type": "string",
+      "enum": [
+        "always",
+        "never",
+        "flexible"
+      ],
+      "description": "Oxford comma usage convention.\n\nDefines whether a comma is used before the final item in a list:\n- `always`: Oxford comma is always used (e.g., \"apples, oranges, and bananas\")\n- `never`: Oxford comma is never used (e.g., \"apples, oranges and bananas\")\n- `flexible`: Oxford comma usage is context-dependent and acceptable either way"
+    },
+    "BaseRuleConfig": {
+      "type": "object",
+      "properties": {
+        "ai_threshold": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Value above/below which triggers AI signal. null = metric unreliable for this context (skip check)"
+        },
+        "human_baseline": {
+          "type": "number",
+          "description": "Expected value for human-written text in this context"
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "If true, completely skip this metric for this context"
+        },
+        "weight": {
+          "type": "number",
+          "description": "Weight multiplier for this context (0-1). Lower values reduce metric influence."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Base configuration for a single rule. All rules can have these properties."
+    },
+    "StructureRules": {
+      "type": "object",
+      "properties": {
+        "paragraph_fano_factor": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "Paragraph length Fano factor. Measures the uniformity of paragraph lengths. The Fano factor is the ratio of variance to mean. Lower values indicate more uniform paragraphs (common in AI), higher values indicate more variation (human-like)."
+        },
+        "bullet_density": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "Bullet point density. Measures the frequency of bulleted lists relative to total content. AI-generated content may have different bullet point usage patterns depending on the context."
+        },
+        "transition_density": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "Transition word density. Measured as the frequency of transition words (however, therefore, moreover, etc.) per 1000 words. AI models may overuse or underuse transition words compared to human writing patterns."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Structure-related rules for paragraph and document-level analysis.\n\nThese rules analyze how text is organized at the paragraph, section, and document levels. AI-generated text often shows different structural patterns than human-written content, such as more uniform paragraph lengths or different transition patterns."
+    },
+    "VocabularyRules": {
+      "type": "object",
+      "properties": {
+        "ai_vocab_density": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "AI vocabulary density. Measures the percentage of text that uses vocabulary or phrases commonly associated with AI generation. Includes words/phrases like \"delve into,\" \"crucial,\" \"moreover,\" and other patterns typical of AI models. Higher densities may indicate AI-generated content."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Vocabulary-related rules for detecting AI-specific language patterns.\n\nAI language models are trained on large datasets and tend to use certain words and phrases more frequently than human writers. These rules identify those distinctive vocabulary patterns."
+    },
+    "BurstinessRules": {
+      "type": "object",
+      "properties": {
+        "coefficient_of_variation": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "Coefficient of variation in sentence lengths. Calculated as (standard deviation / mean) * 100. Higher values indicate more variation. Humans typically have CV > 60% (burstier), AI often has CV < 30% (more uniform)."
+        },
+        "fano_factor": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "Fano factor for sentence lengths. Calculated as variance / mean. Lower values indicate more uniform distribution. Humans typically have Fano > 1.5 (burstier), AI often has Fano < 0.8 (more uniform)."
+        },
+        "length_range": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "Range between shortest and longest sentences. Measures the absolute difference in word count between the shortest and longest sentences. Larger ranges indicate more variation, which is typical of human writing."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Burstiness-related rules for sentence length variation analysis.\n\nBurstiness measures how uniformly sentence lengths are distributed. Human writing typically shows higher burstiness (more variation in sentence length), while AI-generated text often shows lower burstiness (more uniform sentence lengths). These metrics help distinguish natural writing from automated generation."
+    },
+    "NgramRules": {
+      "type": "object",
+      "properties": {
+        "six_gram_repetition_rate": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "6-gram repetition rate. Measures how often sequences of 6 consecutive words are repeated in the text. Higher rates may indicate AI generation, as models tend to produce more formulaic language."
+        },
+        "six_gram_ttr": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "6-gram type-token ratio. Measures the diversity of 6-gram sequences. Calculated as (unique 6-grams / total 6-grams). Lower ratios indicate less diversity (more repetitive), higher ratios indicate more diversity. AI-generated text often shows lower TTR than human writing."
+        },
+        "ai_pattern_count": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "Count of known AI phrase patterns. Detects occurrences of specific phrases and patterns commonly found in AI-generated content. Examples include \"In this article,\" \"It is worth noting,\" and other AI-typical openings or connectors. Higher counts may indicate AI generation."
+        }
+      },
+      "additionalProperties": false,
+      "description": "N-gram analysis rules for detecting repeated phrase patterns.\n\nN-grams are sequences of N words. Analysis of n-gram patterns can reveal both repeated phrase usage and the diversity of language patterns. AI-generated text often shows distinctive n-gram distributions and higher repetition rates."
+    },
+    "ContentRules": {
+      "type": "object",
+      "properties": {
+        "hedging": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "Hedging language frequency. Measured as occurrences per 1000 words. Hedging words include \"perhaps,\" \"arguably,\" \"may,\" \"could,\" and similar phrases. AI-generated text often uses hedging more frequently than human writing."
+        },
+        "cliche": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "Cliche count. Counts occurrences of common, overused phrases (e.g., \"in this day and age,\" \"tip of the iceberg\"). AI models frequently generate cliches more often than human writers do."
+        },
+        "superlative": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "Superlative usage frequency. Measured as occurrences per 1000 words. Superlatives include words like \"best,\" \"worst,\" \"most,\" \"least,\" and similar extremes. AI-generated text often uses superlatives more frequently than natural human writing."
+        },
+        "filler": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "Filler word count. Counts occurrences of filler words like \"basically,\" \"really,\" \"actually,\" \"very,\" and \"quite.\" These provide little semantic content and may be overused in certain types of AI generation."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Content analysis rules for semantic and linguistic patterns.\n\nThese rules analyze the actual language content for patterns that may indicate AI generation. They focus on hedging language, cliches, superlatives, and filler words that appear at different frequencies in AI-generated versus human-written text."
+    },
+    "SyntacticRules": {
+      "type": "object",
+      "properties": {
+        "avg_dependency_depth": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "Average dependency tree depth. Measures the average depth of syntactic dependencies in the text (parsed dependency grammar). Higher depths indicate more complex sentence structures. AI-generated text often shows different dependency depth patterns than human writing."
+        },
+        "sentence_type_uniformity": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "Sentence type uniformity. Measures how uniformly different sentence types (declarative, interrogative, imperative, exclamatory) are distributed. Higher uniformity may indicate AI, while human writing shows more variation."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Syntactic complexity rules for grammatical structure analysis.\n\nThese rules analyze the grammatical complexity and structure of sentences. Syntactic patterns differ between human and AI-generated text, with AI often showing different patterns of sentence complexity and structure variation."
+    },
+    "PerplexityRules": {
+      "type": "object",
+      "properties": {
+        "perplexity": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "GPT-2 perplexity score. Measures how well a GPT-2 language model predicts the text. Lower scores (< 20) suggest AI generation, higher scores (> 50) suggest human writing. Context matters: technical documents have lower baseline perplexity than conversational text."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Perplexity-based rules using language model evaluation.\n\nPerplexity is a measure of how \"surprised\" a language model is by a piece of text. Lower perplexity indicates the text is more predictable to the model. AI-generated text often has distinctively different perplexity scores than human-written text."
+    },
+    "DetectGPTRules": {
+      "type": "object",
+      "properties": {
+        "d_score": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "DetectGPT d-score. Measures the curvature of the probability distribution when a language model re-ranks words in the text. Higher scores (> 2.0) suggest AI generation, lower scores (< 0.5) suggest human writing. This is one of the more robust indicators of AI generation."
+        }
+      },
+      "additionalProperties": false,
+      "description": "DetectGPT-based rules using curvature analysis.\n\nDetectGPT is an AI detection method that analyzes how often words in the text would be replaced by a language model when performing nucleus sampling. It's based on the observation that AI-generated text has distinctive curvature in the ranking of alternative words."
+    },
+    "FastDetectGPTRules": {
+      "type": "object",
+      "properties": {
+        "probability": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "AI generation probability (0-1). Higher = more likely AI."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Fast-DetectGPT rules using conditional probability curvature.\n\nFast-DetectGPT uses a scoring/sampling model pair (falcon-7b / falcon-7b-instruct) to compute a probability that text is AI-generated. It is 340x faster than the original DetectGPT approach, using analytic sampling discrepancy instead of iterative perturbation."
+    },
+    "BinocularsRules": {
+      "type": "object",
+      "properties": {
+        "score": {
+          "$ref": "#/definitions/BaseRuleConfig",
+          "description": "PPL/cross-entropy ratio. Lower = more likely AI."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Binoculars rules using cross-perplexity ratio.\n\nBinoculars compares the perplexity of text under two related models (observer and performer, e.g. falcon-7b / falcon-7b-instruct). The ratio of their cross-entropy scores produces a score where lower values indicate AI generation. Published with state-of-the-art accuracy on multiple benchmarks."
+    }
+  },
+  "$id": "https://writing-skill.local/writing-config.schema.json",
+  "title": "Writing Configuration",
+  "description": "Writing configuration with author context, writing style, and rule thresholds"
+}

@@ -1,0 +1,12 @@
+# Technical Documentation Template
+# Clarity over personality, bullet lists OK, consistent terminology.
+# Preset: technical-docs
+
+publication:
+  media: docs
+  audience: developer
+
+writing_style:
+  tone: neutral
+  formality: formal
+  voice: second-person

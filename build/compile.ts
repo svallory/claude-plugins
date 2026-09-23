@@ -47,6 +47,26 @@ const pluginNames = readdirSync(SRC, { withFileTypes: true })
   .sort()
 const plugins = Object.fromEntries(pluginNames.map((name) => [name, readYaml(join(SRC, name, 'plugin.yaml'))]))
 
+// Templates assume these keys exist; fail here with a readable message instead
+// of a raw template error. Output dirs use the directory name while catalogs
+// render plugin.name, so the two must agree.
+const REQUIRED_KEYS = ['name', 'version', 'description', 'author', 'interface.displayName', 'interface.shortDescription']
+for (const name of pluginNames) {
+  const file = relative(ROOT, join(SRC, name, 'plugin.yaml'))
+  const plugin = plugins[name]
+  for (const key of REQUIRED_KEYS) {
+    const value = key.split('.').reduce<any>((obj, part) => obj?.[part], plugin)
+    if (value === undefined || value === null || value === '') {
+      console.error(`${file}: missing required key "${key}"`)
+      process.exit(1)
+    }
+  }
+  if (plugin.name !== name) {
+    console.error(`${file}: name "${plugin.name}" does not match its directory "${name}"`)
+    process.exit(1)
+  }
+}
+
 const COMPONENT_DIRS = ['skills', 'agents', 'commands']
 const componentsOf = (pluginDir: string) =>
   COMPONENT_DIRS.filter((c) => existsSync(join(pluginDir, c))).map((c) => ({
@@ -65,6 +85,10 @@ function* walk(dir: string): Generator<string> {
     const path = join(dir, entry.name)
     if (entry.isDirectory()) yield* walk(path)
     else if (entry.isFile()) yield path
+    else if (entry.isSymbolicLink()) {
+      console.error(`symlinks are not supported in src/plugins: ${relative(ROOT, path)}`)
+      process.exit(1)
+    }
   }
 }
 
@@ -176,6 +200,11 @@ if (CHECK) {
     for (const path of filesUnder(dir)) {
       if (!outputs.has(path)) stale.push(`unexpected  ${relative(ROOT, path)}`)
     }
+  }
+  // A removed platform leaves its whole dist tree behind; the build never
+  // touches it again, so it must be deleted by hand.
+  for (const entry of existsSync(DIST) ? readdirSync(DIST) : []) {
+    if (!(entry in platforms)) stale.push(`orphaned    dist/${entry}: no build/platforms/${entry}.yaml (delete it)`)
   }
   if (stale.length) {
     console.error(`stale generated files (run \`bun run build\`):\n  ${stale.sort().join('\n  ')}`)

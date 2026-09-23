@@ -5,6 +5,11 @@
   },
   "plugins": [
     {
+      "name": "decompose",
+      "description": "Structured problem decomposition for hard problems: reduce an unknown into a collection of smaller knowns, turn confusion into testable hypotheses, and solve forward one variable at a time.",
+      "source": "./dist/claude/plugins/decompose"
+    },
+    {
       "name": "demo-video",
       "description": "Produce narrated, subtitled MP4 demos of web-app features: Playwright records the browser with an animated cursor, ffmpeg assembles takes paced by TTS narration, with optional title cards, subtitles, and an outro slate.",
       "source": "./dist/claude/plugins/demo-video"

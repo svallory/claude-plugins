@@ -1,0 +1,17 @@
+{
+  "name": "decompose",
+  "version": "0.1.0",
+  "description": "Structured problem decomposition for hard problems: reduce an unknown into a collection of smaller knowns, turn confusion into testable hypotheses, and solve forward one variable at a time.",
+  "author": "Saulo Vallory",
+  "keywords": [
+    "decompose",
+    "debugging",
+    "problem-solving",
+    "root-cause"
+  ],
+  "interface": {
+    "displayName": "Decompose",
+    "shortDescription": "Break vague problems into testable subproblems"
+  },
+  "skills": "./skills/"
+}

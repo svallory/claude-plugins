@@ -78,17 +78,23 @@ Repo layout:
 
 ```
 src/plugins/<name>/         # canonical sources: plugin.yaml, content, *.jig templates, README
-build/                      # compile.ts, platforms/<id>.yaml, templates/*.jig.edge
+build/                      # compile.ts, templates/*.jig.edge
+tutor.config.yaml           # single build config: marketplace, platforms, plugin/platform restrictions, skills
 dist/<platform>/plugins/    # compiled per-platform plugins (committed, never hand-edited)
 dist/kimi/marketplace.json  # Kimi catalog
+dist/omni/skills/           # portable skills-only output for the skills.sh ecosystem
 .claude-plugin/marketplace.json  # Claude catalog (must stay at the repo root), points at ./dist/claude/plugins/<name>
+skills.sh.json               # generated from tutor.config.yaml's skills.groups
 ```
 
-Everything under `dist/` and the root `.claude-plugin/marketplace.json` is **compiled, not hand-edited**. Canonical sources:
+Everything under `dist/`, the root `.claude-plugin/marketplace.json`, and `skills.sh.json` is **compiled, not hand-edited**. Canonical sources:
 
 - `src/plugins/<name>/plugin.yaml` — one per plugin (name, version, description, author, keywords, interface). A plugin's `skills/`, `agents/`, and `commands/` dirs are detected automatically.
-- `marketplace.yaml` — marketplace name/owner + externally sourced plugins (e.g. hyper)
-- `build/platforms/<platform>.yaml` — per-platform variables (harness name, config dir, model tiers). Each file is a build target.
+- `tutor.config.yaml` — the single build input, with four sections:
+  - `marketplace` — name/owner + externally sourced plugins (e.g. hyper)
+  - `platforms` — one entry per build target: `claude`, `kimi`, and `omni`. Each carries `harness`, `configDir`, `pluginRootVar`, and an optional `models` tier map. Platforms with no `models` key (currently `omni`) drive templates down their `@if(platform.models) … @else … @end` generic branch.
+  - `plugins.<name>.platforms` — optional array restricting which `dist/<platform>/plugins/<name>/` trees a plugin builds to. Absent means all platforms.
+  - `skills.public` — skill names (the `name:` frontmatter in each `SKILL.md`, not the directory) that ship in `dist/omni/skills/` and in `skills.sh.json`. `skills.groups` — the grouped listing rendered verbatim into `skills.sh.json`'s `groupings`. A skill whose `SKILL.md` frontmatter sets `metadata.internal: true` must not appear in either list — the build fails naming it. A name in either list that no plugin's `skills/<dir>/SKILL.md` defines also fails the build.
 - Any `*.jig` file inside a plugin — a [Jig](https://jig.saulo.engineer) template rendered per platform (`{{ platform.configDir }}`, `{{ platform.models.fast }}`, `@if(platform.models) …`) to its stripped name (`SKILL.md.jig` → `SKILL.md`). Only the `.jig` lives in `src/`; don't add the rendered sibling next to it (the build fails if you do).
 - Manifest templates live in `build/templates/*.jig.edge` (Jig's disk loader requires the `.edge` extension).
 
@@ -99,9 +105,11 @@ bun install     # first time
 bun run build
 ```
 
-The build wipes and regenerates each `dist/<platform>/` from scratch, so deleted or renamed source files never leave stale outputs behind. For every platform it writes `dist/<platform>/plugins/<name>/` (all content copied verbatim except `plugin.yaml`, `*.jig` rendered) plus the platform manifest:
+The build wipes and regenerates each `dist/<platform>/` (every id under `tutor.config.yaml`'s `platforms:`) from scratch, so deleted or renamed source files never leave stale outputs behind. For `claude` and `kimi` it writes `dist/<platform>/plugins/<name>/` (all content copied verbatim except `plugin.yaml`, `*.jig` rendered) plus the platform manifest:
 
 - Claude: `dist/claude/plugins/<name>/.claude-plugin/plugin.json`, and the root `.claude-plugin/marketplace.json`
 - Kimi: `dist/kimi/plugins/<name>/kimi.plugin.json`, and `dist/kimi/marketplace.json`
 
-Commit the regenerated `dist/` together with the source change. CI runs `bun run build:check`, which renders in memory and fails naming every generated file that is missing, outdated, has the wrong executable bit, or should no longer exist.
+`omni` is skill-scoped, not plugin-scoped: it has no manifest and no catalog. It writes only `dist/omni/skills/<skill-name>/` for each name in `skills.public`, copied from that skill's source dir and rendered with the `omni` platform's vars. A plugin like ghostwriter, restricted to `platforms: [claude, kimi]`, never appears under `dist/omni/` even if it defines skills, because its skills aren't in `skills.public`.
+
+Commit the regenerated `dist/`, `.claude-plugin/marketplace.json`, and `skills.sh.json` together with the source change. CI runs `bun run build:check`, which renders in memory and fails naming every generated file that is missing, outdated, has the wrong executable bit, should no longer exist, or (for a whole `dist/<id>/` tree with no matching `platforms:` entry) is orphaned.

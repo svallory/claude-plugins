@@ -6,4 +6,4 @@ Create, validate, and enrich Open Knowledge Format (OKF) bundles — the open sp
 /plugin install okf@tutor
 ```
 
-See the [okf source](https://github.com/svallory/claude-plugins/tree/main/src/plugins/okf) for full documentation.
+See the [okf source](https://github.com/svallory/tutor/tree/main/src/plugins/okf) for full documentation.

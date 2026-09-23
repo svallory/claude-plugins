@@ -6,4 +6,4 @@ Act as a dev team leader: decompose tasks, spawn developer agents at the cheapes
 /plugin install team-lead@tutor
 ```
 
-See the [team-lead source](https://github.com/svallory/claude-plugins/tree/main/src/plugins/team-lead) for full documentation.
+See the [team-lead source](https://github.com/svallory/tutor/tree/main/src/plugins/team-lead) for full documentation.

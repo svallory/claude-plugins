@@ -6,4 +6,4 @@ Adversarial AI text detection and humanization system. Detects AI-generated text
 /plugin install ghostwriter@tutor
 ```
 
-See the [ghostwriter source](https://github.com/svallory/claude-plugins/tree/main/src/plugins/ghostwriter) for full documentation.
+See the [ghostwriter source](https://github.com/svallory/tutor/tree/main/src/plugins/ghostwriter) for full documentation.

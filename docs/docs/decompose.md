@@ -6,6 +6,4 @@ Structured problem decomposition for hard problems: reduce an unknown into a col
 /plugin install decompose@tutor
 ```
 
-See the [decompose source](https://github.com/svallory/claude-plugins/tree/feat/decompose-plugin/src/plugins/decompose) for full documentation.
-
-> Not yet merged to `main` — currently on branch `feat/decompose-plugin`.
+See the [decompose source](https://github.com/svallory/tutor/tree/main/src/plugins/decompose) for full documentation.

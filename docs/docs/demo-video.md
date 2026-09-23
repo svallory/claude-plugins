@@ -6,4 +6,4 @@ Produce narrated, subtitled MP4 demos of web-app features: Playwright records th
 /plugin install demo-video@tutor
 ```
 
-See the [demo-video source](https://github.com/svallory/claude-plugins/tree/main/src/plugins/demo-video) for full documentation.
+See the [demo-video source](https://github.com/svallory/tutor/tree/main/src/plugins/demo-video) for full documentation.

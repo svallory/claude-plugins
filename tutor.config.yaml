@@ -1,0 +1,49 @@
+marketplace:
+  name: tutor
+  owner: Saulo Vallory
+  # Plugins that live in another repository but ship in this marketplace.
+  # Local plugins (src/plugins/*/plugin.yaml) are discovered automatically.
+  external:
+    - name: hyper
+      description: >-
+        Hyper Coding workflow support: project spaces (a bare repo wrapping all of a project's worktrees plus local-only dirs), per-edit integration with the linters and typecheckers a project already uses, spec-driven planning, and template-driven generation.
+      source:
+        source: git-subdir
+        url: https://github.com/svallory/hyper-coding.git
+        path: agent-plugin
+
+platforms:
+  claude:
+    harness: Claude Code
+    configDir: .claude
+    pluginRootVar: $CLAUDE_PLUGIN_ROOT
+    models:
+      fast: haiku
+      balanced: sonnet
+      strong: opus
+      orchestrator: fable
+  kimi:
+    harness: Kimi Code
+    configDir: .kimi-code
+    pluginRootVar: $KIMI_PLUGIN_ROOT
+  omni:
+    harness: your AI coding agent
+    configDir: .agents
+    pluginRootVar: $SKILL_DIR
+
+plugins:
+  ghostwriter:
+    platforms: [claude, kimi]
+
+skills:
+  public: [okf-open-knowledge-format, team-lead, demo-video]
+  groups:
+    - title: Knowledge
+      description: Structure organizational knowledge as agent-readable markdown bundles (Open Knowledge Format).
+      skills: [okf-open-knowledge-format]
+    - title: Agent Workflow
+      description: Orchestrate batches of coding tasks across developer subagents.
+      skills: [team-lead]
+    - title: Demos & Video
+      description: Record narrated, subtitled MP4 walkthroughs of web-app features.
+      skills: [demo-video]

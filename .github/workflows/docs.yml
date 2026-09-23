@@ -1,0 +1,56 @@
+name: Docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'docmd.config.json'
+      - '.github/workflows/docs.yml'
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'docmd.config.json'
+      - '.github/workflows/docs.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build + validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+      - run: bunx docmd build
+      - run: bunx docmd validate
+
+  # Deploys docs/ to GitHub Pages on push to main. Requires the repo's Pages
+  # setting (Settings > Pages > Source: GitHub Actions) to be enabled first —
+  # this job will fail with a permissions/config error until that's done.
+  deploy:
+    name: deploy to GitHub Pages
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docmd-io/deploy@v1
+        id: build-site
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ steps.build-site.outputs.site-dir }}
+
+      - uses: actions/deploy-pages@v4
+        id: deploy

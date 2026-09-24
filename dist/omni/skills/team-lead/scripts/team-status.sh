@@ -2,9 +2,10 @@
 #
 # team-status.sh — one-shot status snapshot for a team lead running dev agents in Herdr.
 #
-# Reads a markdown status table (rows like:
-#   | ref | monday id | title | model | state | worktree | notes |
-# ), looks up each ref's Herdr agent (named "<prefix><ref>"), optionally checks
+# Reads a markdown status table whose FIRST column is the task ref, e.g.
+#   | ref | title | model | state | worktree | notes |
+# Only the first column is parsed, so extra columns (a tracker id, etc.) are fine.
+# Looks up each ref's Herdr agent (named "<prefix><ref>"), optionally checks
 # elapsed time against a per-ref time budget, and checks whether a report file
 # exists for the ref. Also reports basic machine load (CPU load average, memory
 # pressure, and count of heavy build/test processes) so the lead can tell when
@@ -120,7 +121,7 @@ if ! command -v herdr >/dev/null 2>&1; then
 fi
 
 # ---- parse refs from the markdown table ----
-# Rows look like: | ref | monday id | title | model | state | worktree | notes |
+# Rows look like: | ref | title | model | state | worktree | notes |  (only column 1 is read)
 # Only rows starting with "| " whose second cell isn't the "---" separator,
 # and whose first cell isn't literally "ref" (header), are considered.
 refs=()

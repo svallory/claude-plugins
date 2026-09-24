@@ -7,8 +7,8 @@ A Playwright script records the browser with an animated cursor and click ripple
 ## Install
 
 ```
-/plugin marketplace add svallory/claude-plugins
-/plugin install demo-video
+/plugin marketplace add svallory/tutor
+/plugin install demo-video@tutor
 ```
 
 ## Requirements
@@ -40,6 +40,8 @@ What happens:
 ## Project config
 
 `.claude/demo-video-skill.config.json`, read by `scripts/demo/config.ts` on every run. Missing keys fall back to defaults in `config.ts`. Never edit `config.ts` for per-project choices.
+
+The block below is a **filled-in example**, not the defaults — it shows every key set to a plausible project value. The built-in defaults differ: `branding.productName` is `the app`, `introPhrase` is `What's new in the app`, `openingKicker` is `WHAT'S NEW`, `outroText` is `null`, and **`features.outro` is `false`**. Turning `features.outro` on while both `outroLogoSvg` and `outroText` are null fails the build.
 
 ```json
 {
@@ -156,15 +158,18 @@ Rules Claude follows, and you should too when editing by hand:
 
 ## Layout
 
+Canonical sources (`*.jig` files are rendered per platform by the build):
+
 ```
-plugins/demo-video/
-├── .claude-plugin/plugin.json
+src/plugins/demo-video/
+├── plugin.yaml
+├── README.md
 └── skills/demo-video/
-    ├── SKILL.md                      # workflow Claude follows
-    ├── reference/install.md          # per-project install steps
-    ├── reference/script-writing.md   # take scoping, narration, selectors
-    └── templates/                    # pipeline copied into projects
+    ├── SKILL.md.jig                      # workflow the agent follows
+    ├── reference/install.md.jig          # per-project install steps
+    ├── reference/script-writing.md       # take scoping, narration, selectors
+    └── templates/                        # pipeline copied into projects
         ├── demo-video-skill.config.example.json
-        ├── scripts/demo/             # build, merge, tts, ffmpeg, cards, doctor
-        └── e2e/demo/                 # runner, cursor, actions, define, login.example
+        ├── scripts/demo/                 # build, merge, tts, ffmpeg, cards, doctor
+        └── e2e/demo/                     # runner, cursor, actions, define, login.example
 ```

@@ -27,13 +27,13 @@ Checked once per session on first invocation; the skill stops and tells you what
 ## Install
 
 ```
-/plugin install team-lead@svallory-plugins
+/plugin install team-lead@tutor
 ```
 
 Or via the [skills CLI](https://skills.sh):
 
 ```
-npx skills add svallory/claude-plugins --skill team-lead
+npx skills add svallory/tutor --skill team-lead
 ```
 
 ## Usage

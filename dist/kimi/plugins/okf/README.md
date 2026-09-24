@@ -30,13 +30,13 @@ skills/okf/
 ## Install
 
 ```
-/plugin install okf@svallory-plugins
+/plugin install okf@tutor
 ```
 
 Or via the [skills CLI](https://skills.sh):
 
 ```
-npx skills add svallory/claude-plugins --skill okf-open-knowledge-format
+npx skills add svallory/tutor --skill okf-open-knowledge-format
 ```
 
 ## Credits

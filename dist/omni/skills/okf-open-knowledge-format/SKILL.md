@@ -16,7 +16,7 @@ metadata:
   author: ft.ia.br
   version: "2.1"
   date: 2026-09-22
-  repository: https://github.com/svallory/claude-plugins
+  repository: https://github.com/svallory/tutor
   license: Apache-2.0
   category: library-and-api-reference
   upstream: https://github.com/GoogleCloudPlatform/open-knowledge-format
@@ -457,9 +457,9 @@ For a script-based check, see [scripts/validate.sh](scripts/validate.sh).
 ### Warnings (non-blocking, spec allows these)
 
 - `W1`: Missing recommended field `title` or `description`
-- `W2`: Broken cross-link `{link}` in `{file}`
+- `W2`: Broken cross-link `{link}` in `{file}` — okflint only; the bundled `validate.sh` does not resolve links
 - `W3`: No `generated` field (v0.2 recommended)
-- `W4`: No `index.md` in directory `{dir}`
+- `W4`: No `index.md` in directory `{dir}` — okflint only; the bundled `validate.sh` does not check for per-directory index files
 - `W5`: `log.md` dates not in ISO 8601 format
 - `W6`: `sources` entry missing `resource` field
 - `W7`: `stale_after` date has passed — content is stale

@@ -18,11 +18,11 @@ Reduces an unknown into a collection of smaller knowns. Triggers on "hard proble
 ## Install
 
 ```
-/plugin install decompose@svallory-plugins
+/plugin install decompose@tutor
 ```
 
 Or via the [skills CLI](https://skills.sh):
 
 ```
-npx skills add svallory/claude-plugins --skill decompose
+npx skills add svallory/tutor --skill decompose
 ```

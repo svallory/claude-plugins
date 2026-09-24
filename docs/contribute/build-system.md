@@ -101,7 +101,7 @@ Validation before generation:
 - Every skill name referenced by `skills.public` or any group must resolve to an actual `skills/<dir>/SKILL.md(.jig)` — an unresolvable name fails the build.
 - Every skill name inside a `skills.groups[].skills` array must also appear in `skills.public` — a group can't list a skill that isn't public.
 
-In the current `tutor.config.yaml`, `skills.public` is `[okf-open-knowledge-format, team-lead, demo-video]`, grouped into three `skills.groups` entries (Knowledge, Agent Workflow, Demos & Video). Ghostwriter's skills are not public — they stay internal to the plugin's own agent pipeline.
+In the current `tutor.config.yaml`, `skills.public` is `[okf-open-knowledge-format, team-lead, demo-video, decompose]`, grouped into four `skills.groups` entries (Knowledge, Agent Workflow, Demos & Video, Problem Solving). Ghostwriter's skills are not public — they stay internal to the plugin's own agent pipeline.
 
 ## Jig templates
 

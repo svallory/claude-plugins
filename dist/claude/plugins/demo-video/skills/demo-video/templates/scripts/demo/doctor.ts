@@ -33,7 +33,7 @@ if (!DEMO_CONFIG.features.narration) {
       name: `gemini-tts synthesis (${DEMO_CONFIG.geminiModel}, voice ${DEMO_CONFIG.voice})`,
       run: () => synthesize('Demo pipeline check.', 'scripts/demo/.cache'),
       hint:
-        'the API error above has the reason; model/voice live in scripts/demo/config.ts'
+        'the API error above has the reason; geminiModel/voice live in .claude/demo-video-skill.config.json'
     }
   );
 } else {

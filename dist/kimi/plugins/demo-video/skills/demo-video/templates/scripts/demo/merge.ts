@@ -12,13 +12,13 @@ import { planSlates, SlatePlan } from './narration';
  * The rendering half lives in build.ts.
  */
 
-/** Output slug rules, mirroring the What's New `video` regex in shared/. */
+/** Output slug rules: lowercase kebab-case, safe as a filename. */
 const SLUG_RE = /^[a-z0-9-]+$/;
 
 export interface MergeRequest {
   /** Source demo slugs, in the order they should play. */
   slugs: string[];
-  /** Output slug: client/src/assets/whats-new/<outSlug>.mp4 */
+  /** Output slug: <assetsDir>/<outSlug>.mp4 */
   outSlug: string;
   /** Re-record each source demo before merging. */
   record: boolean;

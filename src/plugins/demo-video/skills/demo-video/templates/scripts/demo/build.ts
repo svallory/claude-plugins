@@ -15,7 +15,7 @@ import { openingNarration } from './narration';
  *
  * To combine several demos into one video (one intro, one outro, a transition
  * slate between features) use `npm run video:merge` instead - see
- * scripts/demo/merge-build.ts and docs/demo-videos.md.
+ * scripts/demo/merge-build.ts.
  */
 async function main() {
   const args = process.argv.slice(2).filter((a) => a !== '--');

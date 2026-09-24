@@ -9,7 +9,7 @@ export interface DemoTake {
 export interface DemoDefinition {
   /** Human-readable feature name; title card text. */
   feature: string;
-  /** kebab-case output name: client/src/assets/whats-new/<slug>.mp4 */
+  /** kebab-case output name: <assetsDir>/<slug>.mp4 */
   slug: string;
   takes: DemoTake[];
 }

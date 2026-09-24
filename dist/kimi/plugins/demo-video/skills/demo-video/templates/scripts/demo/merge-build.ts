@@ -13,11 +13,11 @@ import { assertSingleIntro } from './narration';
  *
  *   npm run video:merge -- audit-logs transaction-notes --out release-0-13-0
  *
- * Produces client/src/assets/whats-new/<out-slug>.mp4 (+ .png poster) with:
- *   - one opening slate speaking "What's new in LiUNA Compliance: <first>"
+ * Produces <assetsDir>/<out-slug>.mp4 (+ .png poster) with:
+ *   - one opening slate speaking "<introPhrase>: <first feature>"
  *   - a transition slate before every later feature ("Next up: <feature>"),
  *     which deliberately does NOT repeat the brand intro
- *   - one Studio Mosaic outro slate, at the very end
+ *   - one optional outro slate, at the very end
  *
  * Source recordings are read from demo-output/<slug>/ and are NOT re-recorded
  * unless --record is passed, so merging is cheap once each demo has been

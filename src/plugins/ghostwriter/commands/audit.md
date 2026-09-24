@@ -283,7 +283,7 @@ Next steps:
   /humanize guides/advanced-config.md {publication}
 
   # Or batch humanize all files needing work
-  /humanize-all {publication}
+  /humanize-all <input-folder> <output-folder> <config>
 
   # Re-audit after changes (only re-scans modified files)
   /audit {publication}

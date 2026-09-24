@@ -209,7 +209,7 @@ Update the permanent instructions (not just round feedback) when:
    "$GHOSTWRITER_ROOT/agent/tools/version-config.sh" --agent writer
    ```
 
-2. **Add to appropriate section** of `$GHOSTWRITER_ROOT/.claude/agents/writer.md`
+2. **Add to appropriate section** of `$GHOSTWRITER_ROOT/agents/writer.md`
 
 3. **Update version history**
 
@@ -286,8 +286,8 @@ Logging successful patterns to agent/state/learnings.md
 
 | File | When | Purpose |
 |------|------|---------|
-| `$GHOSTWRITER_ROOT/.claude/agents/writer.md` | Each round (detected) | Add round feedback to Learned Patterns section |
-| `$GHOSTWRITER_ROOT/.claude/agents/slop-detector.md` | Writer wins | Add missed patterns |
+| `$GHOSTWRITER_ROOT/agents/writer.md` | Each round (detected) | Add round feedback to Learned Patterns section |
+| `$GHOSTWRITER_ROOT/agents/slop-detector.md` | Writer wins | Add missed patterns |
 | `$GHOSTWRITER_ROOT/agent/state/round-N.json` | Each round | Round-by-round state |
 | `$GHOSTWRITER_ROOT/agent/state/learnings.md` | Session end | Cumulative insights |
 

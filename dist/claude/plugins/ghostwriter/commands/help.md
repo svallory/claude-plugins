@@ -14,7 +14,7 @@ description: Show available ghostwriter commands and quick start guide
 | `/analyze <file> [publication]` | Analyze a single file for AI signals |
 | `/humanize <file> <publication>` | Iterative humanization loop (Writer → Reviewer → Detector → AI Engineer) |
 | `/humanize <file> <publication> --quick` | Single-pass rewrite without detection loop |
-| `/humanize-all <publication>` | Batch humanize all files in a publication |
+| `/humanize-all <input-folder> <output-folder> <config>` | Batch humanize every `.md` file in a folder |
 | `/create <topic> [--config PATH]` | Generate new text from a topic via adversarial training |
 | `/authors [list\|add\|remove\|show]` | Manage author profiles |
 | `/publications [list\|add\|remove\|show]` | Manage publications |
@@ -27,7 +27,7 @@ description: Show available ghostwriter commands and quick start guide
 /setup                                          # Create author + publication
 /audit my-docs                                  # See which files need work
 /humanize guides/getting-started.md my-docs     # Fix the worst file
-/humanize-all my-docs                           # Fix all files
+/humanize-all chapters/ output/ path/to/config.yml   # Fix all files in a folder
 ```
 
 ## Configuration

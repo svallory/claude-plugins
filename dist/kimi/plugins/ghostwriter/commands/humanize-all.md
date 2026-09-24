@@ -6,7 +6,7 @@ argument-hint: <input-folder> <output-folder> <config> [--parallel N] [--quick] 
 
 # Humanize-All Command
 
-Runs the humanize loop (from `.claude/commands/humanize.md`) on every `.md` file in a folder.
+Runs the humanize loop (from `commands/humanize.md`) on every `.md` file in a folder.
 
 **CRITICAL CONSTRAINT:** Subagents cannot spawn subagents. This skill runs in the main agent context and must spawn all subagents (Writer, Reviewer, Detector, ai-engineer) directly via the Task tool. It cannot delegate to `/humanize` as a subagent.
 
@@ -123,7 +123,7 @@ While there are `active` files:
 
 ### One Round for a Batch
 
-Follow the steps from `.claude/commands/humanize.md`, but spawn tasks for all batch files in parallel at each step.
+Follow the steps from `commands/humanize.md`, but spawn tasks for all batch files in parallel at each step.
 
 **Read humanize.md first.** It is the source of truth for prompt templates, display conventions, and session file layout. The steps below are a summary — use the exact prompts and process from humanize.md.
 

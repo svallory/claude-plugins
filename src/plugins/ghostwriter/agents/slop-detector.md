@@ -191,7 +191,7 @@ Confidence: 72%
 **Note:**
 - "AI Signal Score" is the raw heuristics score (0.0-1.0, higher = more AI-like)
 - "Confidence" means "Human Confidence" — your confidence that a human wrote this
-- The orchestrator uses Human Confidence to decide if the session is complete (>90% = success)
+- The orchestrator uses your classification, Human Confidence, and AI Signal Score to decide if the session is complete (`likely_human` AND (confidence > 80% OR score < 0.26)). Report all three accurately; do not tune them toward a passing verdict.
 
 ### Key Points
 

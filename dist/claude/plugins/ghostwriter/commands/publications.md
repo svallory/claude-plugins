@@ -165,7 +165,7 @@ Author:  {author-name}
 Quick start:
   /analyze <file> {pub-slug}
   /humanize <file> {pub-slug}
-  /humanize-all {pub-slug}
+  /humanize-all <input-folder> <output-folder> <config>
 ```
 
 ### remove

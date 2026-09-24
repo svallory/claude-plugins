@@ -217,7 +217,7 @@ Round {N}: {classification} — score: {heuristicsScore}, confidence: {confidenc
 │   │   └── heuristics-scores.json
 │   └── r2/ ...
 │
-└── debug/                  # Debug traces per round
+└── debug/                  # Debug traces per round (only when a prompt-saving hook is configured)
     ├── r1/
     │   ├── prompt-writer.md
     │   ├── prompt-detector.md
@@ -225,7 +225,7 @@ Round {N}: {classification} — score: {heuristicsScore}, confidence: {confidenc
     └── r2/ ...
 ```
 
-**Note:** Prompt files are automatically saved by the PreToolUse hook (`.claude/hooks/save-subagent-prompt.sh`). Each round gets its own folder in `debug/r{N}/`.
+**Note:** The `debug/` tree is optional — this plugin ships no hooks, so nothing writes it by default. If you configure a PreToolUse hook that saves subagent prompts, point it at `debug/r{N}/` so each round gets its own folder.
 
 ---
 
@@ -579,8 +579,8 @@ Analyze detection feedback and improve the humanization system.
 - Config file: {SESSION_PATH}/config.yml
 - Feedback file: {SESSION_PATH}/rounds/r{N}/feedback.md
 - Learnings ledger: {SESSION_PATH}/learnings-log.md
-- Writer agent: .claude/agents/writer.md
-- Reviewer agent: .claude/agents/reviewer.md
+- Writer agent: $GHOSTWRITER_ROOT/agents/writer.md
+- Reviewer agent: $GHOSTWRITER_ROOT/agents/reviewer.md
 - Writer output: {SESSION_PATH}/rounds/r{N}/{BASENAME}.md (for reference)
 - Learned patterns dir: .ghostwriter/learned-patterns/
 - Author patterns: .ghostwriter/authors/{author-slug}/learned-patterns.md
@@ -588,12 +588,12 @@ Analyze detection feedback and improve the humanization system.
 
 ## Your Authority
 You are a Senior AI Engineer. Your full scope is documented in your agent file. In summary:
-- Modify ANY part of the Writer agent (.claude/agents/writer.md)
-- Modify ANY part of the Reviewer agent (.claude/agents/reviewer.md)
+- Modify ANY part of the Writer agent ($GHOSTWRITER_ROOT/agents/writer.md)
+- Modify ANY part of the Reviewer agent ($GHOSTWRITER_ROOT/agents/reviewer.md)
 - Create or modify writer tools ($GHOSTWRITER_ROOT/agent/tools/writer/)
-- Create or modify skills (.claude/skills/)
+- Create or modify skills ($GHOSTWRITER_ROOT/skills/)
 - Install dependencies (bun add)
-- Propose pipeline changes to .claude/commands/humanize.md
+- Propose pipeline changes to $GHOSTWRITER_ROOT/commands/humanize.md
 - Read research files (research/) for insights
 
 DO NOT modify Detector tools/agent — that's the adversary.

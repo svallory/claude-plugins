@@ -71,7 +71,7 @@ Full adversarial loop with detection, review, and improvement:
 | `/analyze <file> [publication]` | Analyze a single file for AI signals |
 | `/humanize <file> <publication>` | Iterative humanization loop (Writer → Reviewer → Detector → AI Engineer) |
 | `/humanize <file> <publication> --quick` | Single-pass rewrite without detection loop |
-| `/humanize-all <publication>` | Batch humanize all files in a publication |
+| `/humanize-all <input-folder> <output-folder> <config>` | Batch humanize every `.md` file in a folder |
 | `/create <topic> [--config PATH]` | Generate new text from a topic via adversarial training |
 | `/authors [list\|add\|remove\|show]` | Manage author profiles |
 | `/publications [list\|add\|remove\|show]` | Manage publications |
